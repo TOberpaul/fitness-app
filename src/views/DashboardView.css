@@ -1,0 +1,171 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-gap);
+  padding: var(--spacing-padding);
+  padding-bottom: var(--size-96);
+}
+
+.dashboard-value-display {
+  text-align: center;
+  padding: var(--size-16) 0;
+}
+
+.dashboard-current-value {
+  font-size: var(--size-36);
+  font-weight: bold;
+  color: var(--db-text);
+  line-height: 1.2;
+}
+
+.dashboard-unit {
+  font-size: var(--size-14);
+  font-weight: normal;
+  color: var(--db-text);
+  opacity: 0.6;
+}
+
+.dashboard-percent-change {
+  font-size: var(--size-14);
+  margin-top: var(--size-4);
+}
+
+.dashboard-no-data {
+  font-size: var(--size-14);
+  color: var(--db-text);
+  opacity: 0.6;
+}
+
+.dashboard-tabs {
+  display: flex;
+  gap: var(--size-4);
+  border-bottom: var(--size-1) solid var(--db-border);
+  padding-bottom: var(--size-8);
+}
+
+.dashboard-tab {
+  flex: 1;
+  padding: var(--size-8) var(--size-4);
+  font-size: var(--size-14);
+  background: none;
+  border: none;
+  border-bottom: var(--size-2) solid transparent;
+  color: var(--db-text);
+  opacity: 0.6;
+  cursor: pointer;
+  text-align: center;
+}
+
+.dashboard-tab.active {
+  opacity: 1;
+  border-bottom-color: var(--db-visual);
+  font-weight: bold;
+}
+
+.dashboard-circumference-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--size-8);
+}
+
+.dashboard-circumference-btn {
+  padding: var(--size-4) var(--size-8);
+  font-size: var(--size-12);
+  background: var(--db-background);
+  color: var(--db-text);
+  border: var(--size-1) solid var(--db-border);
+  border-radius: var(--size-border-radius);
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.dashboard-circumference-btn.active {
+  opacity: 1;
+  border-color: var(--db-visual);
+  font-weight: bold;
+}
+
+.dashboard-time-range {
+  display: flex;
+  gap: var(--size-4);
+  justify-content: center;
+}
+
+.dashboard-time-range button {
+  padding: var(--size-8) var(--size-12);
+  font-size: var(--size-12);
+  background: var(--db-background);
+  color: var(--db-text);
+  border: var(--size-1) solid var(--db-border);
+  border-radius: var(--size-border-radius);
+  cursor: pointer;
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: var(--size-8);
+  flex-wrap: wrap;
+}
+
+.dashboard-actions button {
+  flex: 1;
+  min-width: 0;
+  padding: var(--size-8) var(--size-12);
+  font-size: var(--size-14);
+  background: var(--db-background);
+  color: var(--db-text);
+  border: var(--size-1) solid var(--db-border);
+  border-radius: var(--size-border-radius);
+  cursor: pointer;
+}
+
+.dashboard-sync-status,
+.dashboard-import-status {
+  font-size: var(--size-12);
+  text-align: center;
+  color: var(--db-text);
+  opacity: 0.8;
+}
+
+.dashboard-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.dashboard-confirm-dialog {
+  background: var(--db-background);
+  color: var(--db-text);
+  border-radius: var(--size-border-radius);
+  padding: var(--size-24);
+  max-width: 320px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-16);
+  text-align: center;
+}
+
+.dashboard-confirm-dialog p {
+  font-size: var(--size-14);
+}
+
+.dashboard-confirm-actions {
+  display: flex;
+  gap: var(--size-8);
+  justify-content: center;
+}
+
+.dashboard-confirm-actions button {
+  padding: var(--size-8) var(--size-16);
+  font-size: var(--size-14);
+  border: var(--size-1) solid var(--db-border);
+  border-radius: var(--size-border-radius);
+  background: var(--db-background);
+  color: var(--db-text);
+  cursor: pointer;
+}

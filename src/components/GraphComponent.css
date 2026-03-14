@@ -1,0 +1,24 @@
+.graph-container {
+  width: 100%;
+  position: relative;
+}
+
+.graph-canvas {
+  width: 100%;
+}
+
+.graph-canvas .u-over {
+  cursor: crosshair;
+}
+
+.graph-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--db-text);
+  opacity: 0.6;
+  font-size: var(--size-14);
+  text-align: center;
+  padding: var(--size-16);
+}
