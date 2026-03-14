@@ -53,6 +53,7 @@ export async function subscribeToPush(): Promise<boolean> {
     return false;
   }
 
+  localStorage.setItem('push_subscribed', '1');
   return true;
 }
 
@@ -66,14 +67,31 @@ export async function unsubscribeFromPush(): Promise<void> {
     await subscription.unsubscribe();
     await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint);
   }
+  localStorage.removeItem('push_subscribed');
 }
 
 /** Check if currently subscribed to push */
 export async function isPushSubscribed(): Promise<boolean> {
+  // Quick check from localStorage first
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     return false;
   }
-  const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.getSubscription();
-  return subscription !== null;
+  if (Notification.permission !== 'granted') {
+    localStorage.removeItem('push_subscribed');
+    return false;
+  }
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    const subscribed = subscription !== null;
+    if (subscribed) {
+      localStorage.setItem('push_subscribed', '1');
+    } else {
+      localStorage.removeItem('push_subscribed');
+    }
+    return subscribed;
+  } catch {
+    // Fallback to localStorage if SW not ready yet
+    return localStorage.getItem('push_subscribed') === '1';
+  }
 }

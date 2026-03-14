@@ -61,7 +61,7 @@ function DashboardView() {
   const [circumferenceField, setCircumferenceField] = useState<CircumferenceField>('waist')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [importStatus, setImportStatus] = useState('')
-  const [pushSubscribed, setPushSubscribed] = useState(false)
+  const [pushSubscribed, setPushSubscribed] = useState(() => localStorage.getItem('push_subscribed') === '1')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const loadData = useCallback(async () => {
