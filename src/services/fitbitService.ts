@@ -4,8 +4,8 @@ import type { FitbitTokens, DailyMeasurement, SyncResult } from '../types';
 import { roundToOneDecimal } from '../utils/validation';
 
 // Fitbit OAuth 2.0 configuration — replace with your actual values
-export const FITBIT_CLIENT_ID = 'YOUR_FITBIT_CLIENT_ID';
-export const FITBIT_REDIRECT_URI = 'http://localhost:5173/callback';
+export const FITBIT_CLIENT_ID = '23V6MH';
+export const FITBIT_REDIRECT_URI = 'https://toberpaul.github.io/fitness-app/callback';
 
 const FITBIT_TOKEN_URL = 'https://api.fitbit.com/oauth2/token';
 const FITBIT_WEIGHT_URL = 'https://api.fitbit.com/1/user/-/body/log/weight/date';
