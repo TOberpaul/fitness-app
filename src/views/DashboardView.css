@@ -8,7 +8,7 @@
 
 .dashboard-value-display {
   text-align: center;
-  padding: var(--size-16) 0;
+  padding: var(--spacing-padding) 0;
 }
 
 .dashboard-current-value {
@@ -19,34 +19,33 @@
 }
 
 .dashboard-unit {
-  font-size: var(--size-14);
+  font-size: var(--size-text-min);
   font-weight: normal;
   color: var(--db-text);
   opacity: 0.6;
 }
 
 .dashboard-percent-change {
-  font-size: var(--size-14);
-  margin-top: var(--size-4);
+  font-size: var(--size-text-min);
 }
 
 .dashboard-no-data {
-  font-size: var(--size-14);
+  font-size: var(--size-text-min);
   color: var(--db-text);
   opacity: 0.6;
 }
 
 .dashboard-tabs {
   display: flex;
-  gap: var(--size-4);
+  gap: var(--size-gap);
   border-bottom: var(--size-1) solid var(--db-border);
-  padding-bottom: var(--size-8);
+  padding-bottom: var(--size-padding);
 }
 
 .dashboard-tab {
   flex: 1;
-  padding: var(--size-8) var(--size-4);
-  font-size: var(--size-14);
+  padding: var(--size-padding);
+  font-size: var(--size-text);
   background: none;
   border: none;
   border-bottom: var(--size-2) solid transparent;
@@ -65,12 +64,12 @@
 .dashboard-circumference-selector {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--size-8);
+  gap: var(--size-gap);
 }
 
 .dashboard-circumference-btn {
-  padding: var(--size-4) var(--size-8);
-  font-size: var(--size-12);
+  padding: var(--size-padding-min) var(--size-padding);
+  font-size: var(--size-text-min);
   background: var(--db-background);
   color: var(--db-text);
   border: var(--size-1) solid var(--db-border);
@@ -87,13 +86,13 @@
 
 .dashboard-time-range {
   display: flex;
-  gap: var(--size-4);
+  gap: var(--size-gap);
   justify-content: center;
 }
 
 .dashboard-time-range button {
-  padding: var(--size-8) var(--size-12);
-  font-size: var(--size-12);
+  padding: var(--size-padding-min) var(--size-padding);
+  font-size: var(--size-text-min);
   background: var(--db-background);
   color: var(--db-text);
   border: var(--size-1) solid var(--db-border);
@@ -103,15 +102,15 @@
 
 .dashboard-actions {
   display: flex;
-  gap: var(--size-8);
+  gap: var(--size-gap);
   flex-wrap: wrap;
 }
 
 .dashboard-actions button {
   flex: 1;
   min-width: 0;
-  padding: var(--size-8) var(--size-12);
-  font-size: var(--size-14);
+  padding: var(--size-padding-min) var(--size-padding);
+  font-size: var(--size-text);
   background: var(--db-background);
   color: var(--db-text);
   border: var(--size-1) solid var(--db-border);
@@ -121,7 +120,7 @@
 
 .dashboard-sync-status,
 .dashboard-import-status {
-  font-size: var(--size-12);
+  font-size: var(--size-text-min);
   text-align: center;
   color: var(--db-text);
   opacity: 0.8;
@@ -141,28 +140,28 @@
   background: var(--db-background);
   color: var(--db-text);
   border-radius: var(--size-border-radius);
-  padding: var(--size-24);
+  padding: var(--spacing-padding);
   max-width: 320px;
   width: 90%;
   display: flex;
   flex-direction: column;
-  gap: var(--size-16);
+  gap: var(--spacing-gap);
   text-align: center;
 }
 
 .dashboard-confirm-dialog p {
-  font-size: var(--size-14);
+  font-size: var(--size-text);
 }
 
 .dashboard-confirm-actions {
   display: flex;
-  gap: var(--size-8);
+  gap: var(--size-gap);
   justify-content: center;
 }
 
 .dashboard-confirm-actions button {
-  padding: var(--size-8) var(--size-16);
-  font-size: var(--size-14);
+  padding: var(--size-padding-min) var(--size-padding);
+  font-size: var(--size-text);
   border: var(--size-1) solid var(--db-border);
   border-radius: var(--size-border-radius);
   background: var(--db-background);

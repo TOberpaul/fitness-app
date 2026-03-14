@@ -4,6 +4,7 @@ import { getDailyMeasurements, getWeeklyMeasurements, getAllData, importData } f
 import { getDateRange, calculatePercentChange } from '../utils/date'
 import { isConnected, syncData, initiateAuth, disconnect } from '../services/fitbitService'
 import { exportToFile, importFromFile } from '../services/serializationService'
+import { subscribeToPush, unsubscribeFromPush, isPushSubscribed } from '../services/pushService'
 import type { DataPoint, TimeRange, DailyMeasurement, WeeklyMeasurement } from '../types'
 import './DashboardView.css'
 
@@ -60,6 +61,7 @@ function DashboardView() {
   const [circumferenceField, setCircumferenceField] = useState<CircumferenceField>('waist')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [importStatus, setImportStatus] = useState('')
+  const [pushSubscribed, setPushSubscribed] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const loadData = useCallback(async () => {
@@ -80,6 +82,7 @@ function DashboardView() {
 
   useEffect(() => {
     setFitbitConnected(isConnected())
+    isPushSubscribed().then(setPushSubscribed)
   }, [])
 
   const currentValue = crosshairPoint
@@ -251,6 +254,20 @@ function DashboardView() {
         </button>
         <button data-interactive onClick={handleImportClick}>
           Import
+        </button>
+        <button
+          data-interactive
+          onClick={async () => {
+            if (pushSubscribed) {
+              await unsubscribeFromPush();
+              setPushSubscribed(false);
+            } else {
+              const ok = await subscribeToPush();
+              setPushSubscribed(ok);
+            }
+          }}
+        >
+          {pushSubscribed ? 'Erinnerungen aus' : 'Erinnerungen an'}
         </button>
         <input
           ref={fileInputRef}
