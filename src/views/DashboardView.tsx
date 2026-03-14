@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import GraphComponent from '../components/GraphComponent'
 import { getDailyMeasurements, getWeeklyMeasurements, getAllData, importData } from '../services/dataService'
 import { getDateRange, calculatePercentChange } from '../utils/date'
-import { isConnected, syncData } from '../services/fitbitService'
+import { isConnected, syncData, initiateAuth, disconnect } from '../services/fitbitService'
 import { exportToFile, importFromFile } from '../services/serializationService'
 import type { DataPoint, TimeRange, DailyMeasurement, WeeklyMeasurement } from '../types'
 import './DashboardView.css'
@@ -232,9 +232,18 @@ function DashboardView() {
 
       {/* Actions: Fitbit sync, export, import */}
       <div className="dashboard-actions">
-        {fitbitConnected && (
-          <button data-interactive onClick={handleSync}>
-            Fitbit Sync
+        {fitbitConnected ? (
+          <>
+            <button data-interactive onClick={handleSync}>
+              Fitbit Sync
+            </button>
+            <button data-interactive onClick={async () => { await disconnect(); setFitbitConnected(false); }}>
+              Fitbit trennen
+            </button>
+          </>
+        ) : (
+          <button data-interactive onClick={() => initiateAuth()}>
+            Fitbit verbinden
           </button>
         )}
         <button data-interactive onClick={handleExport}>
