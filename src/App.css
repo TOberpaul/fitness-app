@@ -14,6 +14,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  padding-bottom: calc(var(--size-container) + 2 * var(--size-padding));
 }
 
 .swipe-container {
