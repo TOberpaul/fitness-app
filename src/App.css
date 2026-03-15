@@ -17,8 +17,23 @@
   padding-bottom: calc(2 * var(--size-container) + 2 * var(--size-padding));
 }
 
-.swipe-container {
+.snap-container {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.snap-container::-webkit-scrollbar {
+  display: none;
+}
+
+.snap-panel {
+  flex: 0 0 100%;
+  width: 100%;
+  min-height: 0;
+  scroll-snap-align: start;
+  overflow-y: auto;
 }

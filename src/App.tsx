@@ -1,76 +1,147 @@
-import { useEffect, useRef, useCallback } from 'react'
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react'
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'
 import DashboardView from './views/DashboardView'
 import DailyInputView from './views/DailyInputView'
 import WeeklyInputView from './views/WeeklyInputView'
+import GoalsView from './views/GoalsView'
 import FitbitCallbackView from './views/FitbitCallbackView'
 import SettingsView from './views/SettingsView'
+import GoalCreateView from './views/GoalCreateView'
+import GoalDetailView from './views/GoalDetailView'
+import AchievementsView from './views/AchievementsView'
+import GoalOnboarding from './views/GoalOnboarding'
 import BottomNavigation from './components/BottomNavigation'
 import { initConnectionState } from './services/fitbitService'
 import { syncIfNeeded } from './services/cloudSync'
+import { getAllGoals } from './services/goalService'
+import { getAllData } from './services/dataService'
 import './App.css'
 
-const SWIPE_ROUTES = ['/', '/daily', '/weekly', '/settings']
-const SWIPE_THRESHOLD = 50
+const SNAP_ROUTES = ['/', '/daily', '/weekly', '/goals', '/settings']
 
-function SwipeContainer({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const touchStartX = useRef(0)
-  const touchStartY = useRef(0)
+// Context so BottomNavigation can read/set the active panel without re-rendering the snap container
+const PanelContext = createContext<{
+  activeIndex: number
+  scrollTo: (index: number) => void
+}>({ activeIndex: 0, scrollTo: () => {} })
 
-  const handleSwipe = useCallback((deltaX: number) => {
-    const currentIndex = SWIPE_ROUTES.indexOf(location.pathname)
-    if (currentIndex === -1) return
+export function usePanelContext() {
+  return useContext(PanelContext)
+}
 
-    if (deltaX < -SWIPE_THRESHOLD && currentIndex < SWIPE_ROUTES.length - 1) {
-      navigate(SWIPE_ROUTES[currentIndex + 1])
-    } else if (deltaX > SWIPE_THRESHOLD && currentIndex > 0) {
-      navigate(SWIPE_ROUTES[currentIndex - 1])
-    }
-  }, [location.pathname, navigate])
+function MainPanels() {
+  const [activeIndex, setActiveIndex] = useState(() => {
+    const path = window.location.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/'
+    const idx = SNAP_ROUTES.indexOf(path)
+    return idx >= 0 ? idx : 0
+  })
+  const containerRef = useRef<HTMLDivElement>(null)
+  const programmaticScroll = useRef(false)
 
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX
-    touchStartY.current = e.touches[0].clientY
+  // On mount, scroll to the initial panel without animation
+  useEffect(() => {
+    if (!containerRef.current) return
+    containerRef.current.scrollTo({ left: activeIndex * containerRef.current.offsetWidth })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Scroll to panel when requested programmatically (from nav click)
+  const scrollTo = useCallback((index: number) => {
+    if (!containerRef.current) return
+    programmaticScroll.current = true
+    setActiveIndex(index)
+    containerRef.current.scrollTo({ left: index * containerRef.current.offsetWidth, behavior: 'smooth' })
+    const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+    window.history.replaceState(null, '', base + SNAP_ROUTES[index])
   }, [])
 
-  const onTouchEnd = useCallback((e: React.TouchEvent) => {
-    const deltaX = e.changedTouches[0].clientX - touchStartX.current
-    const deltaY = e.changedTouches[0].clientY - touchStartY.current
-    // Swipe if horizontal movement is at least 1.5x vertical (allows diagonal swipes)
-    if (Math.abs(deltaX) > Math.abs(deltaY) * 0.7) {
-      handleSwipe(deltaX)
+  // Detect settled panel from scroll position
+  const syncIndexFromScroll = useCallback(() => {
+    const container = containerRef.current
+    if (!container || container.offsetWidth === 0) return
+    const idx = Math.round(container.scrollLeft / container.offsetWidth)
+    if (idx >= 0 && idx < SNAP_ROUTES.length) {
+      setActiveIndex(idx)
+      const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+      window.history.replaceState(null, '', base + SNAP_ROUTES[idx])
     }
-  }, [handleSwipe])
+    programmaticScroll.current = false
+  }, [])
+
+  // Listen for scroll end to update active index
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    if ('onscrollend' in window) {
+      const onScrollEnd = () => syncIndexFromScroll()
+      container.addEventListener('scrollend', onScrollEnd)
+      return () => container.removeEventListener('scrollend', onScrollEnd)
+    } else {
+      // Fallback: debounce scroll events
+      let timer: ReturnType<typeof setTimeout>
+      const onScroll = () => {
+        clearTimeout(timer)
+        timer = setTimeout(syncIndexFromScroll, 60)
+      }
+      container.addEventListener('scroll', onScroll)
+      return () => { container.removeEventListener('scroll', onScroll); clearTimeout(timer) }
+    }
+  }, [syncIndexFromScroll])
 
   return (
-    <div className="swipe-container" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-      {children}
-    </div>
+    <PanelContext.Provider value={{ activeIndex, scrollTo }}>
+      <div className="snap-container" ref={containerRef}>
+        <div className="snap-panel"><DashboardView /></div>
+        <div className="snap-panel"><DailyInputView /></div>
+        <div className="snap-panel"><WeeklyInputView /></div>
+        <div className="snap-panel"><GoalsView /></div>
+        <div className="snap-panel"><SettingsView /></div>
+      </div>
+      <BottomNavigation />
+    </PanelContext.Provider>
   )
 }
 
 function AppContent() {
+  const navigate = useNavigate()
+
   useEffect(() => {
     initConnectionState()
     syncIfNeeded()
-  }, [])
+
+    async function checkOnboarding() {
+      const completed = localStorage.getItem('onboardingCompleted')
+      if (completed === 'true') return
+      try {
+        const [goals, allData] = await Promise.all([getAllGoals(), getAllData()])
+        if (goals.length === 0 && allData.dailyMeasurements.length === 0) {
+          navigate('/onboarding', { replace: true })
+        }
+      } catch {
+        // If check fails, don't redirect
+      }
+    }
+    checkOnboarding()
+  }, [navigate])
 
   return (
     <div className="app" data-size="xl">
       <main className="app-content">
-        <SwipeContainer>
-          <Routes>
-            <Route path="/" element={<DashboardView />} />
-            <Route path="/daily" element={<DailyInputView />} />
-            <Route path="/weekly" element={<WeeklyInputView />} />
-            <Route path="/callback" element={<FitbitCallbackView />} />
-            <Route path="/settings" element={<SettingsView />} />
-          </Routes>
-        </SwipeContainer>
+        <Routes>
+          {/* Main snap panels — all share the same component */}
+          <Route path="/" element={<MainPanels />} />
+          <Route path="/daily" element={<MainPanels />} />
+          <Route path="/weekly" element={<MainPanels />} />
+          <Route path="/goals" element={<MainPanels />} />
+          <Route path="/settings" element={<MainPanels />} />
+          {/* Detail routes (no snap) */}
+          <Route path="/callback" element={<FitbitCallbackView />} />
+          <Route path="/goals/new" element={<GoalCreateView />} />
+          <Route path="/goals/:id" element={<GoalDetailView />} />
+          <Route path="/achievements" element={<AchievementsView />} />
+          <Route path="/onboarding" element={<GoalOnboarding />} />
+        </Routes>
       </main>
-      <BottomNavigation/>
     </div>
   )
 }

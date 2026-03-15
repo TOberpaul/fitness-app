@@ -21,7 +21,7 @@
   font-weight: 900;
 }
 
-.dashboard-percent-change{
+.dashboard-percent-change {
   background: none;
   border: none;
   color: var(--db-visual);
@@ -46,6 +46,7 @@
   background: none;
   border: none;
 }
+
 .dashboard-tab.active {
   background: var(--db-background);
 }

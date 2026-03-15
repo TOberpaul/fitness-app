@@ -1,32 +1,38 @@
-import { NavLink, useLocation } from 'react-router-dom'
-import { ChartLine, Scale, Settings, RulerDimensionLine } from 'lucide-react'
+import { ChartLine, Scale, RulerDimensionLine, Target, Settings } from 'lucide-react'
+import { usePanelContext } from '../App'
 import './BottomNavigation.css'
 
-function NavItem({ to, end, icon, label }: { to: string; end?: boolean; icon: React.ReactNode; label: string }) {
-  const location = useLocation()
-  const isActive = end ? location.pathname === to : location.pathname.startsWith(to)
-
-  return (
-    <NavLink
-      to={to}
-      end={end}
-      className={`adaptive bottom-nav-link${isActive ? ' active' : ''}`}
-      data-interactive
-      {...(isActive ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : { 'data-material': 'transparent' })}
-    >
-      {icon}
-      <span className="bottom-nav-label sr-only">{label}</span>
-    </NavLink>
-  )
-}
+const TABS = [
+  { index: 0, label: 'Dashboard', icon: ChartLine },
+  { index: 1, label: 'Täglich', icon: Scale },
+  { index: 2, label: 'Wöchentlich', icon: RulerDimensionLine },
+  { index: 3, label: 'Ziele', icon: Target },
+  { index: 4, label: 'Mehr', icon: Settings },
+]
 
 function BottomNavigation() {
+  const { activeIndex, scrollTo } = usePanelContext()
+
   return (
-    <nav className="bottom-nav adaptive" >
-      <NavItem to="/" end label="Dashboard" icon={<ChartLine className="bottom-nav-icon" />} />
-      <NavItem to="/daily" label="Täglich" icon={<Scale className="bottom-nav-icon" />} />
-      <NavItem to="/weekly" label="Wöchentlich" icon={<RulerDimensionLine className="bottom-nav-icon" />} />
-      <NavItem to="/settings" label="Mehr" icon={<Settings className="bottom-nav-icon" />} />
+    <nav className="bottom-nav adaptive">
+      {TABS.map((tab) => {
+        const Icon = tab.icon
+        const isActive = activeIndex === tab.index
+        return (
+          <button
+            key={tab.index}
+            className={`adaptive bottom-nav-link${isActive ? ' active' : ''}`}
+            data-interactive
+            {...(isActive
+              ? { 'data-material': 'inverted', 'data-container-contrast': 'max' }
+              : { 'data-material': 'transparent' })}
+            onClick={() => scrollTo(tab.index)}
+          >
+            <Icon className="bottom-nav-icon" />
+            <span className="bottom-nav-label sr-only">{tab.label}</span>
+          </button>
+        )
+      })}
     </nav>
   )
 }

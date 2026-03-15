@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import GraphComponent from '../components/GraphComponent'
-import { getDailyMeasurements, getWeeklyMeasurements } from '../services/dataService'
+import EmptyState from '../components/EmptyState'
+import { getDailyMeasurements, getWeeklyMeasurements, getAllData } from '../services/dataService'
 import { getDateRange, calculatePercentChange } from '../utils/date'
 import type { DataPoint, TimeRange, DailyMeasurement, WeeklyMeasurement } from '../types'
 import './DashboardView.css'
@@ -30,9 +32,7 @@ function toDataPoints(measurements: DailyMeasurement[], field: 'weight' | 'bodyF
   const points: DataPoint[] = []
   for (const m of measurements) {
     const val = m[field]
-    if (val != null) {
-      points.push({ date: m.date, value: val })
-    }
+    if (val != null) points.push({ date: m.date, value: val })
   }
   return points.sort((a, b) => a.date.localeCompare(b.date))
 }
@@ -41,24 +41,37 @@ function circumferenceToDataPoints(measurements: WeeklyMeasurement[], field: Cir
   const points: DataPoint[] = []
   for (const m of measurements) {
     const val = m[field]
-    if (val != null) {
-      points.push({ date: m.date, value: val })
-    }
+    if (val != null) points.push({ date: m.date, value: val })
   }
   return points.sort((a, b) => a.date.localeCompare(b.date))
 }
 
-
 function DashboardView() {
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<ActiveTab>('weight')
   const [timeRange, setTimeRange] = useState<TimeRange>('1M')
   const [crosshairPoint, setCrosshairPoint] = useState<DataPoint | null>(null)
   const [data, setData] = useState<DataPoint[]>([])
   const [circumferenceField, setCircumferenceField] = useState<CircumferenceField>('waist')
+  const [hasDailyData, setHasDailyData] = useState<boolean | null>(null)
+  const [hasWeeklyData, setHasWeeklyData] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    async function checkDataExistence() {
+      try {
+        const allData = await getAllData()
+        setHasDailyData(allData.dailyMeasurements.length > 0)
+        setHasWeeklyData(allData.weeklyMeasurements.length > 0)
+      } catch {
+        setHasDailyData(false)
+        setHasWeeklyData(false)
+      }
+    }
+    checkDataExistence()
+  }, [])
 
   const loadData = useCallback(async () => {
     const { from, to } = getDateRange(timeRange)
-
     if (activeTab === 'circumference') {
       const measurements = await getWeeklyMeasurements(from, to)
       setData(circumferenceToDataPoints(measurements, circumferenceField))
@@ -68,19 +81,29 @@ function DashboardView() {
     }
   }, [activeTab, timeRange, circumferenceField])
 
-  useEffect(() => {
-    loadData()
-  }, [loadData])
+  useEffect(() => { loadData() }, [loadData])
 
   const currentValue = crosshairPoint
     ? crosshairPoint.value
-    : data.length > 0
-      ? data[data.length - 1].value
-      : null
+    : data.length > 0 ? data[data.length - 1].value : null
 
   const percentChange = data.length >= 2
     ? calculatePercentChange(data[0].value, crosshairPoint ? crosshairPoint.value : data[data.length - 1].value)
     : null
+
+  // Show empty state only when we know there's no data at all
+  if (hasDailyData === false && hasWeeklyData === false) {
+    return (
+      <div className="dashboard">
+        <EmptyState
+          icon={<span>⚖️</span>}
+          message="Noch keine Daten vorhanden"
+          ctaLabel="Erste Messung eintragen"
+          onCtaClick={() => navigate('/daily')}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="dashboard">
