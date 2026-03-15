@@ -50,9 +50,9 @@ h1, h2, p {
     }
 
 @media (hover: none) {
-  [data-interactive]:hover {
-    --db-background: var(--db-background) !important;
-    --db-text: var(--db-text) !important;
-    --db-border: var(--db-border) !important;
+  [data-interactive]:hover:not(:active) {
+    --db-background: var(--db-background-default);
+    --db-text: var(--db-text-default);
+    --db-visual: var(--db-visual-default);
   }
 }
