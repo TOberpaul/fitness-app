@@ -104,8 +104,8 @@ export async function initiateAuth(): Promise<void> {
   const challenge = await generateCodeChallenge(verifier);
   const state = crypto.randomUUID();
 
-  sessionStorage.setItem('fitbit_code_verifier', verifier);
-  sessionStorage.setItem('fitbit_oauth_state', state);
+  localStorage.setItem('fitbit_code_verifier', verifier);
+  localStorage.setItem('fitbit_oauth_state', state);
 
   const url = buildAuthorizationUrl(challenge, state);
   window.location.href = url;
@@ -115,12 +115,12 @@ export async function initiateAuth(): Promise<void> {
  * Handle the OAuth callback: exchange the authorization code for tokens.
  */
 export async function handleCallback(code: string, state: string): Promise<void> {
-  const savedState = sessionStorage.getItem('fitbit_oauth_state');
+  const savedState = localStorage.getItem('fitbit_oauth_state');
   if (state !== savedState) {
     throw new Error('OAuth state mismatch — possible CSRF attack');
   }
 
-  const verifier = sessionStorage.getItem('fitbit_code_verifier');
+  const verifier = localStorage.getItem('fitbit_code_verifier');
   if (!verifier) {
     throw new Error('Missing PKCE code verifier');
   }
@@ -154,9 +154,9 @@ export async function handleCallback(code: string, state: string): Promise<void>
 
   await saveTokens(tokens);
 
-  // Clean up sessionStorage
-  sessionStorage.removeItem('fitbit_code_verifier');
-  sessionStorage.removeItem('fitbit_oauth_state');
+  // Clean up localStorage
+  localStorage.removeItem('fitbit_code_verifier');
+  localStorage.removeItem('fitbit_oauth_state');
 }
 
 /**
