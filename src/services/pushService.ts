@@ -22,6 +22,14 @@ function getDeviceId(): string {
   return id;
 }
 
+/** Convert local HH:MM to UTC HH:MM */
+function localTimeToUtc(localTime: string): string {
+  const [h, m] = localTime.split(':').map(Number)
+  const now = new Date()
+  now.setHours(h, m, 0, 0)
+  return `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`
+}
+
 /** Subscribe to push notifications and store subscription in Supabase */
 export async function subscribeToPush(): Promise<boolean> {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
@@ -49,11 +57,11 @@ export async function subscribeToPush(): Promise<boolean> {
 
   const { error } = await supabase.from('push_subscriptions').upsert(
     {
-      device_id: getDeviceId(),
       endpoint: subJson.endpoint,
       p256dh: subJson.keys?.p256dh,
       auth: subJson.keys?.auth,
-      reminder_time: reminderTime,
+      device_id: getDeviceId(),
+      reminder_time: localTimeToUtc(reminderTime),
       created_at: new Date().toISOString(),
     },
     { onConflict: 'endpoint' }
@@ -72,12 +80,11 @@ export async function subscribeToPush(): Promise<boolean> {
 export async function updateReminderTime(time: string): Promise<void> {
   localStorage.setItem('reminderTime', time);
 
-  // Only update Supabase if push is subscribed
   if (localStorage.getItem('push_subscribed') !== '1') return;
 
   const { error } = await supabase
     .from('push_subscriptions')
-    .update({ reminder_time: time })
+    .update({ reminder_time: localTimeToUtc(time) })
     .eq('device_id', getDeviceId());
 
   if (error) {

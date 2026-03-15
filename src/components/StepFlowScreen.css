@@ -4,7 +4,7 @@
   align-items: center;
   text-align: center;
   border: none;
-  gap: var(--size-gap);
+  gap: var(--spacing-padding);
   padding: 0;
 }
 
@@ -28,7 +28,6 @@
 
 .step-flow-input {
   width: 100%;
-  max-width: 12rem;
   text-align: center;
   font-size: var(--size-16);
   font-weight: bold;
