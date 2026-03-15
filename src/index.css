@@ -48,3 +48,11 @@ h1, h2, p {
       line-height: var(--size-line-height);
       gap: var(--size-gap);
     }
+
+@media (hover: none) {
+  [data-interactive]:hover {
+    --db-background: var(--db-background) !important;
+    --db-text: var(--db-text) !important;
+    --db-border: var(--db-border) !important;
+  }
+}
