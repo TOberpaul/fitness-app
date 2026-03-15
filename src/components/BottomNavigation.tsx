@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Activity, Plus, Ruler, Settings, PersonStanding } from 'lucide-react'
+import { Activity, Plus, Settings, PersonStanding } from 'lucide-react'
 import './BottomNavigation.css'
 
 function NavItem({ to, end, icon, label }: { to: string; end?: boolean; icon: React.ReactNode; label: string }) {
@@ -22,7 +22,7 @@ function NavItem({ to, end, icon, label }: { to: string; end?: boolean; icon: Re
 
 function BottomNavigation() {
   return (
-    <nav className="bottom-nav adaptive" data-size="md">
+    <nav className="bottom-nav adaptive" data-size="md" data-material="filled">
       <NavItem to="/" end label="Dashboard" icon={<Activity className="bottom-nav-icon" />} />
       <NavItem to="/daily" label="Täglich" icon={<Plus className="bottom-nav-icon" />} />
       <NavItem to="/weekly" label="Wöchentlich" icon={<PersonStanding className="bottom-nav-icon" />} />
