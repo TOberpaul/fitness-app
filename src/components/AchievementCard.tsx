@@ -3,6 +3,7 @@ import './AchievementCard.css'
 
 interface AchievementCardProps {
   achievement: Milestone | StreakAchievement
+  icon?: string
   onClick?: () => void
 }
 
@@ -18,9 +19,10 @@ function getDetail(achievement: Milestone | StreakAchievement): string {
   return `${achievement.count} ${unit}`
 }
 
-function AchievementCard({ achievement, onClick }: AchievementCardProps) {
+function AchievementCard({ achievement, icon, onClick }: AchievementCardProps) {
   const detail = getDetail(achievement)
   const isClickable = !!onClick
+  const iconSrc = icon || `${import.meta.env.BASE_URL}Party.png`
 
   return (
     <div
@@ -31,6 +33,7 @@ function AchievementCard({ achievement, onClick }: AchievementCardProps) {
       onClick={isClickable ? onClick : undefined}
       onKeyDown={isClickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick!() } } : undefined}
     >
+      <img className="achievement-card-icon" src={iconSrc} alt="" />
       <div className="achievement-card-content">
         <span className="achievement-card-label">{achievement.label}</span>
         <span className="achievement-card-detail">{detail}</span>

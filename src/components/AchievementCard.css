@@ -10,8 +10,10 @@
 }
 
 .achievement-card-icon {
-  font-size: var(--size-text-max);
+  width: 2.5rem;
+  height: 2.5rem;
   flex-shrink: 0;
+  object-fit: contain;
 }
 
 .achievement-card-content {

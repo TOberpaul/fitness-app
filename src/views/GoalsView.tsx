@@ -7,9 +7,9 @@ import CoachingSummary from '../components/CoachingSummary'
 import BodyCompass from '../components/BodyCompass'
 import { getAllData } from '../services/dataService'
 import { getActiveGoals, calculateProjection } from '../services/goalService'
-import { calculateConsistencyScore, getEarnedMilestones, detectNonScaleVictories } from '../services/gamificationService'
+import { calculateConsistencyScore, getEarnedMilestones, detectNonScaleVictories, getStreaks } from '../services/gamificationService'
 import { getWeekStart } from '../utils/date'
-import type { DailyMeasurement, WeeklyMeasurement, Goal, GoalProjection, ConsistencyScore, Milestone, CircumferenceZone, TrendDirection, NonScaleVictory } from '../types'
+import type { DailyMeasurement, WeeklyMeasurement, Goal, GoalProjection, ConsistencyScore, Milestone, CircumferenceZone, TrendDirection, NonScaleVictory, Streaks, StreakAchievement } from '../types'
 import './GoalsView.css'
 
 function calculateTrends(weeklyMeasurements: WeeklyMeasurement[]): Record<CircumferenceZone, TrendDirection | null> {
@@ -44,7 +44,7 @@ function GoalsView() {
     chest: null, waist: null, belly: null, hip: null, upperArm: null, thigh: null
   })
   const [nonScaleVictories, setNonScaleVictories] = useState<NonScaleVictory[]>([])
-
+  const [streaks, setStreaks] = useState<Streaks | null>(null)
   useEffect(() => {
     async function loadData() {
       let dailyMeasurements: DailyMeasurement[] = []
@@ -83,6 +83,7 @@ function GoalsView() {
 
         const earned = await getEarnedMilestones()
         setMilestones(earned.sort((a, b) => b.earnedAt.localeCompare(a.earnedAt)).slice(0, 3))
+        setStreaks(await getStreaks())
       } catch {
         setHasDailyData(false)
         setHasWeeklyData(false)
@@ -161,16 +162,28 @@ function GoalsView() {
           )}
 
           {milestones.length > 0 && (
-            <div className="goals-view-achievements" data-color="yellow" data-material="filled">
+            <div className="goals-view-achievements" data-color="violet" data-material="filled">
               {milestones.map((m) => (
                 <AchievementCard
                   key={m.id}
                   achievement={m}
-                  onClick={() => navigate('/achievements')}
                 />
               ))}
             </div>
           )}
+
+          {streaks && (streaks.dailyStreak > 0 || streaks.weeklyStreak > 0) && (() => {
+            const items: StreakAchievement[] = []
+            if (streaks.dailyStreak > 0) items.push({ type: 'daily-streak', count: streaks.dailyStreak, label: `${streaks.dailyStreak} Tage am Stück gewogen` })
+            if (streaks.weeklyStreak > 0) items.push({ type: 'weekly-streak', count: streaks.weeklyStreak, label: `${streaks.weeklyStreak} Wochen Umfänge gemessen` })
+            return (
+              <div className="goals-view-streaks" data-color="red" data-material="filled">
+                {items.map((s) => (
+                  <AchievementCard key={s.type} achievement={s} icon={`${import.meta.env.BASE_URL}Flame.png`} />
+                ))}
+              </div>
+            )
+          })()}
         </>
       )}
     </div>
