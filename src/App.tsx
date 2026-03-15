@@ -9,7 +9,7 @@ import BottomNavigation from './components/BottomNavigation'
 import { initConnectionState } from './services/fitbitService'
 import './App.css'
 
-const SWIPE_ROUTES = ['/', '/daily', '/weekly']
+const SWIPE_ROUTES = ['/', '/daily', '/weekly', '/settings']
 const SWIPE_THRESHOLD = 50
 
 function SwipeContainer({ children }: { children: React.ReactNode }) {
@@ -37,8 +37,8 @@ function SwipeContainer({ children }: { children: React.ReactNode }) {
   const onTouchEnd = useCallback((e: React.TouchEvent) => {
     const deltaX = e.changedTouches[0].clientX - touchStartX.current
     const deltaY = e.changedTouches[0].clientY - touchStartY.current
-    // Only swipe if horizontal movement is dominant
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    // Swipe if horizontal movement is at least 1.5x vertical (allows diagonal swipes)
+    if (Math.abs(deltaX) > Math.abs(deltaY) * 0.7) {
       handleSwipe(deltaX)
     }
   }, [handleSwipe])
