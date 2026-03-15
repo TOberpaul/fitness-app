@@ -11,13 +11,13 @@ import { evaluateGoals, getAllGoals } from '../services/goalService'
 import './WeeklyInputView.css'
 
 /** Zone configuration in the required order */
-const ZONE_CONFIG: { zone: CircumferenceZone; label: string; hint: string }[] = [
-  { zone: 'chest', label: 'Brust', hint: 'Miss den Umfang auf Höhe der Brustwarzen' },
-  { zone: 'waist', label: 'Taille', hint: 'Miss den schmalsten Punkt deines Oberkörpers' },
-  { zone: 'belly', label: 'Bauch', hint: 'Miss auf Höhe des Bauchnabels' },
-  { zone: 'hip', label: 'Hüfte', hint: 'Miss den breitesten Punkt deiner Hüfte' },
-  { zone: 'upperArm', label: 'Oberarm', hint: 'Miss den dicksten Punkt deines Oberarms' },
-  { zone: 'thigh', label: 'Oberschenkel', hint: 'Miss den dicksten Punkt deines Oberschenkels' },
+const ZONE_CONFIG: { zone: CircumferenceZone; label: string; hint: string; illustration: string }[] = [
+  { zone: 'chest', label: 'Brust', hint: 'Miss den Umfang auf Höhe der Brustwarzen', illustration: `${import.meta.env.BASE_URL}Measurement-Breast.svg` },
+  { zone: 'waist', label: 'Taille', hint: 'Miss den schmalsten Punkt deines Oberkörpers', illustration: `${import.meta.env.BASE_URL}Measurement-Taille.svg` },
+  { zone: 'belly', label: 'Bauch', hint: 'Miss auf Höhe des Bauchnabels', illustration: `${import.meta.env.BASE_URL}Measurement-belly.svg` },
+  { zone: 'hip', label: 'Hüfte', hint: 'Miss den breitesten Punkt deiner Hüfte', illustration: `${import.meta.env.BASE_URL}Measurement-Hip.svg` },
+  { zone: 'upperArm', label: 'Oberarm', hint: 'Miss den dicksten Punkt deines Oberarms', illustration: `${import.meta.env.BASE_URL}Measurement-Arm.svg` },
+  { zone: 'thigh', label: 'Oberschenkel', hint: 'Miss den dicksten Punkt deines Oberschenkels', illustration: `${import.meta.env.BASE_URL}Measurement-Leg.svg` },
 ]
 
 const TOTAL_STEPS = ZONE_CONFIG.length
@@ -165,10 +165,19 @@ function WeeklyInputView() {
     setStep(1)
   }
 
+  const handleCancel = () => {
+    setStep(0)
+  }
+
   // Step 0: Intro screen
   if (step === 0) {
     return (
       <div className="weekly-input adaptive">
+        <img
+          className="weekly-input-hero"
+          src={`${import.meta.env.BASE_URL}Running.png`}
+          alt="Fitness Illustration"
+        />
         <h1>Wöchentliche Umfangmessung</h1>
         <p className="weekly-input-intro-text">
           Woche ab {weekStart}
@@ -184,7 +193,7 @@ function WeeklyInputView() {
           data-interactive
           onClick={() => setStep(1)}
         >
-          Weiter
+          Messung starten
         </button>
         {successMessage && (
           <p className="weekly-input-success">{successMessage}</p>
@@ -220,6 +229,7 @@ function WeeklyInputView() {
         zone={config.zone}
         label={config.label}
         hint={config.hint}
+        illustration={config.illustration}
         value={currentInput}
         onChange={(val) => {
           setCurrentInput(val)
@@ -227,6 +237,7 @@ function WeeklyInputView() {
         }}
         onNext={handleNext}
         onSkip={handleSkip}
+        onCancel={handleCancel}
         error={error}
         stepIndex={step}
         totalSteps={TOTAL_STEPS}

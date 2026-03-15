@@ -9,9 +9,31 @@
   padding: var(--spacing-padding);
 }
 
+.step-flow-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.step-flow-cancel {
+  background: transparent;
+  border: none;
+  color: var(--db-text);
+  cursor: pointer;
+  padding: 0;
+}
+
 .step-flow-progress {
   font-size: var(--size-text);
   color: var(--db-text);
+}
+
+.step-flow-illustration {
+  width: 100%;
+  max-width: 10rem;
+  height: auto;
+  object-fit: contain;
 }
 
 .step-flow-label {
