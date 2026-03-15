@@ -1,0 +1,86 @@
+.step-flow-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+  padding: var(--spacing-padding);
+}
+
+.step-flow-summary-title {
+  font-size: var(--size-16);
+  font-weight: 900;
+  color: var(--db-text);
+  text-align: center;
+}
+
+.step-flow-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.step-flow-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--size-padding-min) var(--size-padding);
+  background: var(--db-background);
+  border: var(--size-1) solid var(--db-border);
+  border-radius: var(--size-border-radius);
+}
+
+.step-flow-summary-item-label {
+  font-size: var(--size-text);
+  font-weight: bold;
+  color: var(--db-text);
+}
+
+.step-flow-summary-item-value {
+  font-size: var(--size-text);
+  color: var(--db-text);
+  text-align: right;
+}
+
+.step-flow-summary-item-delta {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.step-flow-summary-item-delta--decrease {
+  color: var(--db-successful);
+}
+
+.step-flow-summary-item-feedback {
+  font-size: var(--size-text);
+  color: var(--db-successful);
+  font-weight: bold;
+}
+
+.step-flow-summary-item-first {
+  font-size: var(--size-text);
+  color: var(--db-text);
+  font-style: italic;
+}
+
+.step-flow-summary-global-message {
+  text-align: center;
+  font-size: var(--size-text);
+  color: var(--db-text);
+  padding: var(--size-padding-min);
+}
+
+.step-flow-summary-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+  width: 100%;
+}
+
+.step-flow-summary-confirm {
+  font-weight: bold;
+}
+
+.step-flow-summary-back {
+  background: transparent;
+  border-color: transparent;
+  color: var(--db-text);
+}

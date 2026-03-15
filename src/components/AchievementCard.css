@@ -1,0 +1,36 @@
+.achievement-card {
+  display: flex;
+  align-items: center;
+  gap: var(--size-gap);
+  cursor: default;
+}
+
+.achievement-card[data-interactive] {
+  cursor: pointer;
+}
+
+.achievement-card-icon {
+  font-size: var(--size-text-max);
+  flex-shrink: 0;
+}
+
+.achievement-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-1);
+  min-width: 0;
+}
+
+.achievement-card-label {
+  font-size: var(--size-text);
+  font-weight: bold;
+  color: var(--db-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.achievement-card-detail {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}

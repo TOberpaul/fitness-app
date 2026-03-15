@@ -1,0 +1,49 @@
+.body-compass {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.body-compass-title {
+  font-size: var(--size-text);
+  font-weight: bold;
+  color: var(--db-text);
+}
+
+.body-compass-zones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.body-compass-zone {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.body-compass-zone-label {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.body-compass-trend {
+  font-size: var(--size-text);
+}
+
+.body-compass-trend[data-trend="improving"] {
+  color: var(--db-successful);
+}
+
+.body-compass-trend[data-trend="stable"] {
+  color: var(--db-text);
+}
+
+.body-compass-trend[data-trend="declining"] {
+  color: var(--db-text);
+}
+
+.body-compass-no-data {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}

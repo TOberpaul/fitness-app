@@ -1,0 +1,24 @@
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: none;
+  gap: var(--size-gap);
+  padding: var(--spacing-padding);
+}
+
+.empty-state-icon {
+  color: var(--db-visual);
+}
+
+.empty-state-message {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.empty-state-cta {
+  height: var(--size-container);
+  font-weight: bold;
+}

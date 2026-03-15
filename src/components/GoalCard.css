@@ -1,0 +1,69 @@
+.goal-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+  cursor: pointer;
+}
+
+.goal-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.goal-card-label {
+  font-size: var(--size-text);
+  font-weight: bold;
+  color: var(--db-text);
+}
+
+.goal-card-values {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.goal-card-progress-track {
+  height: var(--size-2);
+  background: var(--db-border);
+  border-radius: var(--size-2);
+  overflow: hidden;
+}
+
+.goal-card-progress-fill {
+  height: 100%;
+  width: var(--goal-progress, 0%);
+  background: var(--db-visual);
+  border-radius: var(--size-2);
+  transition: width 0.3s ease;
+}
+
+.goal-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.goal-card-trend {
+  font-size: var(--size-text);
+}
+
+.goal-card-trend[data-trend="ahead"] {
+  color: var(--db-successful);
+}
+
+.goal-card-trend[data-trend="on-track"] {
+  color: var(--db-successful);
+}
+
+.goal-card-trend[data-trend="behind"] {
+  color: var(--db-warning);
+}
+
+.goal-card-trend[data-trend="insufficient-data"] {
+  color: var(--db-text);
+}
+
+.goal-card-tempo {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}

@@ -1,0 +1,60 @@
+.coaching-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.coaching-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.coaching-summary-label {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.coaching-summary-value {
+  font-size: var(--size-text);
+  font-weight: bold;
+  color: var(--db-text);
+}
+
+.coaching-summary-change {
+  font-size: var(--size-text);
+  font-weight: bold;
+}
+
+.coaching-summary-change[data-direction="loss"] {
+  color: var(--db-successful);
+}
+
+.coaching-summary-change[data-direction="gain"] {
+  color: var(--db-text);
+}
+
+.coaching-summary-goal {
+  font-size: var(--size-text);
+}
+
+.coaching-summary-goal[data-trend="ahead"] {
+  color: var(--db-successful);
+}
+
+.coaching-summary-goal[data-trend="on-track"] {
+  color: var(--db-successful);
+}
+
+.coaching-summary-goal[data-trend="behind"] {
+  color: var(--db-warning);
+}
+
+.coaching-summary-goal[data-trend="insufficient-data"] {
+  color: var(--db-text);
+}
+
+.coaching-summary-goal-none {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}

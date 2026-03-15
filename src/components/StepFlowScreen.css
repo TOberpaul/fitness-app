@@ -1,0 +1,66 @@
+.step-flow-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: none;
+  gap: var(--size-gap);
+  padding: var(--spacing-padding);
+}
+
+.step-flow-progress {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.step-flow-label {
+  font-size: var(--size-16);
+  font-weight: 900;
+  color: var(--db-text);
+}
+
+.step-flow-hint {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.step-flow-input {
+  width: 100%;
+  max-width: 12rem;
+  text-align: center;
+  font-size: var(--size-16);
+  font-weight: bold;
+  background: var(--db-background);
+  color: var(--db-text);
+  border: var(--size-1) solid var(--db-border);
+  border-radius: var(--size-border-radius);
+  padding: var(--size-padding-min) var(--size-padding);
+  min-height: var(--size-container);
+}
+
+.step-flow-input::placeholder {
+  color: var(--db-border);
+}
+
+.step-flow-error {
+  font-size: var(--size-text);
+  color: var(--db-warning);
+}
+
+.step-flow-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+  width: 100%;
+}
+
+.step-flow-next {
+  font-weight: bold;
+}
+
+.step-flow-skip {
+  background: transparent;
+  border-color: transparent;
+  color: var(--db-text);
+}
