@@ -55,7 +55,7 @@
   width: calc(var(--size-container) - 2 * var(--size-4));
   height: calc(var(--size-container) - 2 * var(--size-4));
   background: var(--db-background);
-  border: var(--db-border);
+  border: var(--size-1) solid var(--db-border);
   border-radius: var(--size-border-radius-full);
   transition: transform 0.25s;
   pointer-events: none;
