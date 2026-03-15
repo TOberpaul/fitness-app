@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react'
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import DashboardView from './views/DashboardView'
 import DailyInputView from './views/DailyInputView'
 import WeeklyInputView from './views/WeeklyInputView'
@@ -103,7 +103,7 @@ function MainPanels() {
 }
 
 function AppContent() {
-  const navigate = useNavigate()
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   useEffect(() => {
     initConnectionState()
@@ -115,14 +115,14 @@ function AppContent() {
       try {
         const [goals, allData] = await Promise.all([getAllGoals(), getAllData()])
         if (goals.length === 0 && allData.dailyMeasurements.length === 0) {
-          navigate('/onboarding', { replace: true })
+          setShowOnboarding(true)
         }
       } catch {
-        // If check fails, don't redirect
+        // If check fails, don't show onboarding
       }
     }
     checkOnboarding()
-  }, [navigate])
+  }, [])
 
   return (
     <div className="app" data-size="xl">
@@ -139,8 +139,8 @@ function AppContent() {
           <Route path="/goals/new" element={<GoalCreateView />} />
           <Route path="/goals/:id" element={<GoalDetailView />} />
           <Route path="/achievements" element={<AchievementsView />} />
-          <Route path="/onboarding" element={<GoalOnboarding />} />
         </Routes>
+        {showOnboarding && <GoalOnboarding onClose={() => setShowOnboarding(false)} />}
       </main>
     </div>
   )

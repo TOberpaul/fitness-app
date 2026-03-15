@@ -63,3 +63,13 @@
 .toggle-switch.toggle-on .toggle-knob {
   transform: translateX(var(--size-container));
 }
+
+.settings-time-input {
+  height: var(--size-container);
+  font-size: var(--size-text);
+  border: var(--size-1) solid var(--db-border);
+  border-radius: var(--size-border-radius);
+  background: var(--db-background);
+  color: var(--db-text);
+  padding: 0 var(--size-padding);
+}

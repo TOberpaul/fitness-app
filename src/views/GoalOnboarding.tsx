@@ -1,13 +1,12 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { saveDailyMeasurement } from '../services/dataService'
 import { createGoal } from '../services/goalService'
+import { scheduleDailyReminder, scheduleWeeklyReminder, requestPermission } from '../services/notificationService'
 import './GoalOnboarding.css'
 
 const TOTAL = 4
 
-function GoalOnboarding() {
-  const navigate = useNavigate()
+function GoalOnboarding({ onClose }: { onClose: () => void }) {
   const [step, setStep] = useState(0)
   const [weight, setWeight] = useState('')
   const [targetWeight, setTargetWeight] = useState('')
@@ -18,7 +17,7 @@ function GoalOnboarding() {
 
   const finish = () => {
     localStorage.setItem('onboardingCompleted', 'true')
-    navigate('/', { replace: true })
+    onClose()
   }
 
   const back = () => {
@@ -58,8 +57,13 @@ function GoalOnboarding() {
     } catch { setError('Speichern fehlgeschlagen') }
   }
 
-  const handleReminder = () => {
+  const handleReminder = async () => {
     localStorage.setItem('reminderTime', reminderTime)
+    const permission = await requestPermission()
+    if (permission === 'granted') {
+      scheduleDailyReminder()
+      scheduleWeeklyReminder()
+    }
     setStep(3)
   }
 

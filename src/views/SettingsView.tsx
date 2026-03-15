@@ -3,6 +3,7 @@ import { isConnected, syncData, initiateAuth, disconnect } from '../services/fit
 import { exportToFile, importFromFile } from '../services/serializationService'
 import { getAllData, importData } from '../services/dataService'
 import { subscribeToPush, unsubscribeFromPush, isPushSubscribed } from '../services/pushService'
+import { scheduleDailyReminder, scheduleWeeklyReminder } from '../services/notificationService'
 import './SettingsView.css'
 
 function SettingsView() {
@@ -10,6 +11,7 @@ function SettingsView() {
   const [syncStatus, setSyncStatus] = useState('')
   const [importStatus, setImportStatus] = useState('')
   const [pushSubscribed, setPushSubscribed] = useState(() => localStorage.getItem('push_subscribed') === '1')
+  const [reminderTime, setReminderTime] = useState(() => localStorage.getItem('reminderTime') || '20:00')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   type ThemeMode = 'system' | 'light' | 'dark'
@@ -159,6 +161,21 @@ function SettingsView() {
               data-container-contrast="max"
             />
           </button>
+        </label>
+        <label className="settings-toggle-row">
+          <span>Uhrzeit</span>
+          <input
+            type="time"
+            className="settings-time-input"
+            value={reminderTime}
+            onChange={e => {
+              const val = e.target.value
+              setReminderTime(val)
+              localStorage.setItem('reminderTime', val)
+              scheduleDailyReminder()
+              scheduleWeeklyReminder()
+            }}
+          />
         </label>
       </section>
     </div>

@@ -42,33 +42,42 @@ export function shouldNotify(
   return !measurements.some((m) => m.date === currentWeekStart);
 }
 
-/** Calculate milliseconds until the next occurrence of 20:00 */
-function msUntilNext2000(): number {
+/** Get the configured reminder time (HH:MM) from localStorage, default 20:00 */
+function getReminderTime(): { hours: number; minutes: number } {
+  const stored = localStorage.getItem('reminderTime')
+  if (stored) {
+    const [h, m] = stored.split(':').map(Number)
+    if (!isNaN(h) && !isNaN(m)) return { hours: h, minutes: m }
+  }
+  return { hours: 20, minutes: 0 }
+}
+
+/** Calculate milliseconds until the next occurrence of the configured reminder time */
+function msUntilNextReminder(): number {
+  const { hours, minutes } = getReminderTime()
   const now = new Date();
   const target = new Date(now);
-  target.setHours(20, 0, 0, 0);
+  target.setHours(hours, minutes, 0, 0);
 
   if (now >= target) {
-    // Already past 20:00 today, schedule for tomorrow
     target.setDate(target.getDate() + 1);
   }
 
   return target.getTime() - now.getTime();
 }
 
-/** Calculate milliseconds until the next Sunday at 20:00 */
-function msUntilNextSunday2000(): number {
+/** Calculate milliseconds until the next Sunday at the configured reminder time */
+function msUntilNextSundayReminder(): number {
+  const { hours, minutes } = getReminderTime()
   const now = new Date();
   const target = new Date(now);
-  const currentDay = target.getDay(); // 0 = Sunday
+  const currentDay = target.getDay();
 
-  // Calculate days until next Sunday
   const daysUntilSunday = currentDay === 0 ? 0 : 7 - currentDay;
   target.setDate(target.getDate() + daysUntilSunday);
-  target.setHours(20, 0, 0, 0);
+  target.setHours(hours, minutes, 0, 0);
 
   if (now >= target) {
-    // Already past Sunday 20:00, schedule for next Sunday
     target.setDate(target.getDate() + 7);
   }
 
@@ -91,7 +100,7 @@ function getDefaultUserContext(): UserContext {
 export function scheduleDailyReminder(): void {
   cancelDaily();
 
-  const delay = msUntilNext2000();
+  const delay = msUntilNextReminder();
 
   dailyTimerId = setTimeout(() => {
     if (isEnabled()) {
@@ -121,7 +130,7 @@ export function scheduleDailyReminder(): void {
 export function scheduleWeeklyReminder(): void {
   cancelWeekly();
 
-  const delay = msUntilNextSunday2000();
+  const delay = msUntilNextSundayReminder();
 
   weeklyTimerId = setTimeout(() => {
     if (isEnabled()) {
