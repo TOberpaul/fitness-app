@@ -122,6 +122,10 @@ function AppContent() {
       }
     }
     checkOnboarding()
+
+    const handleShowOnboarding = () => setShowOnboarding(true)
+    window.addEventListener('show-onboarding', handleShowOnboarding)
+    return () => window.removeEventListener('show-onboarding', handleShowOnboarding)
   }, [])
 
   return (

@@ -178,6 +178,13 @@ function SettingsView() {
           />
         </label>
       </section>
+
+      <section className="settings-section">
+        <button className="adaptive" data-interactive
+          onClick={() => window.dispatchEvent(new CustomEvent('show-onboarding'))}>
+          Einrichtung wiederholen
+        </button>
+      </section>
     </div>
   )
 }
