@@ -65,5 +65,5 @@
 }
 
 .toggle-switch.toggle-on .toggle-knob {
-  transform: translateX(20px);
+  transform: translateX(var(--size-container));
 }
