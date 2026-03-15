@@ -4,311 +4,142 @@ import { saveDailyMeasurement } from '../services/dataService'
 import { createGoal } from '../services/goalService'
 import './GoalOnboarding.css'
 
+const TOTAL = 4
+
 function GoalOnboarding() {
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
-
-  // Step 1: Starting weight
   const [weight, setWeight] = useState('')
-  const [weightError, setWeightError] = useState('')
-
-  // Step 2: Weight goal
   const [targetWeight, setTargetWeight] = useState('')
-  const [goalError, setGoalError] = useState('')
-
-  // Step 3: Reminder time
   const [reminderTime, setReminderTime] = useState('20:00')
-
-  // Step 4: Weekly measurement toggle
   const [weeklyEnabled, setWeeklyEnabled] = useState(false)
-
-  // Saved weight for goal validation
+  const [error, setError] = useState('')
   const [savedWeight, setSavedWeight] = useState<number | null>(null)
 
-  const totalSteps = 6 // 0-5
-
-  const finishOnboarding = () => {
+  const finish = () => {
     localStorage.setItem('onboardingCompleted', 'true')
-    navigate('/')
+    navigate('/', { replace: true })
   }
 
-  const handleWeightNext = async () => {
-    setWeightError('')
+  const back = () => {
+    setError('')
+    if (step === 0) { finish(); return }
+    setStep(step - 1)
+  }
+
+  const handleWeight = async () => {
+    setError('')
     const val = Number(weight)
-    if (isNaN(val) || weight.trim() === '' || val < 30 || val > 300) {
-      setWeightError('Bitte einen Wert zwischen 30 und 300 kg eingeben.')
-      return
+    if (!weight.trim() || isNaN(val) || val < 30 || val > 300) {
+      setError('Zwischen 30 und 300 kg'); return
     }
     try {
-      const today = new Date().toISOString().slice(0, 10)
       await saveDailyMeasurement({
-        date: today,
-        weight: val,
-        source: 'manual',
-        updatedAt: new Date().toISOString(),
+        date: new Date().toISOString().slice(0, 10),
+        weight: val, source: 'manual', updatedAt: new Date().toISOString(),
       })
       setSavedWeight(val)
-      setStep(2)
-    } catch {
-      setWeightError('Fehler beim Speichern.')
-    }
+      setStep(1)
+    } catch { setError('Speichern fehlgeschlagen') }
   }
 
-  const handleGoalNext = async () => {
-    setGoalError('')
-    const target = Number(targetWeight)
-    if (isNaN(target) || targetWeight.trim() === '' || target < 30 || target > 300) {
-      setGoalError('Bitte einen Wert zwischen 30 und 300 kg eingeben.')
-      return
+  const handleGoal = async () => {
+    setError('')
+    const val = Number(targetWeight)
+    if (!targetWeight.trim() || isNaN(val) || val < 30 || val > 300) {
+      setError('Zwischen 30 und 300 kg'); return
     }
-    if (savedWeight !== null && target === savedWeight) {
-      setGoalError('Zielwert muss sich vom Startgewicht unterscheiden.')
-      return
+    if (savedWeight !== null && val === savedWeight) {
+      setError('Muss sich vom Startgewicht unterscheiden'); return
     }
     try {
-      const startVal = savedWeight ?? target
-      await createGoal({
-        metricType: 'weight',
-        startValue: startVal,
-        targetValue: target,
-      })
-      setStep(3)
-    } catch {
-      setGoalError('Fehler beim Erstellen des Ziels.')
+      await createGoal({ metricType: 'weight', startValue: savedWeight ?? val, targetValue: val })
+      setStep(2)
+    } catch { setError('Speichern fehlgeschlagen') }
+  }
+
+  const handleReminder = () => {
+    localStorage.setItem('reminderTime', reminderTime)
+    setStep(3)
+  }
+
+  const handleWeekly = () => {
+    localStorage.setItem('weeklyMeasurementEnabled', weeklyEnabled ? 'true' : 'false')
+    finish()
+  }
+
+  const renderStep = () => {
+    switch (step) {
+      case 0: return (
+        <>
+          <label htmlFor="ob-weight">Aktuelles Gewicht (kg)</label>
+          <input id="ob-weight" className="ob-input" type="text" inputMode="decimal"
+            placeholder="85.0" value={weight}
+            onChange={e => { setWeight(e.target.value); setError('') }}
+            aria-invalid={!!error} />
+          {error && <p className="ob-error" role="alert">{error}</p>}
+          <div className="ob-actions">
+            <button className="adaptive" data-material="inverted" data-container-contrast="max"
+              data-interactive onClick={handleWeight}>Weiter</button>
+            <button className="ob-skip" data-interactive onClick={() => setStep(1)}>Überspringen</button>
+          </div>
+        </>
+      )
+      case 1: return (
+        <>
+          <label htmlFor="ob-target">Zielgewicht (kg)</label>
+          <input id="ob-target" className="ob-input" type="text" inputMode="decimal"
+            placeholder="75.0" value={targetWeight}
+            onChange={e => { setTargetWeight(e.target.value); setError('') }}
+            aria-invalid={!!error} />
+          {error && <p className="ob-error" role="alert">{error}</p>}
+          <div className="ob-actions">
+            <button className="adaptive" data-material="inverted" data-container-contrast="max"
+              data-interactive onClick={handleGoal}>Weiter</button>
+            <button className="ob-skip" data-interactive onClick={() => setStep(2)}>Überspringen</button>
+          </div>
+        </>
+      )
+      case 2: return (
+        <>
+          <label htmlFor="ob-time">Tägliche Erinnerung</label>
+          <input id="ob-time" className="ob-input" type="time" value={reminderTime}
+            onChange={e => setReminderTime(e.target.value)} />
+          <div className="ob-actions">
+            <button className="adaptive" data-material="inverted" data-container-contrast="max"
+              data-interactive onClick={handleReminder}>Aktivieren</button>
+            <button className="ob-skip" data-interactive onClick={() => setStep(3)}>Überspringen</button>
+          </div>
+        </>
+      )
+      case 3: return (
+        <>
+          <label className="ob-toggle">
+            <input type="checkbox" checked={weeklyEnabled}
+              onChange={e => setWeeklyEnabled(e.target.checked)} />
+            Wöchentliche Umfangmessung
+          </label>
+          <div className="ob-actions">
+            <button className="adaptive" data-material="inverted" data-container-contrast="max"
+              data-interactive onClick={handleWeekly}>Fertig</button>
+          </div>
+        </>
+      )
+      default: return null
     }
   }
 
-  const handleReminderActivate = () => {
-    localStorage.setItem('reminderTime', reminderTime)
-    setStep(4)
-  }
-
-  const handleWeeklyActivate = () => {
-    localStorage.setItem('weeklyMeasurementEnabled', weeklyEnabled ? 'true' : 'false')
-    setStep(5)
-  }
-
-  // Step 0: Welcome
-  if (step === 0) {
-    return (
-      <div className="goal-onboarding adaptive">
-        <ProgressDots current={step} total={totalSteps} />
-        <h1>Willkommen!</h1>
-        <p>Lass uns dein Tracking einrichten.</p>
-        <div className="goal-onboarding-actions">
-          <button
-            className="adaptive"
-            data-material="inverted"
-            data-container-contrast="max"
-            data-interactive
-            onClick={() => setStep(1)}
-          >
-            Los geht's
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // Step 1: Starting weight
-  if (step === 1) {
-    return (
-      <div className="goal-onboarding adaptive">
-        <ProgressDots current={step} total={totalSteps} />
-        <h1>Startgewicht</h1>
-        <p>Wie viel wiegst du aktuell?</p>
-        <div className="goal-onboarding-field">
-          <label htmlFor="onboarding-weight">Gewicht (kg)</label>
-          <input
-            id="onboarding-weight"
-            className="adaptive"
-            type="text"
-            inputMode="decimal"
-            placeholder="z.B. 85.0"
-            value={weight}
-            onChange={(e) => {
-              setWeight(e.target.value)
-              setWeightError('')
-            }}
-            aria-invalid={!!weightError}
-          />
-        </div>
-        {weightError && <p className="goal-onboarding-error" role="alert">{weightError}</p>}
-        <div className="goal-onboarding-actions">
-          <button
-            className="adaptive"
-            data-material="inverted"
-            data-container-contrast="max"
-            data-interactive
-            onClick={handleWeightNext}
-          >
-            Weiter
-          </button>
-          <button
-            className="goal-onboarding-skip adaptive"
-            data-interactive
-            onClick={() => setStep(2)}
-          >
-            Überspringen
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // Step 2: Weight goal
-  if (step === 2) {
-    return (
-      <div className="goal-onboarding adaptive">
-        <ProgressDots current={step} total={totalSteps} />
-        <h1>Gewichtsziel</h1>
-        <p>Was ist dein Zielgewicht?</p>
-        <div className="goal-onboarding-field">
-          <label htmlFor="onboarding-target">Zielgewicht (kg)</label>
-          <input
-            id="onboarding-target"
-            className="adaptive"
-            type="text"
-            inputMode="decimal"
-            placeholder="z.B. 75.0"
-            value={targetWeight}
-            onChange={(e) => {
-              setTargetWeight(e.target.value)
-              setGoalError('')
-            }}
-            aria-invalid={!!goalError}
-          />
-        </div>
-        {goalError && <p className="goal-onboarding-error" role="alert">{goalError}</p>}
-        <div className="goal-onboarding-actions">
-          <button
-            className="adaptive"
-            data-material="inverted"
-            data-container-contrast="max"
-            data-interactive
-            onClick={handleGoalNext}
-          >
-            Ziel setzen
-          </button>
-          <button
-            className="goal-onboarding-skip adaptive"
-            data-interactive
-            onClick={() => setStep(3)}
-          >
-            Überspringen
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // Step 3: Reminder time
-  if (step === 3) {
-    return (
-      <div className="goal-onboarding adaptive">
-        <ProgressDots current={step} total={totalSteps} />
-        <h1>Erinnerung</h1>
-        <p>Wann möchtest du täglich erinnert werden?</p>
-        <div className="goal-onboarding-field">
-          <label htmlFor="onboarding-reminder">Uhrzeit</label>
-          <input
-            id="onboarding-reminder"
-            className="adaptive"
-            type="time"
-            value={reminderTime}
-            onChange={(e) => setReminderTime(e.target.value)}
-          />
-        </div>
-        <div className="goal-onboarding-actions">
-          <button
-            className="adaptive"
-            data-material="inverted"
-            data-container-contrast="max"
-            data-interactive
-            onClick={handleReminderActivate}
-          >
-            Aktivieren
-          </button>
-          <button
-            className="goal-onboarding-skip adaptive"
-            data-interactive
-            onClick={() => setStep(4)}
-          >
-            Überspringen
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // Step 4: Weekly measurement
-  if (step === 4) {
-    return (
-      <div className="goal-onboarding adaptive">
-        <ProgressDots current={step} total={totalSteps} />
-        <h1>Wöchentliche Messung</h1>
-        <p>Möchtest du wöchentlich deine Umfänge messen?</p>
-        <div className="goal-onboarding-toggle">
-          <input
-            id="onboarding-weekly"
-            type="checkbox"
-            checked={weeklyEnabled}
-            onChange={(e) => setWeeklyEnabled(e.target.checked)}
-          />
-          <label htmlFor="onboarding-weekly">Umfangmessung aktivieren</label>
-        </div>
-        <div className="goal-onboarding-actions">
-          <button
-            className="adaptive"
-            data-material="inverted"
-            data-container-contrast="max"
-            data-interactive
-            onClick={handleWeeklyActivate}
-          >
-            Aktivieren
-          </button>
-          <button
-            className="goal-onboarding-skip adaptive"
-            data-interactive
-            onClick={() => setStep(5)}
-          >
-            Überspringen
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // Step 5: Done
   return (
-    <div className="goal-onboarding adaptive">
-      <ProgressDots current={step} total={totalSteps} />
-      <h1>Alles eingerichtet!</h1>
-      <p>Du kannst jederzeit in den Einstellungen Änderungen vornehmen.</p>
-      <div className="goal-onboarding-actions">
-        <button
-          className="adaptive"
-          data-material="inverted"
-          data-container-contrast="max"
-          data-interactive
-          onClick={finishOnboarding}
-        >
-          Zum Dashboard
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function ProgressDots({ current, total }: { current: number; total: number }) {
-  return (
-    <div className="goal-onboarding-progress" aria-label={`Schritt ${current + 1} von ${total}`}>
-      {Array.from({ length: total }, (_, i) => (
-        <span
-          key={i}
-          className={`goal-onboarding-dot${i <= current ? ' goal-onboarding-dot--active' : ''}`}
-        />
-      ))}
+    <div className="ob-backdrop">
+      <dialog className="ob-dialog adaptive" open>
+        <div className="ob-header">
+          <button className="ob-back" data-interactive onClick={back}>
+            {step === 0 ? 'Schließen' : 'Zurück'}
+          </button>
+          <span className="ob-progress">{step + 1} / {TOTAL}</span>
+        </div>
+        {renderStep()}
+      </dialog>
     </div>
   )
 }

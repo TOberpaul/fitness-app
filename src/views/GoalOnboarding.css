@@ -1,105 +1,103 @@
-.goal-onboarding {
+.ob-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-padding);
+  z-index: 100;
   padding: var(--spacing-padding);
-  min-height: 80vh;
-  text-align: center;
 }
 
-.goal-onboarding-progress {
-  display: flex;
-  gap: var(--size-gap);
-  margin-bottom: var(--spacing-padding);
-}
-
-.goal-onboarding-dot {
-  width: var(--size-2);
-  height: var(--size-2);
-  border-radius: 50%;
-  background: var(--db-border);
-  transition: background 0.2s ease;
-}
-
-.goal-onboarding-dot--active {
-  background: var(--db-visual);
-}
-
-.goal-onboarding h1 {
-  font-size: var(--size-text-max);
-  color: var(--db-text);
-}
-
-.goal-onboarding p {
-  font-size: var(--size-text);
-  color: var(--db-text);
-  max-width: 30ch;
-}
-
-.goal-onboarding-field {
+.ob-dialog {
   display: flex;
   flex-direction: column;
-  gap: var(--size-gap);
+  gap: var(--spacing-padding);
   width: 100%;
-  max-width: 20rem;
+  max-width: 24rem;
+  border: none;
+  border-radius: var(--size-border-radius);
+  padding: var(--spacing-padding);
 }
 
-.goal-onboarding-field label {
+.ob-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ob-back {
+  background: none;
+  border: none;
+  color: var(--db-text);
+  font-size: var(--size-text);
+  cursor: pointer;
+  padding: 0;
+}
+
+.ob-progress {
   font-size: var(--size-text);
   color: var(--db-text);
-  text-align: left;
+  opacity: 0.5;
 }
 
-.goal-onboarding-field input {
+.ob-dialog label {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.ob-input {
   height: var(--size-container);
   text-align: center;
   font-size: var(--size-text-max);
+  border: var(--size-1) solid var(--db-border);
+  border-radius: var(--size-border-radius);
+  background: var(--db-background);
+  color: var(--db-text);
+  width: 100%;
 }
 
-.goal-onboarding-field input:focus {
+.ob-input:focus {
   outline: var(--size-2) solid var(--db-visual);
   outline-offset: var(--size-1);
 }
 
-.goal-onboarding-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--size-gap);
-  font-size: var(--size-text);
-  color: var(--db-text);
-}
-
-.goal-onboarding-toggle input[type="checkbox"] {
-  width: var(--size-text-max);
-  height: var(--size-text-max);
-  accent-color: var(--db-visual);
-}
-
-.goal-onboarding-error {
+.ob-error {
   font-size: var(--size-text);
   color: var(--db-critical);
+  margin: 0;
 }
 
-.goal-onboarding-actions {
+.ob-actions {
   display: flex;
   flex-direction: column;
   gap: var(--size-gap);
-  width: 100%;
-  max-width: 20rem;
 }
 
-.goal-onboarding-actions button {
+.ob-actions button {
   height: var(--size-container);
   font-weight: bold;
 }
 
-.goal-onboarding-skip {
+.ob-skip {
   background: transparent;
-  color: var(--db-text);
   border: none;
+  color: var(--db-text);
   cursor: pointer;
   font-size: var(--size-text);
+}
+
+.ob-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--size-gap);
+  font-size: var(--size-text);
+  color: var(--db-text);
+  cursor: pointer;
+}
+
+.ob-toggle input[type="checkbox"] {
+  width: var(--size-text-max);
+  height: var(--size-text-max);
+  accent-color: var(--db-visual);
 }
