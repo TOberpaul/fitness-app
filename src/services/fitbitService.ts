@@ -116,13 +116,14 @@ export async function initiateAuth(): Promise<void> {
  */
 export async function handleCallback(code: string, state: string): Promise<void> {
   const savedState = localStorage.getItem('fitbit_oauth_state');
+  const verifier = localStorage.getItem('fitbit_code_verifier');
+
   if (state !== savedState) {
-    throw new Error('OAuth state mismatch — possible CSRF attack');
+    throw new Error(`OAuth state mismatch (saved=${savedState ? 'present' : 'missing'})`)
   }
 
-  const verifier = localStorage.getItem('fitbit_code_verifier');
   if (!verifier) {
-    throw new Error('Missing PKCE code verifier');
+    throw new Error('Missing PKCE code verifier — localStorage may have been cleared during redirect');
   }
 
   const body = new URLSearchParams({
@@ -137,7 +138,6 @@ export async function handleCallback(code: string, state: string): Promise<void>
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ' + btoa(FITBIT_CLIENT_ID + ':'),
     },
     body: body.toString(),
   });
@@ -182,7 +182,6 @@ export async function refreshToken(): Promise<void> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ' + btoa(FITBIT_CLIENT_ID + ':'),
     },
     body: body.toString(),
   });
