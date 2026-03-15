@@ -1,4 +1,3 @@
-import type { UserContext } from '../types';
 import { formatDate, getWeekStart } from '../utils/date';
 import { getDailyReminderMessage, getWeeklyReminderMessage } from './notificationEngine';
 import type { DailyMeasurement, WeeklyMeasurement } from '../types';
