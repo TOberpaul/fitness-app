@@ -173,11 +173,6 @@ function WeeklyInputView() {
   if (step === 0) {
     return (
       <div className="weekly-input adaptive">
-        <img
-          className="weekly-input-hero"
-          src={`${import.meta.env.BASE_URL}Running.png`}
-          alt="Fitness Illustration"
-        />
         <h1>Wöchentliche Umfangmessung</h1>
         <p className="weekly-input-intro-text">
           Woche ab {weekStart}

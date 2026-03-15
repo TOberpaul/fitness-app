@@ -255,7 +255,7 @@ export function arbitraryUserContext(): fc.Arbitrary<UserContext> {
 export function arbitraryStepFlowEntries(): fc.Arbitrary<StepFlowEntry[]> {
   return fc
     .tuple(
-      ...CIRCUMFERENCE_ZONES.map((zone) =>
+      ...CIRCUMFERENCE_ZONES.map(() =>
         fc.record({
           skipped: fc.boolean(),
           value: fc.option(arbitraryCircumference(), { nil: null }),

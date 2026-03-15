@@ -108,6 +108,12 @@ function GoalsView() {
 
   return (
     <div className="goals-view">
+      <img
+        className="goals-view-hero"
+        src={`${import.meta.env.BASE_URL}Running.png`}
+        alt="Fitness Illustration"
+      />
+
       {hasDailyData && (
         <CoachingSummary
           currentWeight={currentWeight}

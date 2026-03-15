@@ -5,6 +5,13 @@
   padding: var(--spacing-padding);
 }
 
+.goals-view-hero {
+  width: 60%;
+  max-width: 220px;
+  margin: 0 auto;
+  display: block;
+}
+
 .goals-view-consistency {
   text-align: center;
   font-size: var(--size-text);

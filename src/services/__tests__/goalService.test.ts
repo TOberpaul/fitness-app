@@ -575,7 +575,7 @@ describe('goalService - evaluateGoals', () => {
   });
 
   it('marks a weight-loss goal as reached when currentValue equals targetValue exactly', async () => {
-    const goal = await createGoal(makeGoalInput({ startValue: 85, targetValue: 75 }));
+    await createGoal(makeGoalInput({ startValue: 85, targetValue: 75 }));
     const measurements: DailyMeasurement[] = [
       makeDailyMeasurement('2024-01-10', 75.0),
     ];
@@ -605,7 +605,7 @@ describe('goalService - evaluateGoals', () => {
   });
 
   it('handles gaining goals (targetValue > startValue)', async () => {
-    const goal = await createGoal(makeGoalInput({ startValue: 60, targetValue: 70 }));
+    await createGoal(makeGoalInput({ startValue: 60, targetValue: 70 }));
     const measurements: DailyMeasurement[] = [
       makeDailyMeasurement('2024-01-10', 71.0),
     ];
@@ -617,7 +617,7 @@ describe('goalService - evaluateGoals', () => {
   });
 
   it('handles bodyFat goals', async () => {
-    const goal = await createGoal(makeGoalInput({
+    await createGoal(makeGoalInput({
       metricType: 'bodyFat',
       startValue: 25,
       targetValue: 20,
@@ -633,7 +633,7 @@ describe('goalService - evaluateGoals', () => {
   });
 
   it('handles circumference goals using weekly measurements', async () => {
-    const goal = await createGoal(makeGoalInput({
+    await createGoal(makeGoalInput({
       metricType: 'circumference',
       zone: 'waist',
       startValue: 95,
@@ -650,7 +650,7 @@ describe('goalService - evaluateGoals', () => {
   });
 
   it('uses the most recent measurement value', async () => {
-    const goal = await createGoal(makeGoalInput({ startValue: 85, targetValue: 75 }));
+    await createGoal(makeGoalInput({ startValue: 85, targetValue: 75 }));
     const measurements: DailyMeasurement[] = [
       makeDailyMeasurement('2024-01-05', 74.0), // older, below target
       makeDailyMeasurement('2024-01-10', 80.0), // newer, above target

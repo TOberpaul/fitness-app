@@ -8,13 +8,6 @@
   text-align: center;
 }
 
-.weekly-input-hero {
-  width: 100%;
-  max-width: 12rem;
-  height: auto;
-  object-fit: contain;
-}
-
 .weekly-input-intro-text {
   font-size: var(--size-text);
   line-height: 1.5;
