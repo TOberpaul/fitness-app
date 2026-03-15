@@ -37,9 +37,9 @@
 
 .toggle-switch {
   position: relative;
-  width: 51px;
-  height: 31px;
-  border-radius: 31px;
+  width: calc( 2* var(--size-container));
+  height: var(--size-container);
+  border-radius: var(--size-border-radius-full);
   border: none;
   background: var(--db-border);
   cursor: pointer;
@@ -49,15 +49,15 @@
 }
 
 .toggle-switch.toggle-on {
-  background: var(--theme-green-7);
+  background: var(--db-visual);
 }
 
 .toggle-knob {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 27px;
-  height: 27px;
+  top: var(--size-4);
+  left: var(--size-4);
+  width: calc(var(--size-container) - 2 * var(--size-4));
+  height: calc(var(--size-container) - 2 * var(--size-4));
   border-radius: 50%;
   background: #fff;
   transition: transform 0.25s;

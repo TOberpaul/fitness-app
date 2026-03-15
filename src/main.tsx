@@ -6,6 +6,12 @@ import './styles/foundation-size.css'
 import './index.css'
 import App from './App.tsx'
 
+// Apply saved theme before render to avoid flash
+const savedTheme = localStorage.getItem('theme_mode')
+if (savedTheme === 'light' || savedTheme === 'dark') {
+  document.documentElement.setAttribute('data-mode', savedTheme)
+}
+
 // Register service worker for offline support and PWA installation
 registerSW({ immediate: true })
 

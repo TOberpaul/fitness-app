@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { isConnected, syncData, initiateAuth, disconnect } from '../services/fitbitService'
 import { exportToFile, importFromFile } from '../services/serializationService'
 import { getAllData, importData } from '../services/dataService'
@@ -11,6 +11,29 @@ function SettingsView() {
   const [importStatus, setImportStatus] = useState('')
   const [pushSubscribed, setPushSubscribed] = useState(() => localStorage.getItem('push_subscribed') === '1')
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  type ThemeMode = 'system' | 'light' | 'dark'
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
+    return (localStorage.getItem('theme_mode') as ThemeMode) || 'system'
+  })
+
+  const applyTheme = useCallback((mode: ThemeMode) => {
+    const html = document.documentElement
+    if (mode === 'system') {
+      html.removeAttribute('data-mode')
+    } else {
+      html.setAttribute('data-mode', mode)
+    }
+  }, [])
+
+  useEffect(() => {
+    applyTheme(themeMode)
+  }, [themeMode, applyTheme])
+
+  const handleThemeChange = (mode: ThemeMode) => {
+    setThemeMode(mode)
+    localStorage.setItem('theme_mode', mode)
+  }
 
   useEffect(() => {
     setFitbitConnected(isConnected())
@@ -102,6 +125,24 @@ function SettingsView() {
       </section>
 
       <section className="settings-section">
+        <h2>Erscheinungsbild</h2>
+        <div className="dashboard-tabs adaptive" data-material="semi-transparent">
+          {(['system', 'light', 'dark'] as ThemeMode[]).map((mode) => (
+            <button
+              key={mode}
+              className={`dashboard-tab adaptive${themeMode === mode ? ' active' : ''}`}
+              data-interactive
+              data-size="lg"
+              {...(themeMode === mode ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
+              onClick={() => handleThemeChange(mode)}
+            >
+              {mode === 'system' ? 'System' : mode === 'light' ? 'Hell' : 'Dunkel'}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="settings-section">
         <h2>Benachrichtigungen</h2>
         <label className="settings-toggle-row">
           <span>Erinnerungen</span>
@@ -110,6 +151,7 @@ function SettingsView() {
             role="switch"
             aria-checked={pushSubscribed}
             onClick={handleTogglePush}
+            {...(pushSubscribed ? { 'data-color': 'green' } : {})}
           >
             <span className="toggle-knob" />
           </button>
