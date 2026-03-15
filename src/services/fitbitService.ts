@@ -134,13 +134,18 @@ export async function handleCallback(code: string, state: string): Promise<void>
     redirect_uri: FITBIT_REDIRECT_URI,
   });
 
-  const response = await fetch(FITBIT_TOKEN_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: body.toString(),
-  });
+  let response: Response;
+  try {
+    response = await fetch(FITBIT_TOKEN_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: body.toString(),
+    });
+  } catch (fetchErr) {
+    throw new Error(`Network error during token exchange: ${fetchErr instanceof Error ? fetchErr.message : String(fetchErr)}`);
+  }
 
   if (!response.ok) {
     const errorBody = await response.text().catch(() => '');
