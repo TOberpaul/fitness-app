@@ -41,15 +41,11 @@
   height: var(--size-container);
   border-radius: var(--size-border-radius-full);
   border: none;
-  background: var(--db-border);
+  background: var(--db-background);
   cursor: pointer;
   padding: 0;
   transition: background 0.25s;
   flex-shrink: 0;
-}
-
-.toggle-switch.toggle-on {
-  background: var(--db-visual);
 }
 
 .toggle-knob {
