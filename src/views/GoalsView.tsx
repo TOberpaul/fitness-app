@@ -114,15 +114,6 @@ function GoalsView() {
         alt="Ziele Illustration"
       />
 
-      {hasDailyData && (
-        <CoachingSummary
-          currentWeight={currentWeight}
-          weeklyWeightChange={weeklyWeightChange}
-          activeGoal={activeGoal}
-          projection={projection}
-        />
-      )}
-
       {hasGoals === false ? (
         <EmptyState
           message="Noch kein Ziel gesetzt"
@@ -140,24 +131,28 @@ function GoalsView() {
             />
           )}
 
-          <GoalCard
-            goal={activeGoal}
-            projection={projection}
-            onClick={() => navigate('/goals/' + activeGoal.id)}
-          />
+          <div data-color="blue" data-material="origin">
+            <GoalCard
+              goal={activeGoal}
+              projection={projection}
+              onClick={() => navigate('/goals/' + activeGoal.id)}
+            />
+          </div>
 
           {hasWeeklyData && (
-            <BodyCompass trends={bodyCompassTrends} />
+            <div data-color="green" data-material="filled">
+              <BodyCompass trends={bodyCompassTrends} />
+            </div>
           )}
 
           {consistencyScore && (
-            <div className="goals-view-consistency adaptive">
+            <div className="goals-view-consistency adaptive" data-color="orange" data-material="filled" data-content-contrast="min">
               <span>Diese Woche: {consistencyScore.score}% on track</span>
             </div>
           )}
 
           {nonScaleVictories.length > 0 && (
-            <div className="goals-view-nsv">
+            <div className="goals-view-nsv" data-color="pink" data-material="filled" data-content-contrast="min">
               {nonScaleVictories.map((nsv, i) => (
                 <p key={i} className="goals-view-nsv-message">{nsv.message}</p>
               ))}
@@ -165,7 +160,7 @@ function GoalsView() {
           )}
 
           {milestones.length > 0 && (
-            <div className="goals-view-achievements">
+            <div className="goals-view-achievements" data-color="yellow" data-material="filled">
               {milestones.map((m) => (
                 <AchievementCard
                   key={m.id}

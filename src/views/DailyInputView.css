@@ -1,9 +1,19 @@
 .daily-input {
   display: flex;
   flex-direction: column;
+  height: 100%;
   border: none;
   gap: var(--spacing-padding);
   padding: var(--spacing-padding);
+  flex: 1;
+}
+
+.daily-input-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-padding);
 }
 
 .daily-input-field {

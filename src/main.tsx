@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
 import './styles/foundation.css'
 import './styles/foundation-size.css'
+import './styles/theme.css'
 import './index.css'
 import App from './App.tsx'
 

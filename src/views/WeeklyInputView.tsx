@@ -182,13 +182,16 @@ function WeeklyInputView() {
   return (
     <div className="weekly-input adaptive">
       <h1>Wöchentliche Umfangmessung</h1>
-      <p className="weekly-input-intro-text">
-        Woche ab {weekStart}
-      </p>
-      <p className="weekly-input-intro-text">
-        Nimm dein Maßband und miss die folgenden 6 Körperstellen.
-        Du kannst jede Messung auch überspringen.
-      </p>
+      <div className="weekly-input-body">
+        <p className="weekly-input-intro-text">
+          Woche ab {weekStart}
+        </p>
+        <p className="weekly-input-intro-text">
+          Nimm dein Maßband und miss die folgenden 6 Körperstellen.
+          Du kannst jede Messung auch überspringen.
+        </p>
+      </div>
+
       <button
         className="weekly-input-start adaptive"
         data-material="inverted"

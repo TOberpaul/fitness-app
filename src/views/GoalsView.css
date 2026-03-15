@@ -13,6 +13,9 @@
 }
 
 .goals-view-consistency {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   text-align: center;
   font-size: var(--size-text);
   color: var(--db-text);
@@ -27,7 +30,7 @@
 
 .goals-view-nsv-message {
   font-size: var(--size-text);
-  color: var(--db-successful);
+  color: var(--db-visual);
   text-align: center;
 }
 

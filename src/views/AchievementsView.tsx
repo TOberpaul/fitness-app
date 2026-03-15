@@ -56,6 +56,12 @@ function AchievementsView() {
 
       <h1>Erfolge</h1>
 
+      <img
+        className="achievements-hero"
+        src={`${import.meta.env.BASE_URL}Party.png`}
+        alt=""
+      />
+
       {isEmpty && (
         <div className="achievements-empty adaptive">
           <p>Noch keine Meilensteine erreicht</p>
@@ -64,7 +70,7 @@ function AchievementsView() {
       )}
 
       {hasMilestones && (
-        <div className="achievements-section adaptive">
+        <div className="achievements-section adaptive" data-color="violet" data-material="filled">
           <h2>Meilensteine</h2>
           <div className="achievements-list">
             {milestones.map((m) => (
@@ -75,8 +81,13 @@ function AchievementsView() {
       )}
 
       {hasActiveStreaks && (
-        <div className="achievements-section adaptive">
+        <div className="achievements-section adaptive" data-color="red" data-material="filled">
           <h2>Aktuelle Serien</h2>
+          <img
+            className="achievements-streak-icon"
+            src={`${import.meta.env.BASE_URL}Flame.png`}
+            alt=""
+          />
           <div className="achievements-list">
             {dailyStreakAchievement && (
               <AchievementCard achievement={dailyStreakAchievement} />

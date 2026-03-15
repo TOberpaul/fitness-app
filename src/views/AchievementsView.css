@@ -16,6 +16,19 @@
   padding: 0;
 }
 
+.achievements-hero {
+  width: 40%;
+  max-width: 10rem;
+  margin: 0 auto;
+  display: block;
+}
+
+.achievements-streak-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  align-self: center;
+}
+
 .achievements-section {
   display: flex;
   flex-direction: column;

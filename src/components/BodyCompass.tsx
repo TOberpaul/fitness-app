@@ -34,7 +34,7 @@ function BodyCompass({ trends }: BodyCompassProps) {
             <div className="body-compass-zone" key={zone}>
               <span className="body-compass-zone-label">{ZONE_LABELS[zone]}</span>
               {trend !== null ? (
-                <span className="body-compass-trend" data-trend={trend}>
+                <span className="body-compass-trend" data-trend={trend} data-content-contrast="min">
                   {(() => { const Icon = TREND_DISPLAY[trend].icon; return <Icon size={16} /> })()}
                   {' '}{TREND_DISPLAY[trend].label}
                 </span>
