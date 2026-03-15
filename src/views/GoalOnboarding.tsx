@@ -22,7 +22,6 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
 
   const back = () => {
     setError('')
-    if (step === 0) { finish(); return }
     setStep(step - 1)
   }
 
@@ -142,11 +141,14 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
           alt=""
         />
         <div className="ob-header">
-          <button className="ob-back" data-interactive onClick={back}>
-            {step === 0 ? 'Schließen' : 'Zurück'}
+          <span className="ob-title">Einrichtung ({step + 1}/{TOTAL})</span>
+          <button className="ob-close" data-interactive onClick={finish} aria-label="Schließen">
+            &times;
           </button>
-          <span className="ob-progress">{step + 1} / {TOTAL}</span>
         </div>
+        {step > 0 && (
+          <button className="ob-back" data-interactive onClick={back}>Zurück</button>
+        )}
         {renderStep()}
       </dialog>
     </div>

@@ -33,6 +33,22 @@
   align-items: center;
 }
 
+.ob-title {
+  font-size: var(--size-text);
+  color: var(--db-text);
+  font-weight: bold;
+}
+
+.ob-close {
+  background: none;
+  border: none;
+  font-size: var(--size-text-max);
+  color: var(--db-text);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
 .ob-back {
   background: none;
   border: none;
@@ -40,12 +56,7 @@
   font-size: var(--size-text);
   cursor: pointer;
   padding: 0;
-}
-
-.ob-progress {
-  font-size: var(--size-text);
-  color: var(--db-text);
-  opacity: 0.5;
+  align-self: flex-start;
 }
 
 .ob-dialog label {
