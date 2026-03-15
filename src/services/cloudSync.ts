@@ -6,7 +6,6 @@ import {
   saveDailyMeasurement,
   saveWeeklyMeasurement,
 } from './dataService'
-import type { DailyMeasurement, WeeklyMeasurement } from '../types'
 
 const SYNC_KEY = 'last_cloud_sync'
 const DEVICE_KEY = 'device_id'
@@ -31,7 +30,7 @@ async function pushToCloud(deviceId: string): Promise<void> {
       .select('updated_at')
       .eq('device_id', deviceId)
       .eq('date', m.date)
-      .single()
+      .maybeSingle()
 
     if (remote && remote.updated_at >= m.updatedAt) continue
 
@@ -51,7 +50,7 @@ async function pushToCloud(deviceId: string): Promise<void> {
       .select('updated_at')
       .eq('device_id', deviceId)
       .eq('date', m.date)
-      .single()
+      .maybeSingle()
 
     if (remote && remote.updated_at >= m.updatedAt) continue
 
