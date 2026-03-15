@@ -153,7 +153,7 @@ function SettingsView() {
             onClick={handleTogglePush}
             {...(pushSubscribed ? { 'data-color': 'green' } : {})}
           >
-            <span className="toggle-knob" />
+            <span className="toggle-knob" data-material="inverted" data-container-contrast="max" />
           </button>
         </label>
       </section>

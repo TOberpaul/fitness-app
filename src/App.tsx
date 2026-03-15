@@ -7,6 +7,7 @@ import FitbitCallbackView from './views/FitbitCallbackView'
 import SettingsView from './views/SettingsView'
 import BottomNavigation from './components/BottomNavigation'
 import { initConnectionState } from './services/fitbitService'
+import { syncIfNeeded } from './services/cloudSync'
 import './App.css'
 
 const SWIPE_ROUTES = ['/', '/daily', '/weekly', '/settings']
@@ -53,6 +54,7 @@ function SwipeContainer({ children }: { children: React.ReactNode }) {
 function AppContent() {
   useEffect(() => {
     initConnectionState()
+    syncIfNeeded()
   }, [])
 
   return (

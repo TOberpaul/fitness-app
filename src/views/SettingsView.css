@@ -58,8 +58,8 @@
   left: var(--size-4);
   width: calc(var(--size-container) - 2 * var(--size-4));
   height: calc(var(--size-container) - 2 * var(--size-4));
+  background: var(--db-background);
   border-radius: 50%;
-  background: #fff;
   transition: transform 0.25s;
   pointer-events: none;
 }
