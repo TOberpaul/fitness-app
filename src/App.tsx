@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import DashboardView from './views/DashboardView'
 import DailyInputView from './views/DailyInputView'
 import WeeklyInputView from './views/WeeklyInputView'
@@ -139,6 +139,7 @@ function AppContent() {
           <Route path="/goals/new" element={<GoalCreateView />} />
           <Route path="/goals/:id" element={<GoalDetailView />} />
           <Route path="/achievements" element={<AchievementsView />} />
+          <Route path="/onboarding" element={<Navigate to="/" replace />} />
         </Routes>
         {showOnboarding && <GoalOnboarding onClose={() => setShowOnboarding(false)} />}
       </main>
