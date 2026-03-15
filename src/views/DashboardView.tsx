@@ -96,7 +96,6 @@ function DashboardView() {
     return (
       <div className="dashboard">
         <EmptyState
-          icon={<span>⚖️</span>}
           message="Noch keine Daten vorhanden"
           ctaLabel="Erste Messung eintragen"
           onCtaClick={() => navigate('/daily')}

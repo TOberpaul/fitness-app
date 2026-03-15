@@ -10,11 +10,6 @@ function isMilestone(achievement: Milestone | StreakAchievement): achievement is
   return 'id' in achievement
 }
 
-function getIcon(achievement: Milestone | StreakAchievement): string {
-  if (isMilestone(achievement)) return '🏆'
-  return achievement.type === 'daily-streak' ? '🔥' : '📏'
-}
-
 function getDetail(achievement: Milestone | StreakAchievement): string {
   if (isMilestone(achievement)) {
     return `Erreicht am ${achievement.earnedAt}`
@@ -24,7 +19,6 @@ function getDetail(achievement: Milestone | StreakAchievement): string {
 }
 
 function AchievementCard({ achievement, onClick }: AchievementCardProps) {
-  const icon = getIcon(achievement)
   const detail = getDetail(achievement)
   const isClickable = !!onClick
 
@@ -37,7 +31,6 @@ function AchievementCard({ achievement, onClick }: AchievementCardProps) {
       onClick={isClickable ? onClick : undefined}
       onKeyDown={isClickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick!() } } : undefined}
     >
-      <span className="achievement-card-icon">{icon}</span>
       <div className="achievement-card-content">
         <span className="achievement-card-label">{achievement.label}</span>
         <span className="achievement-card-detail">{detail}</span>

@@ -125,7 +125,6 @@ function GoalsView() {
 
       {hasGoals === false ? (
         <EmptyState
-          icon={<span>🎯</span>}
           message="Noch kein Ziel gesetzt"
           ctaLabel="Erstes Ziel erstellen"
           onCtaClick={() => navigate('/goals/new')}

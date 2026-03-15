@@ -147,7 +147,7 @@ function GoalDetailView() {
       {/* Reached goal congratulation */}
       {isReached && (
         <div className="goal-detail-reached adaptive">
-          <p className="goal-detail-reached-message">🎉 Glückwunsch! Ziel erreicht!</p>
+          <p className="goal-detail-reached-message">Glückwunsch! Ziel erreicht!</p>
           {goal.reachedAt && (
             <p className="goal-detail-reached-duration">
               Dauer: {formatDuration(calculateDurationDays(goal.createdAt, goal.reachedAt))}
