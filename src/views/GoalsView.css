@@ -1,0 +1,31 @@
+.goals-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-padding);
+  padding: var(--spacing-padding);
+}
+
+.goals-view-consistency {
+  text-align: center;
+  font-size: var(--size-text);
+  color: var(--db-text);
+  padding: var(--size-padding-min) 0;
+}
+
+.goals-view-nsv {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.goals-view-nsv-message {
+  font-size: var(--size-text);
+  color: var(--db-successful);
+  text-align: center;
+}
+
+.goals-view-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}

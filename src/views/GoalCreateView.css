@@ -1,0 +1,56 @@
+.goal-create {
+  display: flex;
+  flex-direction: column;
+  border: none;
+  gap: var(--spacing-padding);
+  padding: var(--spacing-padding);
+}
+
+.goal-create-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.goal-create-field input,
+.goal-create-field select {
+  height: var(--size-container);
+}
+
+.goal-create-field input:focus,
+.goal-create-field select:focus {
+  outline: var(--size-2) solid var(--db-visual);
+  outline-offset: var(--size-1);
+}
+
+.goal-create-metric-options {
+  display: flex;
+  gap: var(--size-gap);
+}
+
+.goal-create-metric-options label {
+  display: flex;
+  align-items: center;
+  gap: var(--size-gap);
+  cursor: pointer;
+}
+
+.goal-create-start-display {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.goal-create-error {
+  font-size: var(--size-text);
+  color: var(--db-critical);
+}
+
+.goal-create-submit {
+  height: var(--size-container);
+  font-weight: bold;
+}
+
+.goal-create-success {
+  font-size: var(--size-text);
+  text-align: center;
+}

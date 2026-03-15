@@ -1,0 +1,51 @@
+.achievements {
+  display: flex;
+  flex-direction: column;
+  border: none;
+  gap: var(--spacing-padding);
+  padding: var(--spacing-padding);
+}
+
+.achievements-back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--db-visual);
+  font-size: var(--size-text);
+  cursor: pointer;
+  padding: 0;
+}
+
+.achievements-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.achievements-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--size-gap);
+  padding: var(--spacing-padding);
+  text-align: center;
+  color: var(--db-text);
+  font-size: var(--size-text);
+}
+
+.achievements-no-streaks {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.achievements-loading {
+  text-align: center;
+  padding: var(--spacing-padding);
+  color: var(--db-text);
+}

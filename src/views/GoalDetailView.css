@@ -1,0 +1,120 @@
+.goal-detail {
+  display: flex;
+  flex-direction: column;
+  border: none;
+  gap: var(--spacing-padding);
+  padding: var(--spacing-padding);
+}
+
+.goal-detail-back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--db-visual);
+  font-size: var(--size-text);
+  cursor: pointer;
+  padding: 0;
+}
+
+.goal-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.goal-detail-metric-label {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.goal-detail-values {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.goal-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.goal-detail-row-label {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.goal-detail-row-value {
+  font-size: var(--size-text);
+  font-weight: bold;
+}
+
+.goal-detail-projection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.goal-detail-trend {
+  font-size: var(--size-text);
+  padding: var(--size-gap);
+  border-radius: var(--size-2);
+}
+
+.goal-detail-trend[data-trend="ahead"] {
+  color: var(--db-successful);
+}
+
+.goal-detail-trend[data-trend="on-track"] {
+  color: var(--db-successful);
+}
+
+.goal-detail-trend[data-trend="behind"] {
+  color: var(--db-warning);
+}
+
+.goal-detail-trend[data-trend="insufficient-data"] {
+  color: var(--db-text);
+}
+
+.goal-detail-reached {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+  text-align: center;
+}
+
+.goal-detail-reached-message {
+  font-size: var(--size-text);
+  font-weight: bold;
+  color: var(--db-successful);
+}
+
+.goal-detail-reached-duration {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.goal-detail-actions {
+  display: flex;
+  gap: var(--size-gap);
+  margin-top: var(--spacing-padding);
+}
+
+.goal-detail-actions button {
+  flex: 1;
+  height: var(--size-container);
+  font-weight: bold;
+}
+
+.goal-detail-loading {
+  text-align: center;
+  padding: var(--spacing-padding);
+  color: var(--db-text);
+}
+
+.goal-detail-not-found {
+  text-align: center;
+  padding: var(--spacing-padding);
+  color: var(--db-critical);
+}

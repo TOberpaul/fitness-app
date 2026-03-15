@@ -1,0 +1,105 @@
+.goal-onboarding {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-padding);
+  padding: var(--spacing-padding);
+  min-height: 80vh;
+  text-align: center;
+}
+
+.goal-onboarding-progress {
+  display: flex;
+  gap: var(--size-gap);
+  margin-bottom: var(--spacing-padding);
+}
+
+.goal-onboarding-dot {
+  width: var(--size-2);
+  height: var(--size-2);
+  border-radius: 50%;
+  background: var(--db-border);
+  transition: background 0.2s ease;
+}
+
+.goal-onboarding-dot--active {
+  background: var(--db-visual);
+}
+
+.goal-onboarding h1 {
+  font-size: var(--size-text-max);
+  color: var(--db-text);
+}
+
+.goal-onboarding p {
+  font-size: var(--size-text);
+  color: var(--db-text);
+  max-width: 30ch;
+}
+
+.goal-onboarding-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+  width: 100%;
+  max-width: 20rem;
+}
+
+.goal-onboarding-field label {
+  font-size: var(--size-text);
+  color: var(--db-text);
+  text-align: left;
+}
+
+.goal-onboarding-field input {
+  height: var(--size-container);
+  text-align: center;
+  font-size: var(--size-text-max);
+}
+
+.goal-onboarding-field input:focus {
+  outline: var(--size-2) solid var(--db-visual);
+  outline-offset: var(--size-1);
+}
+
+.goal-onboarding-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--size-gap);
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.goal-onboarding-toggle input[type="checkbox"] {
+  width: var(--size-text-max);
+  height: var(--size-text-max);
+  accent-color: var(--db-visual);
+}
+
+.goal-onboarding-error {
+  font-size: var(--size-text);
+  color: var(--db-critical);
+}
+
+.goal-onboarding-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+  width: 100%;
+  max-width: 20rem;
+}
+
+.goal-onboarding-actions button {
+  height: var(--size-container);
+  font-weight: bold;
+}
+
+.goal-onboarding-skip {
+  background: transparent;
+  color: var(--db-text);
+  border: none;
+  cursor: pointer;
+  font-size: var(--size-text);
+}
