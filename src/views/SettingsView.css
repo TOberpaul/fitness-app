@@ -2,19 +2,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-padding);
-  padding: 0;
   border: none;
-  padding-bottom: var(--size-96);
+  padding: var(--spacing-padding);
 }
 
 .settings-section {
   display: flex;
   flex-direction: column;
   gap: var(--size-gap);
-}
-
-.settings-section h2 {
-  font-size: var(--size-16);
 }
 
 .settings-buttons {

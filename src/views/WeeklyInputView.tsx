@@ -110,9 +110,9 @@ function WeeklyInputView() {
     <div className="weekly-input adaptive">
       <h1>Wöchentliche Eingabe</h1>
 
-      <p className="weekly-input-week">
+      <h2>
         Woche ab {weekStart}
-      </p>
+      </h2>
 
       {FIELDS.map(f => (
         <div className="weekly-input-field" key={f.key}>

@@ -2,7 +2,8 @@
   display: flex;
   flex-direction: column;
   border: none;
-  gap: var(--spacing-padding)
+  gap: var(--spacing-padding);
+  padding: var(--spacing-padding);
 }
 
 .weekly-input-week {

@@ -1,10 +1,13 @@
 .dashboard {
   display: flex;
+  width: 100%;
   flex-direction: column;
+  flex: 1;
   gap: var(--spacing-padding);
   padding: var(--spacing-padding);
   border: none;
-  min-height: 100vh;
+  box-sizing: border-box;
+  justify-content: space-between;
 }
 
 .dashboard-value-display {
@@ -52,11 +55,6 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: var(--size-gap);
-}
-
-.dashboard-circumference-btn.active {
-  border-color: var(--db-visual);
-  font-weight: bold;
 }
 
 .dashboard-time-range {

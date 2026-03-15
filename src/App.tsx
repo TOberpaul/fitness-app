@@ -56,7 +56,7 @@ function AppContent() {
   }, [])
 
   return (
-    <div className="app adaptive" data-size="xl" data-material="filled-2">
+    <div className="app" data-size="xl">
       <main className="app-content">
         <SwipeContainer>
           <Routes>

@@ -77,7 +77,7 @@ function GraphComponent({
 
     const opts: uPlot.Options = {
       width,
-      height: 400,
+      height: 200,
       padding: [24, 24, 24, 24],
       cursor: {
         y: false,

@@ -83,7 +83,7 @@ function DashboardView() {
     : null
 
   return (
-    <div className="dashboard adaptive">
+    <div className="dashboard">
       {/* Tab bar */}
       <div className="dashboard-tabs adaptive" data-material="semi-transparent">
         <button
@@ -117,13 +117,13 @@ function DashboardView() {
 
       {/* Circumference sub-selector */}
       {activeTab === 'circumference' && (
-        <div className="dashboard-circumference-selector">
+        <div className="dashboard-circumference-selector" data-size="lg" data-material="transparent">
           {(Object.keys(CIRCUMFERENCE_LABELS) as CircumferenceField[]).map((field) => (
             <button
               key={field}
               className={`dashboard-circumference-btn adaptive${circumferenceField === field ? ' active' : ''}`}
               data-interactive
-              {...(circumferenceField === field ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
+              {...(circumferenceField === field ? { 'data-material': 'filled', 'data-emphasis': 'strong' } : {})}
               onClick={() => setCircumferenceField(field)}
             >
               {CIRCUMFERENCE_LABELS[field]}
@@ -164,13 +164,13 @@ function DashboardView() {
       />
 
       {/* Time range selector */}
-      <div className="dashboard-time-range">
+      <div className="dashboard-time-range" data-size="lg" data-material="transparent">
         {TIME_RANGES.map((range) => (
           <button
             key={range}
             className={`adaptive${timeRange === range ? ' active' : ''}`}
             data-interactive
-            {...(timeRange === range ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
+            {...(timeRange === range ? { 'data-material': 'filled', 'data-emphasis': 'strong' } : {})}
             onClick={() => setTimeRange(range)}
           >
             {range}

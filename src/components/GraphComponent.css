@@ -1,10 +1,14 @@
 .graph-container {
   width: 100%;
+  max-width: 100%;
+  overflow: hidden;
   position: relative;
 }
 
 .graph-canvas {
   width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .graph-canvas .u-over {
@@ -15,7 +19,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
   text-align: center;
   padding: var(--spacing-padding);
 }
