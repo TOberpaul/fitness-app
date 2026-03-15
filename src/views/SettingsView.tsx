@@ -151,9 +151,13 @@ function SettingsView() {
             role="switch"
             aria-checked={pushSubscribed}
             onClick={handleTogglePush}
-            {...(pushSubscribed ? { 'data-color': 'green' } : {})}
+            {...(pushSubscribed ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
           >
-            <span className="toggle-knob" data-material="inverted" data-container-contrast="max" />
+            <span
+              className="toggle-knob"
+              data-material={pushSubscribed ? 'filled' : 'inverted'}
+              data-container-contrast="max"
+            />
           </button>
         </label>
       </section>
