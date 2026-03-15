@@ -12,71 +12,111 @@ beforeEach(() => {
 });
 
 describe('WeeklyInputView', () => {
-  it('renders all form fields', () => {
+  it('renders intro screen with instructions', () => {
     render(<WeeklyInputView />);
-    expect(screen.getByText('Wöchentliche Eingabe')).toBeDefined();
-    expect(screen.getByLabelText('Brust (cm)')).toBeDefined();
-    expect(screen.getByLabelText('Taille (cm)')).toBeDefined();
-    expect(screen.getByLabelText('Hüfte (cm)')).toBeDefined();
-    expect(screen.getByLabelText('Bauch (cm)')).toBeDefined();
-    expect(screen.getByLabelText('Oberarm (cm)')).toBeDefined();
-    expect(screen.getByLabelText('Oberschenkel (cm)')).toBeDefined();
-    expect(screen.getByText('Speichern')).toBeDefined();
+    expect(screen.getByText('Wöchentliche Umfangmessung')).toBeDefined();
+    expect(screen.getByText(/Maßband/)).toBeDefined();
+    expect(screen.getByText('Weiter')).toBeDefined();
   });
 
-  it('displays the week start date', () => {
+  it('displays the week start date on intro', () => {
     const weekStart = dateUtils.getWeekStart(new Date());
     render(<WeeklyInputView />);
     expect(screen.getByText(`Woche ab ${weekStart}`)).toBeDefined();
   });
 
-  it('all inputs have inputmode decimal', () => {
+  it('navigates from intro to first zone step', () => {
     render(<WeeklyInputView />);
-    const labels = [
-      'Brust (cm)', 'Taille (cm)', 'Hüfte (cm)',
-      'Bauch (cm)', 'Oberarm (cm)', 'Oberschenkel (cm)',
-    ];
-    for (const label of labels) {
-      const input = screen.getByLabelText(label);
-      expect(input.getAttribute('inputmode')).toBe('decimal');
+    fireEvent.click(screen.getByText('Weiter'));
+    expect(screen.getByText('Brust')).toBeDefined();
+    expect(screen.getByText('Schritt 1 von 6')).toBeDefined();
+  });
+
+  it('shows all zone steps in correct order', () => {
+    const zones = ['Brust', 'Taille', 'Bauch', 'Hüfte', 'Oberarm', 'Oberschenkel'];
+    render(<WeeklyInputView />);
+    fireEvent.click(screen.getByText('Weiter'));
+
+    for (let i = 0; i < zones.length; i++) {
+      expect(screen.getByText(zones[i])).toBeDefined();
+      expect(screen.getByText(`Schritt ${i + 1} von 6`)).toBeDefined();
+      fireEvent.click(screen.getByText('Überspringen'));
     }
+    // After all zones, should be on summary
+    expect(screen.getByText('Zusammenfassung')).toBeDefined();
   });
 
-  it('shows validation error for value out of range', async () => {
+  it('validates input on next and shows error', () => {
     render(<WeeklyInputView />);
-    fireEvent.change(screen.getByLabelText('Brust (cm)'), { target: { value: '5' } });
-    fireEvent.click(screen.getByText('Speichern'));
-    await waitFor(() => {
-      expect(screen.getByText(/Brust muss zwischen 10 und 200 cm liegen/)).toBeDefined();
-    });
+    fireEvent.click(screen.getByText('Weiter')); // go to Brust step
+
+    const input = screen.getByLabelText('Brust');
+    fireEvent.change(input, { target: { value: '5' } });
+    fireEvent.click(screen.getByText('Weiter'));
+
+    expect(screen.getByText(/muss zwischen 10 und 200 cm liegen/)).toBeDefined();
   });
 
-  it('shows validation error for value above max', async () => {
+  it('clears error when input changes', () => {
     render(<WeeklyInputView />);
-    fireEvent.change(screen.getByLabelText('Taille (cm)'), { target: { value: '250' } });
-    fireEvent.click(screen.getByText('Speichern'));
-    await waitFor(() => {
-      expect(screen.getByText(/Taille muss zwischen 10 und 200 cm liegen/)).toBeDefined();
-    });
-  });
+    fireEvent.click(screen.getByText('Weiter')); // go to Brust step
 
-  it('does not show errors for empty optional fields', () => {
-    render(<WeeklyInputView />);
-    fireEvent.click(screen.getByText('Speichern'));
+    const input = screen.getByLabelText('Brust');
+    fireEvent.change(input, { target: { value: '5' } });
+    fireEvent.click(screen.getByText('Weiter'));
+    expect(screen.getByText(/muss zwischen/)).toBeDefined();
+
+    fireEvent.change(input, { target: { value: '90' } });
     expect(screen.queryByText(/muss zwischen/)).toBeNull();
   });
 
-  it('saves valid measurement via DataService', async () => {
+  it('advances to next step on valid input', () => {
+    render(<WeeklyInputView />);
+    fireEvent.click(screen.getByText('Weiter')); // go to Brust step
+
+    const input = screen.getByLabelText('Brust');
+    fireEvent.change(input, { target: { value: '95.3' } });
+    fireEvent.click(screen.getByText('Weiter'));
+
+    // Should now be on Taille step
+    expect(screen.getByText('Taille')).toBeDefined();
+    expect(screen.getByText('Schritt 2 von 6')).toBeDefined();
+  });
+
+  it('skip advances without recording a value', () => {
+    render(<WeeklyInputView />);
+    fireEvent.click(screen.getByText('Weiter')); // go to Brust step
+    fireEvent.click(screen.getByText('Überspringen'));
+
+    // Should now be on Taille step
+    expect(screen.getByText('Taille')).toBeDefined();
+  });
+
+  it('saves measurement on confirm from summary', async () => {
     const saveSpy = vi.spyOn(dataService, 'saveWeeklyMeasurement').mockResolvedValue();
     const weekStart = dateUtils.getWeekStart(new Date());
 
     render(<WeeklyInputView />);
+    fireEvent.click(screen.getByText('Weiter')); // intro -> Brust
 
-    fireEvent.change(screen.getByLabelText('Brust (cm)'), { target: { value: '95.3' } });
-    fireEvent.change(screen.getByLabelText('Taille (cm)'), { target: { value: '80.1' } });
+    // Enter value for Brust
+    fireEvent.change(screen.getByLabelText('Brust'), { target: { value: '95.3' } });
+    fireEvent.click(screen.getByText('Weiter'));
+
+    // Enter value for Taille
+    fireEvent.change(screen.getByLabelText('Taille'), { target: { value: '80.1' } });
+    fireEvent.click(screen.getByText('Weiter'));
+
+    // Skip remaining zones
+    for (let i = 0; i < 4; i++) {
+      fireEvent.click(screen.getByText('Überspringen'));
+    }
+
+    // Now on summary
+    expect(screen.getByText('Zusammenfassung')).toBeDefined();
 
     await act(async () => {
-      fireEvent.click(screen.getByText('Speichern'));
+      fireEvent.click(screen.getByText('Bestätigen'));
     });
 
     await waitFor(() => {
@@ -94,51 +134,23 @@ describe('WeeklyInputView', () => {
     saveSpy.mockRestore();
   });
 
-  it('loads existing values for current week', async () => {
-    const weekStart = dateUtils.getWeekStart(new Date());
-    vi.spyOn(dataService, 'getWeeklyMeasurement').mockResolvedValue({
-      date: weekStart,
-      chest: 96.0,
-      waist: 82.5,
-      hip: 100.0,
-      belly: 88.0,
-      upperArm: 33.0,
-      thigh: 55.0,
-      updatedAt: new Date().toISOString(),
-    });
-
-    render(<WeeklyInputView />);
-
-    await waitFor(() => {
-      expect((screen.getByLabelText('Brust (cm)') as HTMLInputElement).value).toBe('96');
-    });
-
-    expect((screen.getByLabelText('Taille (cm)') as HTMLInputElement).value).toBe('82.5');
-    expect((screen.getByLabelText('Hüfte (cm)') as HTMLInputElement).value).toBe('100');
-    expect((screen.getByLabelText('Bauch (cm)') as HTMLInputElement).value).toBe('88');
-    expect((screen.getByLabelText('Oberarm (cm)') as HTMLInputElement).value).toBe('33');
-    expect((screen.getByLabelText('Oberschenkel (cm)') as HTMLInputElement).value).toBe('55');
-
-    vi.restoreAllMocks();
-  });
-
-  it('save button has correct data attributes', () => {
-    render(<WeeklyInputView />);
-    const saveBtn = screen.getByText('Speichern');
-    expect(saveBtn.getAttribute('data-material')).toBe('vibrant');
-    expect(saveBtn.hasAttribute('data-interactive')).toBe(true);
-  });
-
   it('rounds values to one decimal on save', async () => {
     const saveSpy = vi.spyOn(dataService, 'saveWeeklyMeasurement').mockResolvedValue();
 
     render(<WeeklyInputView />);
+    fireEvent.click(screen.getByText('Weiter'));
 
-    fireEvent.change(screen.getByLabelText('Brust (cm)'), { target: { value: '95.37' } });
-    fireEvent.change(screen.getByLabelText('Hüfte (cm)'), { target: { value: '100.14' } });
+    // Enter value with extra decimals for Brust
+    fireEvent.change(screen.getByLabelText('Brust'), { target: { value: '95.37' } });
+    fireEvent.click(screen.getByText('Weiter'));
+
+    // Skip remaining 5 zones
+    for (let i = 0; i < 5; i++) {
+      fireEvent.click(screen.getByText('Überspringen'));
+    }
 
     await act(async () => {
-      fireEvent.click(screen.getByText('Speichern'));
+      fireEvent.click(screen.getByText('Bestätigen'));
     });
 
     await waitFor(() => {
@@ -148,34 +160,50 @@ describe('WeeklyInputView', () => {
     expect(saveSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         chest: 95.4,
-        hip: 100.1,
       })
     );
 
     saveSpy.mockRestore();
   });
 
-  it('clears error when input changes', async () => {
+  it('back from summary returns to first zone step', () => {
     render(<WeeklyInputView />);
-    const chestInput = screen.getByLabelText('Brust (cm)');
+    fireEvent.click(screen.getByText('Weiter'));
 
-    fireEvent.change(chestInput, { target: { value: '5' } });
-    fireEvent.click(screen.getByText('Speichern'));
+    // Skip all zones to reach summary
+    for (let i = 0; i < 6; i++) {
+      fireEvent.click(screen.getByText('Überspringen'));
+    }
 
-    await waitFor(() => {
-      expect(screen.getByText(/Brust muss zwischen/)).toBeDefined();
-    });
+    expect(screen.getByText('Zusammenfassung')).toBeDefined();
+    fireEvent.click(screen.getByText('Zurück'));
 
-    fireEvent.change(chestInput, { target: { value: '90' } });
-    expect(screen.queryByText(/Brust muss zwischen/)).toBeNull();
+    // Should be back at Brust (step 1)
+    expect(screen.getByText('Brust')).toBeDefined();
+    expect(screen.getByText('Schritt 1 von 6')).toBeDefined();
   });
 
-  it('shows validation errors for non-numeric input', async () => {
+  it('intro weiter button has correct data attributes', () => {
     render(<WeeklyInputView />);
-    fireEvent.change(screen.getByLabelText('Brust (cm)'), { target: { value: 'abc' } });
-    fireEvent.click(screen.getByText('Speichern'));
-    await waitFor(() => {
-      expect(screen.getByText(/Brust muss zwischen 10 und 200 cm liegen/)).toBeDefined();
-    });
+    const btn = screen.getByText('Weiter');
+    expect(btn.hasAttribute('data-interactive')).toBe(true);
+  });
+
+  it('shows error for non-numeric input', () => {
+    render(<WeeklyInputView />);
+    fireEvent.click(screen.getByText('Weiter'));
+
+    fireEvent.change(screen.getByLabelText('Brust'), { target: { value: 'abc' } });
+    fireEvent.click(screen.getByText('Weiter'));
+
+    expect(screen.getByText(/muss zwischen 10 und 200 cm liegen/)).toBeDefined();
+  });
+
+  it('shows error when trying to advance with empty input', () => {
+    render(<WeeklyInputView />);
+    fireEvent.click(screen.getByText('Weiter')); // go to Brust
+
+    fireEvent.click(screen.getByText('Weiter')); // try to advance without input
+    expect(screen.getByText(/Bitte einen Wert eingeben oder überspringen/)).toBeDefined();
   });
 });

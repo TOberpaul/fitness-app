@@ -6,35 +6,17 @@
   padding: var(--spacing-padding);
 }
 
-.weekly-input-week {
-  font-size: var(--size-text-min);
+.weekly-input-intro-text {
+  font-size: var(--size-text);
+  line-height: 1.5;
 }
 
-.weekly-input-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-gap);
-}
-
-.weekly-input-field input {
-  height: var(--size-container);
-}
-
-.weekly-input-field input:focus {
-  outline: var(--size-2) solid var(--db-visual);
-  outline-offset: var(--size-1);
-}
-
-.weekly-input-error {
-  font-size: var(--size-text-min);
-}
-
-.weekly-input-save {
+.weekly-input-start {
   height: var(--size-container);
   font-weight: bold;
 }
 
 .weekly-input-success {
-  font-size: var(--size-text-min);
+  font-size: var(--size-text);
   text-align: center;
 }

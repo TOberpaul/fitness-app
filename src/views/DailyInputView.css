@@ -22,7 +22,7 @@
 }
 
 .daily-input-error {
-  font-size: var(--size-text-min);
+  font-size: var(--size-text);
 }
 
 .daily-input-save {
@@ -31,6 +31,6 @@
 }
 
 .daily-input-success {
-  font-size: var(--size-text-min);
+  font-size: var(--size-text);
   text-align: center;
 }

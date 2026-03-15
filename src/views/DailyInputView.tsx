@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
-import { saveDailyMeasurement, getDailyMeasurement } from '../services/dataService'
+import { saveDailyMeasurement, getDailyMeasurement, getAllData } from '../services/dataService'
 import { validateWeight, validateBodyFat, roundToOneDecimal, normalizeDecimal } from '../utils/validation'
 import { formatDate } from '../utils/date'
 import { WEIGHT_MIN, WEIGHT_MAX, BODY_FAT_MIN, BODY_FAT_MAX } from '../types'
+import { updateDailyStreak, evaluateMilestones, getEarnedMilestones, getStreaks, detectNonScaleVictories } from '../services/gamificationService'
+import { evaluateGoals, getAllGoals } from '../services/goalService'
 import './DailyInputView.css'
 
 function DailyInputView() {
@@ -79,6 +81,22 @@ function DailyInputView() {
       })
       setSuccessMessage('Gespeichert!')
       setTimeout(() => setSuccessMessage(''), 2000)
+
+      // Fire-and-forget gamification hooks
+      try {
+        await updateDailyStreak(date)
+        const allData = await getAllData()
+        await evaluateGoals(allData.dailyMeasurements, allData.weeklyMeasurements)
+        const [goals, streaks, earned] = await Promise.all([
+          getAllGoals(), getStreaks(), getEarnedMilestones()
+        ])
+        await evaluateMilestones({
+          goals, streaks, dailyMeasurements: allData.dailyMeasurements, earnedMilestones: earned
+        })
+        detectNonScaleVictories(allData.dailyMeasurements, allData.weeklyMeasurements)
+      } catch {
+        // Gamification errors should not block the save flow
+      }
     } catch {
       setSuccessMessage('Fehler beim Speichern')
     }
