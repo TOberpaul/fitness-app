@@ -136,6 +136,11 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
   return (
     <div className="ob-backdrop">
       <dialog className="ob-dialog adaptive" open>
+        <img
+          className="ob-hero"
+          src={`${import.meta.env.BASE_URL}Running.png`}
+          alt=""
+        />
         <div className="ob-header">
           <button className="ob-back" data-interactive onClick={back}>
             {step === 0 ? 'Schließen' : 'Zurück'}

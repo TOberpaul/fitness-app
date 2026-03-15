@@ -110,8 +110,8 @@ function GoalsView() {
     <div className="goals-view">
       <img
         className="goals-view-hero"
-        src={`${import.meta.env.BASE_URL}Running.png`}
-        alt="Fitness Illustration"
+        src={`${import.meta.env.BASE_URL}Goal.png`}
+        alt="Ziele Illustration"
       />
 
       {hasDailyData && (
