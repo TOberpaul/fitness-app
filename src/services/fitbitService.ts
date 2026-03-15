@@ -135,12 +135,16 @@ export async function handleCallback(code: string, state: string): Promise<void>
 
   const response = await fetch(FITBIT_TOKEN_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + btoa(FITBIT_CLIENT_ID + ':'),
+    },
     body: body.toString(),
   });
 
   if (!response.ok) {
-    throw new Error(`Token exchange failed: ${response.status}`);
+    const errorBody = await response.text().catch(() => '');
+    throw new Error(`Token exchange failed: ${response.status} ${errorBody}`);
   }
 
   const data = await response.json();
@@ -176,7 +180,10 @@ export async function refreshToken(): Promise<void> {
 
   const response = await fetch(FITBIT_TOKEN_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + btoa(FITBIT_CLIENT_ID + ':'),
+    },
     body: body.toString(),
   });
 
