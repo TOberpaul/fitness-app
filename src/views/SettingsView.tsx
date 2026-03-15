@@ -103,11 +103,17 @@ function SettingsView() {
 
       <section className="settings-section">
         <h2>Benachrichtigungen</h2>
-        <div className="settings-buttons">
-          <button className="adaptive" data-interactive onClick={handleTogglePush}>
-            {pushSubscribed ? 'Erinnerungen aus' : 'Erinnerungen an'}
+        <label className="settings-toggle-row">
+          <span>Erinnerungen</span>
+          <button
+            className={`toggle-switch${pushSubscribed ? ' toggle-on' : ''}`}
+            role="switch"
+            aria-checked={pushSubscribed}
+            onClick={handleTogglePush}
+          >
+            <span className="toggle-knob" />
           </button>
-        </div>
+        </label>
       </section>
     </div>
   )
