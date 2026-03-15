@@ -4,6 +4,7 @@
   gap: var(--spacing-padding);
   padding: var(--spacing-padding);
   border: none;
+  min-height: 100vh;
 }
 
 .dashboard-value-display {
@@ -62,4 +63,5 @@
   display: flex;
   gap: var(--size-gap);
   justify-content: center;
+  flex-wrap: wrap;
 }
