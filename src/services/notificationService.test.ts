@@ -10,12 +10,28 @@ import {
 import type { DailyMeasurement, WeeklyMeasurement } from '../types';
 import { formatDate, getWeekStart } from '../utils/date';
 
+// Mock notificationEngine
+vi.mock('./notificationEngine', () => ({
+  getDailyReminderMessage: vi.fn(() => 'Mocked daily reminder message'),
+  getWeeklyReminderMessage: vi.fn(() => 'Mocked weekly reminder message'),
+}));
+
+import { getDailyReminderMessage, getWeeklyReminderMessage } from './notificationEngine';
+
 // Mock Notification API
 const mockNotification = vi.fn();
 const mockRequestPermission = vi.fn();
 
 beforeEach(() => {
   vi.useFakeTimers();
+  // Setup localStorage mock
+  const store: Record<string, string> = {};
+  vi.stubGlobal('localStorage', {
+    getItem: vi.fn((key: string) => store[key] ?? null),
+    setItem: vi.fn((key: string, value: string) => { store[key] = value; }),
+    removeItem: vi.fn((key: string) => { delete store[key]; }),
+    clear: vi.fn(() => { Object.keys(store).forEach(k => delete store[k]); }),
+  });
   // Setup Notification mock
   Object.defineProperty(globalThis, 'Notification', {
     value: Object.assign(mockNotification, {
@@ -27,6 +43,8 @@ beforeEach(() => {
   });
   mockNotification.mockClear();
   mockRequestPermission.mockClear();
+  vi.mocked(getDailyReminderMessage).mockClear();
+  vi.mocked(getWeeklyReminderMessage).mockClear();
 });
 
 afterEach(() => {
@@ -127,7 +145,7 @@ describe('scheduleDailyReminder', () => {
     vi.advanceTimersByTime(60 * 60 * 1000);
 
     expect(mockNotification).toHaveBeenCalledWith('Tägliche Messung', {
-      body: 'Hast du heute schon dein Gewicht eingetragen?',
+      body: 'Mocked daily reminder message',
       tag: 'daily-reminder',
     });
   });
@@ -155,7 +173,7 @@ describe('scheduleWeeklyReminder', () => {
     vi.advanceTimersByTime(60 * 60 * 1000);
 
     expect(mockNotification).toHaveBeenCalledWith('Wöchentliche Messung', {
-      body: 'Hast du diese Woche deine Körperumfänge gemessen?',
+      body: 'Mocked weekly reminder message',
       tag: 'weekly-reminder',
     });
   });

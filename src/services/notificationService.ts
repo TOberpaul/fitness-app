@@ -1,5 +1,6 @@
-import type { DailyMeasurement, WeeklyMeasurement } from '../types';
+import type { DailyMeasurement, UserContext, WeeklyMeasurement } from '../types';
 import { formatDate, getWeekStart } from '../utils/date';
+import { getDailyReminderMessage, getWeeklyReminderMessage } from './notificationEngine';
 
 // Module-level timer IDs for cancellation
 let dailyTimerId: ReturnType<typeof setTimeout> | null = null;
@@ -77,6 +78,15 @@ function msUntilNextSunday2000(): number {
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const ONE_WEEK_MS = 7 * ONE_DAY_MS;
 
+/** Build a default UserContext when full context is not available at the call site */
+function getDefaultUserContext(): UserContext {
+  return {
+    state: 'stagnating',
+    currentDailyStreak: 0,
+    hasActiveGoal: false,
+  };
+}
+
 /** Schedule a daily reminder notification at 20:00 */
 export function scheduleDailyReminder(): void {
   cancelDaily();
@@ -85,8 +95,9 @@ export function scheduleDailyReminder(): void {
 
   dailyTimerId = setTimeout(() => {
     if (isEnabled()) {
+      const context = getDefaultUserContext();
       const n = new Notification('Tägliche Messung', {
-        body: 'Hast du heute schon dein Gewicht eingetragen?',
+        body: getDailyReminderMessage(context),
         tag: 'daily-reminder',
       });
       n.onclick = () => { window.focus(); window.location.href = '/daily'; };
@@ -95,8 +106,9 @@ export function scheduleDailyReminder(): void {
     // Repeat every 24 hours
     dailyIntervalId = setInterval(() => {
       if (isEnabled()) {
+        const context = getDefaultUserContext();
         const n = new Notification('Tägliche Messung', {
-          body: 'Hast du heute schon dein Gewicht eingetragen?',
+          body: getDailyReminderMessage(context),
           tag: 'daily-reminder',
         });
         n.onclick = () => { window.focus(); window.location.href = '/daily'; };
@@ -113,8 +125,9 @@ export function scheduleWeeklyReminder(): void {
 
   weeklyTimerId = setTimeout(() => {
     if (isEnabled()) {
+      const context = getDefaultUserContext();
       const n = new Notification('Wöchentliche Messung', {
-        body: 'Hast du diese Woche deine Körperumfänge gemessen?',
+        body: getWeeklyReminderMessage(context),
         tag: 'weekly-reminder',
       });
       n.onclick = () => { window.focus(); window.location.href = '/weekly'; };
@@ -123,8 +136,9 @@ export function scheduleWeeklyReminder(): void {
     // Repeat every 7 days
     weeklyIntervalId = setInterval(() => {
       if (isEnabled()) {
+        const context = getDefaultUserContext();
         const n = new Notification('Wöchentliche Messung', {
-          body: 'Hast du diese Woche deine Körperumfänge gemessen?',
+          body: getWeeklyReminderMessage(context),
           tag: 'weekly-reminder',
         });
         n.onclick = () => { window.focus(); window.location.href = '/weekly'; };

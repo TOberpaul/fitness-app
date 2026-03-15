@@ -1,6 +1,15 @@
 import { openDB } from 'idb';
 import type { DBSchema, IDBPDatabase } from 'idb';
-import type { DailyMeasurement, WeeklyMeasurement, FitbitTokens } from '../types';
+import type {
+  DailyMeasurement,
+  WeeklyMeasurement,
+  FitbitTokens,
+  Goal,
+  GoalStatus,
+  Streaks,
+  Milestone,
+  MilestoneType,
+} from '../types';
 
 export interface FitnessTrackerDB extends DBSchema {
   dailyMeasurements: {
@@ -21,6 +30,26 @@ export interface FitnessTrackerDB extends DBSchema {
     key: string;
     value: FitbitTokens;
   };
+  goals: {
+    key: string;
+    value: Goal;
+    indexes: {
+      'by-status': GoalStatus;
+      'by-createdAt': string;
+    };
+  };
+  streaks: {
+    key: string;
+    value: Streaks;
+  };
+  milestones: {
+    key: string;
+    value: Milestone;
+    indexes: {
+      'by-type': MilestoneType;
+      'by-earnedAt': string;
+    };
+  };
 }
 
 let dbInstance: IDBPDatabase<FitnessTrackerDB> | null = null;
@@ -38,19 +67,33 @@ export async function getDB(): Promise<IDBPDatabase<FitnessTrackerDB>> {
     return dbInstance;
   }
 
-  dbInstance = await openDB<FitnessTrackerDB>('fitness-tracker', 1, {
-    upgrade(db) {
-      const dailyStore = db.createObjectStore('dailyMeasurements', {
-        keyPath: 'date',
-      });
-      dailyStore.createIndex('by-date', 'date');
+  dbInstance = await openDB<FitnessTrackerDB>('fitness-tracker', 2, {
+    upgrade(db, oldVersion) {
+      if (oldVersion < 1) {
+        const dailyStore = db.createObjectStore('dailyMeasurements', {
+          keyPath: 'date',
+        });
+        dailyStore.createIndex('by-date', 'date');
 
-      const weeklyStore = db.createObjectStore('weeklyMeasurements', {
-        keyPath: 'date',
-      });
-      weeklyStore.createIndex('by-date', 'date');
+        const weeklyStore = db.createObjectStore('weeklyMeasurements', {
+          keyPath: 'date',
+        });
+        weeklyStore.createIndex('by-date', 'date');
 
-      db.createObjectStore('fitbitAuth');
+        db.createObjectStore('fitbitAuth');
+      }
+
+      if (oldVersion < 2) {
+        const goalStore = db.createObjectStore('goals', { keyPath: 'id' });
+        goalStore.createIndex('by-status', 'status');
+        goalStore.createIndex('by-createdAt', 'createdAt');
+
+        db.createObjectStore('streaks');
+
+        const milestoneStore = db.createObjectStore('milestones', { keyPath: 'id' });
+        milestoneStore.createIndex('by-type', 'type');
+        milestoneStore.createIndex('by-earnedAt', 'earnedAt');
+      }
     },
   });
 
