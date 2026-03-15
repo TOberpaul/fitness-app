@@ -1,0 +1,34 @@
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-padding);
+  padding: 0;
+  border: none;
+  padding-bottom: var(--size-96);
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.settings-section h2 {
+  font-size: var(--size-16);
+}
+
+.settings-buttons {
+  display: flex;
+  gap: var(--size-gap);
+  flex-wrap: wrap;
+}
+
+.settings-buttons button {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-status {
+  font-size: var(--size-text-min);
+  text-align: center;
+}

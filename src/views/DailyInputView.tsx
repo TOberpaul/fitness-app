@@ -92,6 +92,7 @@ function DailyInputView() {
         <label htmlFor="daily-date">Datum</label>
         <input
           id="daily-date"
+          className="adaptive"
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
@@ -102,6 +103,7 @@ function DailyInputView() {
         <label htmlFor="daily-weight">Gewicht (kg)</label>
         <input
           id="daily-weight"
+          className="adaptive"
           type="text"
           inputMode="decimal"
           placeholder={`${WEIGHT_MIN}–${WEIGHT_MAX}`}
@@ -120,6 +122,7 @@ function DailyInputView() {
         <label htmlFor="daily-bodyfat">Körperfett (%)</label>
         <input
           id="daily-bodyfat"
+          className="adaptive"
           type="text"
           inputMode="decimal"
           placeholder={`${BODY_FAT_MIN}–${BODY_FAT_MAX}`}
@@ -136,7 +139,8 @@ function DailyInputView() {
 
       <button
         className="daily-input-save adaptive"
-        data-material="vibrant"
+        data-material="inverted"
+        data-container-contrast="max"
         data-interactive
         onClick={handleSave}
       >

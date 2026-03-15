@@ -16,9 +16,6 @@
   align-items: center;
   justify-content: center;
   min-height: 200px;
-  color: var(--db-text);
-  opacity: 0.6;
-  font-size: var(--size-text);
   text-align: center;
   padding: var(--spacing-padding);
 }

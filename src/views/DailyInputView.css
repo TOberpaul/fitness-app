@@ -1,13 +1,11 @@
 .daily-input {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-gap);
-  padding: var(--spacing-padding);
-  padding-bottom: var(--size-96);
+  border: none;
+  gap: var(--spacing-padding)
 }
 
 .daily-input h1 {
-  font-size: var(--size-text);
   font-weight: bold;
 }
 
@@ -17,20 +15,8 @@
   gap: var(--size-gap);
 }
 
-.daily-input-field label {
-  font-size: var(--size-text);
-  color: var(--db-text);
-}
-
 .daily-input-field input {
   height: var(--size-container);
-  padding: 0 var(--size-padding);
-  font-size: var(--size-text);
-  line-height: var(--size-line-height);
-  background: var(--db-background);
-  color: var(--db-text);
-  border: var(--size-1) solid var(--db-border);
-  border-radius: var(--size-border-radius);
 }
 
 .daily-input-field input:focus {
@@ -40,22 +26,14 @@
 
 .daily-input-error {
   font-size: var(--size-text-min);
-  color: var(--db-visual);
 }
 
 .daily-input-save {
   height: var(--size-container);
-  padding: 0 var(--size-padding);
-  font-size: var(--size-text);
-  border: none;
-  border-radius: var(--size-border-radius);
-  background: var(--db-background);
-  color: var(--db-text);
   font-weight: bold;
 }
 
 .daily-input-success {
   font-size: var(--size-text-min);
-  color: var(--db-text);
   text-align: center;
 }

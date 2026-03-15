@@ -32,7 +32,7 @@ export default function FitbitCallbackView() {
 
   if (state === 'error') {
     return (
-      <div className="adaptive" style={{ padding: 'var(--db-spacing-fixed-md)' }}>
+      <div className="adaptive">
         <h2>Authorization Failed</h2>
         <p>{errorMessage}</p>
         <Link to="/" data-interactive="">
@@ -43,7 +43,7 @@ export default function FitbitCallbackView() {
   }
 
   return (
-    <div className="adaptive" style={{ padding: 'var(--db-spacing-fixed-md)' }}>
+    <div className="adaptive">
       <p>Connecting to Fitbit…</p>
     </div>
   );

@@ -119,6 +119,7 @@ function WeeklyInputView() {
           <label htmlFor={f.id}>{f.label}</label>
           <input
             id={f.id}
+            className="adaptive"
             type="text"
             inputMode="decimal"
             placeholder={`${CIRCUMFERENCE_MIN}–${CIRCUMFERENCE_MAX}`}
@@ -133,7 +134,8 @@ function WeeklyInputView() {
 
       <button
         className="weekly-input-save adaptive"
-        data-material="vibrant"
+        data-material="inverted"
+        data-container-contrast="max"
         data-interactive
         onClick={handleSave}
       >

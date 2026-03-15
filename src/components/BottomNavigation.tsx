@@ -1,74 +1,32 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
+import { Activity, Plus, Ruler, Settings, PersonStanding } from 'lucide-react'
 import './BottomNavigation.css'
+
+function NavItem({ to, end, icon, label }: { to: string; end?: boolean; icon: React.ReactNode; label: string }) {
+  const location = useLocation()
+  const isActive = end ? location.pathname === to : location.pathname.startsWith(to)
+
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      className={`adaptive bottom-nav-link${isActive ? ' active' : ''}`}
+      data-interactive
+      {...(isActive ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
+    >
+      {icon}
+      <span className="bottom-nav-label">{label}</span>
+    </NavLink>
+  )
+}
 
 function BottomNavigation() {
   return (
-    <nav className="bottom-nav adaptive">
-      <NavLink
-        to="/"
-        end
-        className={({ isActive }) =>
-          `bottom-nav-link${isActive ? ' active' : ''}`
-        }
-        data-interactive
-      >
-        <svg
-          className="bottom-nav-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-        </svg>
-        <span className="bottom-nav-label">Dashboard</span>
-      </NavLink>
-
-      <NavLink
-        to="/daily"
-        className={({ isActive }) =>
-          `bottom-nav-link${isActive ? ' active' : ''}`
-        }
-        data-interactive
-      >
-        <svg
-          className="bottom-nav-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <line x1="12" y1="5" x2="12" y2="19" />
-          <line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
-        <span className="bottom-nav-label">Täglich</span>
-      </NavLink>
-
-      <NavLink
-        to="/weekly"
-        className={({ isActive }) =>
-          `bottom-nav-link${isActive ? ' active' : ''}`
-        }
-        data-interactive
-      >
-        <svg
-          className="bottom-nav-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M2 12h4l2-8 4 16 2-8h4" />
-          <line x1="2" y1="20" x2="22" y2="20" />
-        </svg>
-        <span className="bottom-nav-label">Wöchentlich</span>
-      </NavLink>
+    <nav className="bottom-nav adaptive" data-size="md">
+      <NavItem to="/" end label="Dashboard" icon={<Activity className="bottom-nav-icon" />} />
+      <NavItem to="/daily" label="Täglich" icon={<Plus className="bottom-nav-icon" />} />
+      <NavItem to="/weekly" label="Wöchentlich" icon={<PersonStanding className="bottom-nav-icon" />} />
+      <NavItem to="/settings" label="Mehr" icon={<Settings className="bottom-nav-icon" />} />
     </nav>
   )
 }

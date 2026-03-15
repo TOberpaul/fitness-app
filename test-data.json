@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "exportedAt": "2026-03-15T12:00:00.000Z",
+  "dailyMeasurements": [
+    { "date": "2026-01-05", "weight": 88.5, "bodyFat": 22.1, "source": "manual", "updatedAt": "2026-01-05T20:00:00.000Z" },
+    { "date": "2026-01-08", "weight": 88.2, "bodyFat": 22.0, "source": "manual", "updatedAt": "2026-01-08T20:00:00.000Z" },
+    { "date": "2026-01-12", "weight": 87.9, "bodyFat": 21.8, "source": "manual", "updatedAt": "2026-01-12T20:00:00.000Z" },
+    { "date": "2026-01-15", "weight": 87.6, "bodyFat": 21.7, "source": "manual", "updatedAt": "2026-01-15T20:00:00.000Z" },
+    { "date": "2026-01-19", "weight": 87.8, "bodyFat": 21.9, "source": "manual", "updatedAt": "2026-01-19T20:00:00.000Z" },
+    { "date": "2026-01-22", "weight": 87.3, "bodyFat": 21.5, "source": "manual", "updatedAt": "2026-01-22T20:00:00.000Z" },
+    { "date": "2026-01-26", "weight": 87.0, "bodyFat": 21.3, "source": "manual", "updatedAt": "2026-01-26T20:00:00.000Z" },
+    { "date": "2026-01-29", "weight": 86.7, "bodyFat": 21.1, "source": "manual", "updatedAt": "2026-01-29T20:00:00.000Z" },
+    { "date": "2026-02-02", "weight": 86.9, "bodyFat": 21.2, "source": "manual", "updatedAt": "2026-02-02T20:00:00.000Z" },
+    { "date": "2026-02-05", "weight": 86.4, "bodyFat": 20.9, "source": "manual", "updatedAt": "2026-02-05T20:00:00.000Z" },
+    { "date": "2026-02-09", "weight": 86.1, "bodyFat": 20.7, "source": "manual", "updatedAt": "2026-02-09T20:00:00.000Z" },
+    { "date": "2026-02-12", "weight": 85.8, "bodyFat": 20.5, "source": "manual", "updatedAt": "2026-02-12T20:00:00.000Z" },
+    { "date": "2026-02-16", "weight": 86.0, "bodyFat": 20.6, "source": "manual", "updatedAt": "2026-02-16T20:00:00.000Z" },
+    { "date": "2026-02-19", "weight": 85.5, "bodyFat": 20.3, "source": "manual", "updatedAt": "2026-02-19T20:00:00.000Z" },
+    { "date": "2026-02-23", "weight": 85.2, "bodyFat": 20.1, "source": "manual", "updatedAt": "2026-02-23T20:00:00.000Z" },
+    { "date": "2026-02-26", "weight": 84.9, "bodyFat": 19.9, "source": "manual", "updatedAt": "2026-02-26T20:00:00.000Z" },
+    { "date": "2026-03-02", "weight": 85.1, "bodyFat": 20.0, "source": "manual", "updatedAt": "2026-03-02T20:00:00.000Z" },
+    { "date": "2026-03-05", "weight": 84.7, "bodyFat": 19.7, "source": "manual", "updatedAt": "2026-03-05T20:00:00.000Z" },
+    { "date": "2026-03-08", "weight": 84.4, "bodyFat": 19.5, "source": "manual", "updatedAt": "2026-03-08T20:00:00.000Z" },
+    { "date": "2026-03-11", "weight": 84.1, "bodyFat": 19.3, "source": "manual", "updatedAt": "2026-03-11T20:00:00.000Z" },
+    { "date": "2026-03-14", "weight": 83.8, "bodyFat": 19.1, "source": "manual", "updatedAt": "2026-03-14T20:00:00.000Z" }
+  ],
+  "weeklyMeasurements": [
+    { "date": "2026-01-05", "chest": 98.0, "waist": 86.5, "hip": 100.0, "belly": 92.0, "upperArm": 34.0, "thigh": 56.0, "updatedAt": "2026-01-05T20:00:00.000Z" },
+    { "date": "2026-01-12", "chest": 97.5, "waist": 86.0, "hip": 99.5, "belly": 91.5, "upperArm": 34.0, "thigh": 55.5, "updatedAt": "2026-01-12T20:00:00.000Z" },
+    { "date": "2026-01-19", "chest": 97.0, "waist": 85.5, "hip": 99.0, "belly": 91.0, "upperArm": 33.5, "thigh": 55.5, "updatedAt": "2026-01-19T20:00:00.000Z" },
+    { "date": "2026-01-26", "chest": 96.5, "waist": 85.0, "hip": 99.0, "belly": 90.5, "upperArm": 33.5, "thigh": 55.0, "updatedAt": "2026-01-26T20:00:00.000Z" },
+    { "date": "2026-02-02", "chest": 96.5, "waist": 84.5, "hip": 98.5, "belly": 90.0, "upperArm": 33.5, "thigh": 55.0, "updatedAt": "2026-02-02T20:00:00.000Z" },
+    { "date": "2026-02-09", "chest": 96.0, "waist": 84.0, "hip": 98.0, "belly": 89.5, "upperArm": 33.0, "thigh": 54.5, "updatedAt": "2026-02-09T20:00:00.000Z" },
+    { "date": "2026-02-16", "chest": 95.5, "waist": 83.5, "hip": 98.0, "belly": 89.0, "upperArm": 33.0, "thigh": 54.5, "updatedAt": "2026-02-16T20:00:00.000Z" },
+    { "date": "2026-02-23", "chest": 95.0, "waist": 83.0, "hip": 97.5, "belly": 88.5, "upperArm": 33.0, "thigh": 54.0, "updatedAt": "2026-02-23T20:00:00.000Z" },
+    { "date": "2026-03-02", "chest": 95.0, "waist": 82.5, "hip": 97.0, "belly": 88.0, "upperArm": 32.5, "thigh": 54.0, "updatedAt": "2026-03-02T20:00:00.000Z" },
+    { "date": "2026-03-09", "chest": 94.5, "waist": 82.0, "hip": 97.0, "belly": 87.5, "upperArm": 32.5, "thigh": 53.5, "updatedAt": "2026-03-09T20:00:00.000Z" }
+  ]
+}

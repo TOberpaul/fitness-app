@@ -1,10 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import GraphComponent from '../components/GraphComponent'
-import { getDailyMeasurements, getWeeklyMeasurements, getAllData, importData } from '../services/dataService'
+import { getDailyMeasurements, getWeeklyMeasurements } from '../services/dataService'
 import { getDateRange, calculatePercentChange } from '../utils/date'
-import { isConnected, syncData, initiateAuth, disconnect } from '../services/fitbitService'
-import { exportToFile, importFromFile } from '../services/serializationService'
-import { subscribeToPush, unsubscribeFromPush, isPushSubscribed } from '../services/pushService'
 import type { DataPoint, TimeRange, DailyMeasurement, WeeklyMeasurement } from '../types'
 import './DashboardView.css'
 
@@ -51,18 +48,13 @@ function circumferenceToDataPoints(measurements: WeeklyMeasurement[], field: Cir
   return points.sort((a, b) => a.date.localeCompare(b.date))
 }
 
+
 function DashboardView() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('weight')
   const [timeRange, setTimeRange] = useState<TimeRange>('1M')
   const [crosshairPoint, setCrosshairPoint] = useState<DataPoint | null>(null)
   const [data, setData] = useState<DataPoint[]>([])
-  const [fitbitConnected, setFitbitConnected] = useState(false)
-  const [syncStatus, setSyncStatus] = useState('')
   const [circumferenceField, setCircumferenceField] = useState<CircumferenceField>('waist')
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [importStatus, setImportStatus] = useState('')
-  const [pushSubscribed, setPushSubscribed] = useState(() => localStorage.getItem('push_subscribed') === '1')
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const loadData = useCallback(async () => {
     const { from, to } = getDateRange(timeRange)
@@ -80,11 +72,6 @@ function DashboardView() {
     loadData()
   }, [loadData])
 
-  useEffect(() => {
-    setFitbitConnected(isConnected())
-    isPushSubscribed().then(setPushSubscribed)
-  }, [])
-
   const currentValue = crosshairPoint
     ? crosshairPoint.value
     : data.length > 0
@@ -95,78 +82,33 @@ function DashboardView() {
     ? calculatePercentChange(data[0].value, crosshairPoint ? crosshairPoint.value : data[data.length - 1].value)
     : null
 
-  const handleSync = async () => {
-    setSyncStatus('Synchronisiere...')
-    try {
-      const result = await syncData()
-      setSyncStatus(`${result.newEntries} neu, ${result.updatedEntries} aktualisiert`)
-      await loadData()
-      setTimeout(() => setSyncStatus(''), 3000)
-    } catch (err) {
-      setSyncStatus(err instanceof Error ? err.message : 'Sync fehlgeschlagen')
-      setTimeout(() => setSyncStatus(''), 3000)
-    }
-  }
-
-  const showStatus = (message: string) => {
-    setImportStatus(message)
-    setTimeout(() => setImportStatus(''), 3000)
-  }
-
-  const handleExport = async () => {
-    try {
-      const allData = await getAllData()
-      exportToFile(allData)
-    } catch (err) {
-      showStatus(err instanceof Error ? err.message : 'Export fehlgeschlagen')
-    }
-  }
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click()
-  }
-
-  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    try {
-      const parsed = await importFromFile(file)
-      await importData(parsed)
-      await loadData()
-      showStatus('Import erfolgreich')
-    } catch (err) {
-      showStatus(err instanceof Error ? err.message : 'Import fehlgeschlagen')
-    }
-    // Reset file input
-    if (fileInputRef.current) fileInputRef.current.value = ''
-  }
-
-  const handleDeleteConfirm = () => {
-    // placeholder — delete logic will be wired in task 14.3
-    setShowDeleteConfirm(false)
-  }
-
   return (
     <div className="dashboard adaptive">
       {/* Tab bar */}
-      <div className="dashboard-tabs">
+      <div className="dashboard-tabs adaptive" data-material="semi-transparent">
         <button
-          className={`dashboard-tab${activeTab === 'weight' ? ' active' : ''}`}
+          className={`dashboard-tab adaptive${activeTab === 'weight' ? ' active' : ''}`}
           data-interactive
+          data-size="lg"
+          {...(activeTab === 'weight' ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
           onClick={() => setActiveTab('weight')}
         >
           Gewicht
         </button>
         <button
-          className={`dashboard-tab${activeTab === 'bodyFat' ? ' active' : ''}`}
+          className={`dashboard-tab adaptive${activeTab === 'bodyFat' ? ' active' : ''}`}
           data-interactive
+          data-size="lg"
+          {...(activeTab === 'bodyFat' ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
           onClick={() => setActiveTab('bodyFat')}
         >
           Körperfett
         </button>
         <button
-          className={`dashboard-tab${activeTab === 'circumference' ? ' active' : ''}`}
+          className={`dashboard-tab adaptive${activeTab === 'circumference' ? ' active' : ''}`}
           data-interactive
+          data-size="lg"
+          {...(activeTab === 'circumference' ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
           onClick={() => setActiveTab('circumference')}
         >
           Umfänge
@@ -179,8 +121,9 @@ function DashboardView() {
           {(Object.keys(CIRCUMFERENCE_LABELS) as CircumferenceField[]).map((field) => (
             <button
               key={field}
-              className={`dashboard-circumference-btn${circumferenceField === field ? ' active' : ''}`}
+              className={`dashboard-circumference-btn adaptive${circumferenceField === field ? ' active' : ''}`}
               data-interactive
+              {...(circumferenceField === field ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
               onClick={() => setCircumferenceField(field)}
             >
               {CIRCUMFERENCE_LABELS[field]}
@@ -199,8 +142,9 @@ function DashboardView() {
             </div>
             {percentChange != null && (
               <div
-                className="dashboard-percent-change"
+                className="dashboard-percent-change adaptive"
                 data-color={percentChange < 0 ? 'green' : percentChange > 0 ? 'red' : undefined}
+                data-content-contrast="min"
               >
                 {percentChange > 0 ? '+' : ''}{percentChange.toFixed(1)}%
               </div>
@@ -224,84 +168,15 @@ function DashboardView() {
         {TIME_RANGES.map((range) => (
           <button
             key={range}
+            className={`adaptive${timeRange === range ? ' active' : ''}`}
             data-interactive
-            {...(timeRange === range ? { 'data-material': 'vibrant' } : {})}
+            {...(timeRange === range ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
             onClick={() => setTimeRange(range)}
           >
             {range}
           </button>
         ))}
       </div>
-
-      {/* Actions: Fitbit sync, export, import */}
-      <div className="dashboard-actions">
-        {fitbitConnected ? (
-          <>
-            <button data-interactive onClick={handleSync}>
-              Fitbit Sync
-            </button>
-            <button data-interactive onClick={async () => { await disconnect(); setFitbitConnected(false); }}>
-              Fitbit trennen
-            </button>
-          </>
-        ) : (
-          <button data-interactive onClick={() => initiateAuth()}>
-            Fitbit verbinden
-          </button>
-        )}
-        <button data-interactive onClick={handleExport}>
-          Export
-        </button>
-        <button data-interactive onClick={handleImportClick}>
-          Import
-        </button>
-        <button
-          data-interactive
-          onClick={async () => {
-            if (pushSubscribed) {
-              await unsubscribeFromPush();
-              setPushSubscribed(false);
-            } else {
-              const ok = await subscribeToPush();
-              setPushSubscribed(ok);
-            }
-          }}
-        >
-          {pushSubscribed ? 'Erinnerungen aus' : 'Erinnerungen an'}
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".json"
-          style={{ display: 'none' }}
-          onChange={handleImportFile}
-        />
-      </div>
-
-      {syncStatus && (
-        <p className="dashboard-sync-status">{syncStatus}</p>
-      )}
-
-      {importStatus && (
-        <p className="dashboard-import-status">{importStatus}</p>
-      )}
-
-      {/* Delete confirmation dialog */}
-      {showDeleteConfirm && (
-        <div className="dashboard-confirm-overlay" onClick={() => setShowDeleteConfirm(false)}>
-          <div className="dashboard-confirm-dialog adaptive" onClick={(e) => e.stopPropagation()}>
-            <p>Messung wirklich löschen?</p>
-            <div className="dashboard-confirm-actions">
-              <button data-interactive onClick={() => setShowDeleteConfirm(false)}>
-                Abbrechen
-              </button>
-              <button data-interactive data-material="vibrant" onClick={handleDeleteConfirm}>
-                Löschen
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
