@@ -131,41 +131,52 @@ function GoalsView() {
           onCtaClick={() => navigate('/goals/new')}
         />
       ) : activeGoal && (
-        <GoalCard
-          goal={activeGoal}
-          projection={projection}
-          onClick={() => navigate('/goals/' + activeGoal.id)}
-        />
-      )}
-
-      {hasWeeklyData && (
-        <BodyCompass trends={bodyCompassTrends} />
-      )}
-
-      {consistencyScore && (
-        <div className="goals-view-consistency adaptive">
-          <span>Diese Woche: {consistencyScore.score}% on track</span>
-        </div>
-      )}
-
-      {nonScaleVictories.length > 0 && (
-        <div className="goals-view-nsv">
-          {nonScaleVictories.map((nsv, i) => (
-            <p key={i} className="goals-view-nsv-message">{nsv.message}</p>
-          ))}
-        </div>
-      )}
-
-      {milestones.length > 0 && (
-        <div className="goals-view-achievements">
-          {milestones.map((m) => (
-            <AchievementCard
-              key={m.id}
-              achievement={m}
-              onClick={() => navigate('/achievements')}
+        <>
+          {hasDailyData && (
+            <CoachingSummary
+              currentWeight={currentWeight}
+              weeklyWeightChange={weeklyWeightChange}
+              activeGoal={activeGoal}
+              projection={projection}
             />
-          ))}
-        </div>
+          )}
+
+          <GoalCard
+            goal={activeGoal}
+            projection={projection}
+            onClick={() => navigate('/goals/' + activeGoal.id)}
+          />
+
+          {hasWeeklyData && (
+            <BodyCompass trends={bodyCompassTrends} />
+          )}
+
+          {consistencyScore && (
+            <div className="goals-view-consistency adaptive">
+              <span>Diese Woche: {consistencyScore.score}% on track</span>
+            </div>
+          )}
+
+          {nonScaleVictories.length > 0 && (
+            <div className="goals-view-nsv">
+              {nonScaleVictories.map((nsv, i) => (
+                <p key={i} className="goals-view-nsv-message">{nsv.message}</p>
+              ))}
+            </div>
+          )}
+
+          {milestones.length > 0 && (
+            <div className="goals-view-achievements">
+              {milestones.map((m) => (
+                <AchievementCard
+                  key={m.id}
+                  achievement={m}
+                  onClick={() => navigate('/achievements')}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   )
