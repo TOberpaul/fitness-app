@@ -83,12 +83,13 @@ function DashboardView() {
 
   useEffect(() => { loadData() }, [loadData])
 
-  const currentValue = crosshairPoint
-    ? crosshairPoint.value
-    : data.length > 0 ? data[data.length - 1].value : null
+  const currentPoint = crosshairPoint
+    ?? (data.length > 0 ? data[data.length - 1] : null)
 
-  const percentChange = data.length >= 2
-    ? calculatePercentChange(data[0].value, crosshairPoint ? crosshairPoint.value : data[data.length - 1].value)
+  const currentValue = currentPoint?.value ?? null
+
+  const percentChange = data.length >= 2 && currentPoint
+    ? calculatePercentChange(data[0].value, currentPoint.value)
     : null
 
   // Show empty state only when we know there's no data at all
@@ -156,21 +157,26 @@ function DashboardView() {
 
       {/* Current value display */}
       <div className="dashboard-value-display">
-        {currentValue != null ? (
+        {currentValue != null && currentPoint ? (
           <>
             <div className="dashboard-current-value">
               {currentValue.toFixed(1)}
               <span className="dashboard-unit"> {getUnit(activeTab)}</span>
             </div>
-            {percentChange != null && (
-              <div
-                className="dashboard-percent-change adaptive"
-                data-color={percentChange < 0 ? 'green' : percentChange > 0 ? 'red' : undefined}
-                data-content-contrast="min"
-              >
-                {percentChange > 0 ? '+' : ''}{percentChange.toFixed(1)}%
-              </div>
-            )}
+            <div className="dashboard-meta">
+              <span className="dashboard-current-date" data-emphasis="weak">
+                {new Date(currentPoint.date + 'T00:00:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </span>
+              {percentChange != null && (
+                <span
+                  className="dashboard-percent-change adaptive"
+                  data-color={percentChange < 0 ? 'green' : percentChange > 0 ? 'red' : undefined}
+                  data-content-contrast="min"
+                >
+                  {percentChange > 0 ? '+' : ''}{percentChange.toFixed(1)}%
+                </span>
+              )}
+            </div>
           </>
         ) : (
           <div className="dashboard-no-data">Keine Daten vorhanden</div>

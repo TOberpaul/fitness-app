@@ -2,8 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { isConnected, syncData, initiateAuth, disconnect } from '../services/fitbitService'
 import { exportToFile, importFromFile } from '../services/serializationService'
 import { getAllData, importData } from '../services/dataService'
-import { subscribeToPush, unsubscribeFromPush, isPushSubscribed } from '../services/pushService'
-import { scheduleDailyReminder, scheduleWeeklyReminder } from '../services/notificationService'
+import { subscribeToPush, unsubscribeFromPush, isPushSubscribed, updateReminderTime } from '../services/pushService'
 import './SettingsView.css'
 
 function SettingsView() {
@@ -171,9 +170,7 @@ function SettingsView() {
             onChange={e => {
               const val = e.target.value
               setReminderTime(val)
-              localStorage.setItem('reminderTime', val)
-              scheduleDailyReminder()
-              scheduleWeeklyReminder()
+              updateReminderTime(val)
             }}
           />
         </label>

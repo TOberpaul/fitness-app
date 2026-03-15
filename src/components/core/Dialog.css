@@ -1,0 +1,73 @@
+.core-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: var(--spacing-padding);
+}
+
+.core-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-padding);
+  width: 100%;
+  max-width: 24rem;
+  border: none;
+  border-radius: var(--size-border-radius);
+  padding: var(--spacing-padding);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.core-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.core-dialog-title {
+  font-size: var(--size-text);
+  color: var(--db-text);
+  font-weight: bold;
+}
+
+.core-dialog-close {
+  background: none;
+  border: none;
+  font-size: var(--size-text-max);
+  color: var(--db-text);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.core-dialog-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.core-dialog-actions button {
+  height: var(--size-container);
+  font-weight: bold;
+  width: 100%;
+}
+
+.core-dialog-actions-row {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-padding);
+}
+
+.core-dialog-secondary {
+  background: transparent;
+  border: none;
+  color: var(--db-text);
+  cursor: pointer;
+  font-size: var(--size-text);
+}

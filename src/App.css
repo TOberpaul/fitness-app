@@ -1,9 +1,9 @@
 .app {
   display: flex;
   flex-direction: column;
-  min-height: calc(100dvh - var(--size-container) - 2 * var(--size-padding));
+  flex: 1;
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow: hidden;
   background: var(--db-background);
   color: var(--db-text);
   font-size: var(--size-text);
@@ -14,6 +14,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   padding-bottom: calc(2 * var(--size-container) + 2 * var(--size-padding));
 }
 
@@ -24,6 +25,7 @@
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  min-height: 0;
 }
 
 .snap-container::-webkit-scrollbar {

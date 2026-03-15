@@ -6,6 +6,7 @@ import { CIRCUMFERENCE_MIN, CIRCUMFERENCE_MAX } from '../types'
 import type { CircumferenceZone, StepFlowEntry, WeeklyMeasurement } from '../types'
 import StepFlowScreen from '../components/StepFlowScreen'
 import StepFlowSummary from '../components/StepFlowSummary'
+import Dialog from '../components/core/Dialog'
 import { updateWeeklyStreak, evaluateMilestones, getEarnedMilestones, getStreaks, detectNonScaleVictories } from '../services/gamificationService'
 import { evaluateGoals, getAllGoals } from '../services/goalService'
 import './WeeklyInputView.css'
@@ -31,7 +32,8 @@ function getPreviousWeekStart(currentWeekStart: string): string {
 
 function WeeklyInputView() {
   const [weekStart] = useState(() => getWeekStart(new Date()))
-  const [step, setStep] = useState(0) // 0=Intro, 1-6=Zones, 7=Summary
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [step, setStep] = useState(1) // 1-6=Zones, 7=Summary
   const [entries, setEntries] = useState<StepFlowEntry[]>(() =>
     ZONE_CONFIG.map(({ zone, label }) => ({
       zone,
@@ -45,7 +47,6 @@ function WeeklyInputView() {
   const [previousWeek, setPreviousWeek] = useState<WeeklyMeasurement | undefined>(undefined)
   const [successMessage, setSuccessMessage] = useState('')
 
-  // Load previous week data for comparison in summary
   const loadPreviousWeek = useCallback(async () => {
     try {
       const prevStart = getPreviousWeekStart(weekStart)
@@ -56,7 +57,6 @@ function WeeklyInputView() {
     }
   }, [weekStart])
 
-  // Load existing data for current week (pre-fill if already entered)
   const loadExistingData = useCallback(async () => {
     try {
       const existing = await getWeeklyMeasurement(weekStart)
@@ -83,7 +83,7 @@ function WeeklyInputView() {
     loadExistingData()
   }, [loadPreviousWeek, loadExistingData])
 
-  // When entering a zone step, sync currentInput from entries
+  // Sync currentInput when step changes
   useEffect(() => {
     if (step >= 1 && step <= TOTAL_STEPS) {
       const entry = entries[step - 1]
@@ -91,6 +91,15 @@ function WeeklyInputView() {
       setError(undefined)
     }
   }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const openDialog = () => {
+    setStep(1)
+    setDialogOpen(true)
+  }
+
+  const closeDialog = () => {
+    setDialogOpen(false)
+  }
 
   const handleNext = () => {
     const raw = currentInput.trim()
@@ -139,6 +148,7 @@ function WeeklyInputView() {
       }
       await saveWeeklyMeasurement(measurement)
       setSuccessMessage('Gespeichert!')
+      setDialogOpen(false)
       setTimeout(() => setSuccessMessage(''), 3000)
 
       // Fire-and-forget gamification hooks
@@ -165,78 +175,64 @@ function WeeklyInputView() {
     setStep(1)
   }
 
-  const handleCancel = () => {
-    setStep(0)
-  }
-
-  // Step 0: Intro screen
-  if (step === 0) {
-    return (
-      <div className="weekly-input adaptive">
-        <h1>Wöchentliche Umfangmessung</h1>
-        <p className="weekly-input-intro-text">
-          Woche ab {weekStart}
-        </p>
-        <p className="weekly-input-intro-text">
-          Nimm dein Maßband und miss die folgenden 6 Körperstellen.
-          Du kannst jede Messung auch überspringen.
-        </p>
-        <button
-          className="weekly-input-start adaptive"
-          data-material="inverted"
-          data-container-contrast="max"
-          data-interactive
-          onClick={() => setStep(1)}
-        >
-          Messung starten
-        </button>
-        {successMessage && (
-          <p className="weekly-input-success">{successMessage}</p>
-        )}
-      </div>
-    )
-  }
-
-  // Step 7: Summary screen
-  if (step === TOTAL_STEPS + 1) {
-    return (
-      <div className="weekly-input adaptive">
-        <StepFlowSummary
-          entries={entries}
-          previousWeek={previousWeek}
-          onConfirm={handleConfirm}
-          onBack={handleBack}
-        />
-        {successMessage && (
-          <p className="weekly-input-success">{successMessage}</p>
-        )}
-      </div>
-    )
-  }
-
-  // Steps 1-6: Zone input screens
-  const zoneIndex = step - 1
-  const config = ZONE_CONFIG[zoneIndex]
+  const dialogTitle = step <= TOTAL_STEPS
+    ? `Messung (${step}/${TOTAL_STEPS})`
+    : 'Zusammenfassung'
 
   return (
     <div className="weekly-input adaptive">
-      <StepFlowScreen
-        zone={config.zone}
-        label={config.label}
-        hint={config.hint}
-        illustration={config.illustration}
-        value={currentInput}
-        onChange={(val) => {
-          setCurrentInput(val)
-          setError(undefined)
-        }}
-        onNext={handleNext}
-        onSkip={handleSkip}
-        onCancel={handleCancel}
-        error={error}
-        stepIndex={step}
-        totalSteps={TOTAL_STEPS}
-      />
+      <h1>Wöchentliche Umfangmessung</h1>
+      <p className="weekly-input-intro-text">
+        Woche ab {weekStart}
+      </p>
+      <p className="weekly-input-intro-text">
+        Nimm dein Maßband und miss die folgenden 6 Körperstellen.
+        Du kannst jede Messung auch überspringen.
+      </p>
+      <button
+        className="weekly-input-start adaptive"
+        data-material="inverted"
+        data-container-contrast="max"
+        data-interactive
+        onClick={openDialog}
+      >
+        Messung starten
+      </button>
+      {successMessage && (
+        <p className="weekly-input-success">{successMessage}</p>
+      )}
+
+      {dialogOpen && (
+        <Dialog title={dialogTitle} onClose={closeDialog}>
+          {step <= TOTAL_STEPS ? (
+            <StepFlowScreen
+              zone={ZONE_CONFIG[step - 1].zone}
+              label={ZONE_CONFIG[step - 1].label}
+              hint={ZONE_CONFIG[step - 1].hint}
+              illustration={ZONE_CONFIG[step - 1].illustration}
+              value={currentInput}
+              onChange={(val) => {
+                setCurrentInput(val)
+                setError(undefined)
+              }}
+              onNext={handleNext}
+              onSkip={handleSkip}
+              onCancel={closeDialog}
+              onBack={() => setStep(s => s - 1)}
+              error={error}
+              stepIndex={step}
+              totalSteps={TOTAL_STEPS}
+            />
+          ) : (
+            <StepFlowSummary
+              entries={entries}
+              previousWeek={previousWeek}
+              onConfirm={handleConfirm}
+              onBack={handleBack}
+            />
+          )}
+        </Dialog>
+      )}
     </div>
   )
 }

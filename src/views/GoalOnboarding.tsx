@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { saveDailyMeasurement } from '../services/dataService'
 import { createGoal } from '../services/goalService'
-import { scheduleDailyReminder, scheduleWeeklyReminder, requestPermission } from '../services/notificationService'
+import { requestPermission } from '../services/notificationService'
+import { subscribeToPush, updateReminderTime } from '../services/pushService'
+import Dialog from '../components/core/Dialog'
 import './GoalOnboarding.css'
 
 const TOTAL = 4
@@ -22,12 +24,12 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
 
   const back = () => {
     setError('')
-    setStep(step - 1)
+    setStep(s => s - 1)
   }
 
   const handleWeight = async () => {
     setError('')
-    const val = Number(weight)
+    const val = Number(weight.replace(',', '.'))
     if (!weight.trim() || isNaN(val) || val < 30 || val > 300) {
       setError('Zwischen 30 und 300 kg'); return
     }
@@ -43,7 +45,7 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
 
   const handleGoal = async () => {
     setError('')
-    const val = Number(targetWeight)
+    const val = Number(targetWeight.replace(',', '.'))
     if (!targetWeight.trim() || isNaN(val) || val < 30 || val > 300) {
       setError('Zwischen 30 und 300 kg'); return
     }
@@ -57,11 +59,10 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
   }
 
   const handleReminder = async () => {
-    localStorage.setItem('reminderTime', reminderTime)
+    await updateReminderTime(reminderTime)
     const permission = await requestPermission()
     if (permission === 'granted') {
-      scheduleDailyReminder()
-      scheduleWeeklyReminder()
+      await subscribeToPush()
     }
     setStep(3)
   }
@@ -81,10 +82,10 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
             onChange={e => { setWeight(e.target.value); setError('') }}
             aria-invalid={!!error} />
           {error && <p className="ob-error" role="alert">{error}</p>}
-          <div className="ob-actions">
+          <div className="core-dialog-actions">
             <button className="adaptive" data-material="inverted" data-container-contrast="max"
               data-interactive onClick={handleWeight}>Weiter</button>
-            <button className="ob-skip" data-interactive onClick={() => setStep(1)}>Überspringen</button>
+            <button className="core-dialog-secondary" data-interactive onClick={() => setStep(1)}>Überspringen</button>
           </div>
         </>
       )
@@ -96,10 +97,13 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
             onChange={e => { setTargetWeight(e.target.value); setError('') }}
             aria-invalid={!!error} />
           {error && <p className="ob-error" role="alert">{error}</p>}
-          <div className="ob-actions">
+          <div className="core-dialog-actions">
             <button className="adaptive" data-material="inverted" data-container-contrast="max"
               data-interactive onClick={handleGoal}>Weiter</button>
-            <button className="ob-skip" data-interactive onClick={() => setStep(2)}>Überspringen</button>
+            <div className="core-dialog-actions-row">
+              <button className="core-dialog-secondary" data-interactive onClick={back}>Zurück</button>
+              <button className="core-dialog-secondary" data-interactive onClick={() => setStep(2)}>Überspringen</button>
+            </div>
           </div>
         </>
       )
@@ -108,10 +112,13 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
           <label htmlFor="ob-time">Tägliche Erinnerung</label>
           <input id="ob-time" className="ob-input" type="time" value={reminderTime}
             onChange={e => setReminderTime(e.target.value)} />
-          <div className="ob-actions">
+          <div className="core-dialog-actions">
             <button className="adaptive" data-material="inverted" data-container-contrast="max"
               data-interactive onClick={handleReminder}>Aktivieren</button>
-            <button className="ob-skip" data-interactive onClick={() => setStep(3)}>Überspringen</button>
+            <div className="core-dialog-actions-row">
+              <button className="core-dialog-secondary" data-interactive onClick={back}>Zurück</button>
+              <button className="core-dialog-secondary" data-interactive onClick={() => setStep(3)}>Überspringen</button>
+            </div>
           </div>
         </>
       )
@@ -122,9 +129,10 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
               onChange={e => setWeeklyEnabled(e.target.checked)} />
             Wöchentliche Umfangmessung
           </label>
-          <div className="ob-actions">
+          <div className="core-dialog-actions">
             <button className="adaptive" data-material="inverted" data-container-contrast="max"
               data-interactive onClick={handleWeekly}>Fertig</button>
+            <button className="core-dialog-secondary" data-interactive onClick={back}>Zurück</button>
           </div>
         </>
       )
@@ -133,25 +141,14 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="ob-backdrop">
-      <dialog className="ob-dialog adaptive" open>
-        <img
-          className="ob-hero"
-          src={`${import.meta.env.BASE_URL}Running.png`}
-          alt=""
-        />
-        <div className="ob-header">
-          <span className="ob-title">Einrichtung ({step + 1}/{TOTAL})</span>
-          <button className="ob-close" data-interactive onClick={finish} aria-label="Schließen">
-            &times;
-          </button>
-        </div>
-        {step > 0 && (
-          <button className="ob-back" data-interactive onClick={back}>Zurück</button>
-        )}
-        {renderStep()}
-      </dialog>
-    </div>
+    <Dialog title={`Einrichtung (${step + 1}/${TOTAL})`} onClose={finish}>
+      <img
+        className="ob-hero"
+        src={`${import.meta.env.BASE_URL}Running.png`}
+        alt=""
+      />
+      {renderStep()}
+    </Dialog>
   )
 }
 

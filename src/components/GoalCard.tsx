@@ -1,3 +1,4 @@
+import { ArrowRight } from 'lucide-react'
 import type { Goal, GoalProjection } from '../types'
 import './GoalCard.css'
 
@@ -52,7 +53,7 @@ function GoalCard({ goal, projection, onClick }: GoalCardProps) {
       <div className="goal-card-header">
         <span className="goal-card-label">{label}</span>
         <span className="goal-card-values">
-          {projection ? projection.currentValue.toFixed(1) : goal.startValue.toFixed(1)} → {goal.targetValue.toFixed(1)} {unit}
+          {projection ? projection.currentValue.toFixed(1) : goal.startValue.toFixed(1)} <ArrowRight size={14} /> {goal.targetValue.toFixed(1)} {unit}
         </span>
       </div>
 

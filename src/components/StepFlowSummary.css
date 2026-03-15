@@ -2,14 +2,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--size-gap);
-  padding: var(--spacing-padding);
-}
-
-.step-flow-summary-title {
-  font-size: var(--size-16);
-  font-weight: 900;
-  color: var(--db-text);
-  text-align: center;
 }
 
 .step-flow-summary-list {
@@ -66,21 +58,4 @@
   font-size: var(--size-text);
   color: var(--db-text);
   padding: var(--size-padding-min);
-}
-
-.step-flow-summary-actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-gap);
-  width: 100%;
-}
-
-.step-flow-summary-confirm {
-  font-weight: bold;
-}
-
-.step-flow-summary-back {
-  background: transparent;
-  border-color: transparent;
-  color: var(--db-text);
 }

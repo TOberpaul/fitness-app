@@ -11,6 +11,7 @@ interface StepFlowScreenProps {
   onNext: () => void
   onSkip: () => void
   onCancel: () => void
+  onBack?: () => void
   error?: string
   stepIndex: number
   totalSteps: number
@@ -24,26 +25,12 @@ function StepFlowScreen({
   onChange,
   onNext,
   onSkip,
-  onCancel,
+  onBack,
   error,
   stepIndex,
-  totalSteps,
 }: StepFlowScreenProps) {
   return (
     <div className="step-flow-screen adaptive">
-      <div className="step-flow-header">
-        <button
-          className="step-flow-cancel adaptive"
-          data-interactive
-          onClick={onCancel}
-        >
-          Abbrechen
-        </button>
-        <span className="step-flow-progress">
-          {stepIndex} / {totalSteps}
-        </span>
-      </div>
-
       {illustration && (
         <img
           className="step-flow-illustration"
@@ -69,9 +56,9 @@ function StepFlowScreen({
 
       {error && <p className="step-flow-error" role="alert">{error}</p>}
 
-      <div className="step-flow-actions">
+      <div className="core-dialog-actions">
         <button
-          className="step-flow-next adaptive"
+          className="adaptive"
           data-interactive
           data-material="inverted"
           data-container-contrast="max"
@@ -79,13 +66,14 @@ function StepFlowScreen({
         >
           Weiter
         </button>
-        <button
-          className="step-flow-skip adaptive"
-          data-interactive
-          onClick={onSkip}
-        >
-          Überspringen
-        </button>
+        {stepIndex > 1 ? (
+          <div className="core-dialog-actions-row">
+            <button className="core-dialog-secondary" data-interactive onClick={onBack}>Zurück</button>
+            <button className="core-dialog-secondary" data-interactive onClick={onSkip}>Überspringen</button>
+          </div>
+        ) : (
+          <button className="core-dialog-secondary" data-interactive onClick={onSkip}>Überspringen</button>
+        )}
       </div>
     </div>
   )

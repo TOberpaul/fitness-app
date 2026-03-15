@@ -9,11 +9,8 @@
 html, body {
   margin: 0;
   box-sizing: border-box;
-}
-
-html {
-  overflow-x: hidden;
-  overflow-y: auto;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 *, *::before, *::after {
@@ -22,19 +19,23 @@ html {
 
 #root {
   max-width: 100%;
-  min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 h2 {  
   font-size: var(--size-16);
 }
 
+h1, h2 {
+  font-weight: 900;
+}
+
 h1, h2, p {
   margin: 0;
   line-height: 1;
-  font-weight: 900;
 }
 
     .adaptive {

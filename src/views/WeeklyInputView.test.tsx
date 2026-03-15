@@ -29,7 +29,7 @@ describe('WeeklyInputView', () => {
     render(<WeeklyInputView />);
     fireEvent.click(screen.getByText('Messung starten'));
     expect(screen.getByText('Brust')).toBeDefined();
-    expect(screen.getByText('1 / 6')).toBeDefined();
+    expect(screen.getByText('Messung (1/6)')).toBeDefined();
   });
 
   it('shows all zone steps in correct order', () => {
@@ -39,7 +39,7 @@ describe('WeeklyInputView', () => {
 
     for (let i = 0; i < zones.length; i++) {
       expect(screen.getByText(zones[i])).toBeDefined();
-      expect(screen.getByText(`${i + 1} / 6`)).toBeDefined();
+      expect(screen.getByText(`Messung (${i + 1}/6)`)).toBeDefined();
       fireEvent.click(screen.getByText('Überspringen'));
     }
     // After all zones, should be on summary
@@ -80,7 +80,7 @@ describe('WeeklyInputView', () => {
 
     // Should now be on Taille step
     expect(screen.getByText('Taille')).toBeDefined();
-    expect(screen.getByText('2 / 6')).toBeDefined();
+    expect(screen.getByText('Messung (2/6)')).toBeDefined();
   });
 
   it('skip advances without recording a value', () => {
@@ -180,7 +180,7 @@ describe('WeeklyInputView', () => {
 
     // Should be back at Brust (step 1)
     expect(screen.getByText('Brust')).toBeDefined();
-    expect(screen.getByText('1 / 6')).toBeDefined();
+    expect(screen.getByText('Messung (1/6)')).toBeDefined();
   });
 
   it('intro weiter button has correct data attributes', () => {

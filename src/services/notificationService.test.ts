@@ -1,30 +1,16 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   requestPermission,
   isEnabled,
   shouldNotify,
-  scheduleDailyReminder,
-  scheduleWeeklyReminder,
-  cancelAll,
+  getReminderTime,
 } from './notificationService';
 import type { DailyMeasurement, WeeklyMeasurement } from '../types';
 import { formatDate, getWeekStart } from '../utils/date';
 
-// Mock notificationEngine
-vi.mock('./notificationEngine', () => ({
-  getDailyReminderMessage: vi.fn(() => 'Mocked daily reminder message'),
-  getWeeklyReminderMessage: vi.fn(() => 'Mocked weekly reminder message'),
-}));
-
-import { getDailyReminderMessage, getWeeklyReminderMessage } from './notificationEngine';
-
-// Mock Notification API
-const mockNotification = vi.fn();
 const mockRequestPermission = vi.fn();
 
 beforeEach(() => {
-  vi.useFakeTimers();
-  // Setup localStorage mock
   const store: Record<string, string> = {};
   vi.stubGlobal('localStorage', {
     getItem: vi.fn((key: string) => store[key] ?? null),
@@ -32,24 +18,15 @@ beforeEach(() => {
     removeItem: vi.fn((key: string) => { delete store[key]; }),
     clear: vi.fn(() => { Object.keys(store).forEach(k => delete store[k]); }),
   });
-  // Setup Notification mock
   Object.defineProperty(globalThis, 'Notification', {
-    value: Object.assign(mockNotification, {
+    value: Object.assign(vi.fn(), {
       permission: 'granted',
       requestPermission: mockRequestPermission,
     }),
     writable: true,
     configurable: true,
   });
-  mockNotification.mockClear();
   mockRequestPermission.mockClear();
-  vi.mocked(getDailyReminderMessage).mockClear();
-  vi.mocked(getWeeklyReminderMessage).mockClear();
-});
-
-afterEach(() => {
-  cancelAll();
-  vi.useRealTimers();
 });
 
 describe('requestPermission', () => {
@@ -61,13 +38,6 @@ describe('requestPermission', () => {
   });
 
   it('should return denied when Notification API is not available', async () => {
-    Object.defineProperty(globalThis, 'Notification', {
-      value: undefined,
-      writable: true,
-      configurable: true,
-    });
-    // Re-import won't help since the check is at runtime, so we need to
-    // temporarily remove Notification from window
     const saved = (globalThis as any).Notification;
     delete (globalThis as any).Notification;
     const result = await requestPermission();
@@ -133,63 +103,13 @@ describe('shouldNotify', () => {
   });
 });
 
-describe('scheduleDailyReminder', () => {
-  it('should schedule a notification and fire at 20:00', () => {
-    // Set current time to 19:00
-    vi.setSystemTime(new Date(2024, 5, 15, 19, 0, 0));
-    (Notification as any).permission = 'granted';
-
-    scheduleDailyReminder();
-
-    // Advance 1 hour to 20:00
-    vi.advanceTimersByTime(60 * 60 * 1000);
-
-    expect(mockNotification).toHaveBeenCalledWith('Tägliche Messung', {
-      body: 'Mocked daily reminder message',
-      tag: 'daily-reminder',
-    });
+describe('getReminderTime', () => {
+  it('should return default 20:00 when not set', () => {
+    expect(getReminderTime()).toBe('20:00');
   });
 
-  it('should not fire notification if permission is not granted', () => {
-    vi.setSystemTime(new Date(2024, 5, 15, 19, 0, 0));
-    (Notification as any).permission = 'denied';
-
-    scheduleDailyReminder();
-    vi.advanceTimersByTime(60 * 60 * 1000);
-
-    expect(mockNotification).not.toHaveBeenCalled();
-  });
-});
-
-describe('scheduleWeeklyReminder', () => {
-  it('should schedule a notification for Sunday at 20:00', () => {
-    // Set to Sunday 19:00 (June 16, 2024 is a Sunday)
-    vi.setSystemTime(new Date(2024, 5, 16, 19, 0, 0));
-    (Notification as any).permission = 'granted';
-
-    scheduleWeeklyReminder();
-
-    // Advance 1 hour to 20:00
-    vi.advanceTimersByTime(60 * 60 * 1000);
-
-    expect(mockNotification).toHaveBeenCalledWith('Wöchentliche Messung', {
-      body: 'Mocked weekly reminder message',
-      tag: 'weekly-reminder',
-    });
-  });
-});
-
-describe('cancelAll', () => {
-  it('should cancel all scheduled timers', () => {
-    vi.setSystemTime(new Date(2024, 5, 15, 19, 0, 0));
-
-    scheduleDailyReminder();
-    scheduleWeeklyReminder();
-    cancelAll();
-
-    // Advance past all scheduled times
-    vi.advanceTimersByTime(7 * 24 * 60 * 60 * 1000);
-
-    expect(mockNotification).not.toHaveBeenCalled();
+  it('should return stored value', () => {
+    localStorage.setItem('reminderTime', '08:30');
+    expect(getReminderTime()).toBe('08:30');
   });
 });

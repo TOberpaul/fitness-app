@@ -57,9 +57,7 @@ function StepFlowSummary({
   )
 
   return (
-    <div className="step-flow-summary adaptive">
-      <h2 className="step-flow-summary-title">Zusammenfassung</h2>
-
+    <div className="step-flow-summary">
       <div className="step-flow-summary-list">
         {classifications.map(({ entry, classification }, index) => {
           const prev = getPreviousValue(entry.zone, previousWeek)
@@ -108,16 +106,18 @@ function StepFlowSummary({
         </p>
       )}
 
-      <div className="step-flow-summary-actions">
+      <div className="core-dialog-actions">
         <button
-          className="step-flow-summary-confirm adaptive"
+          className="adaptive"
+          data-material="inverted"
+          data-container-contrast="max"
           data-interactive
           onClick={onConfirm}
         >
           Bestätigen
         </button>
         <button
-          className="step-flow-summary-back adaptive"
+          className="core-dialog-secondary"
           data-interactive
           onClick={onBack}
         >

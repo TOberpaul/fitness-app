@@ -13,6 +13,15 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return outputArray;
 }
 
+function getDeviceId(): string {
+  let id = localStorage.getItem('device_id');
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem('device_id', id);
+  }
+  return id;
+}
+
 /** Subscribe to push notifications and store subscription in Supabase */
 export async function subscribeToPush(): Promise<boolean> {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
@@ -26,7 +35,6 @@ export async function subscribeToPush(): Promise<boolean> {
 
   const registration = await navigator.serviceWorker.ready;
 
-  // Check for existing subscription
   let subscription = await registration.pushManager.getSubscription();
 
   if (!subscription) {
@@ -36,13 +44,16 @@ export async function subscribeToPush(): Promise<boolean> {
     });
   }
 
-  // Store subscription in Supabase
   const subJson = subscription.toJSON();
+  const reminderTime = localStorage.getItem('reminderTime') || '20:00';
+
   const { error } = await supabase.from('push_subscriptions').upsert(
     {
+      device_id: getDeviceId(),
       endpoint: subJson.endpoint,
       p256dh: subJson.keys?.p256dh,
       auth: subJson.keys?.auth,
+      reminder_time: reminderTime,
       created_at: new Date().toISOString(),
     },
     { onConflict: 'endpoint' }
@@ -55,6 +66,23 @@ export async function subscribeToPush(): Promise<boolean> {
 
   localStorage.setItem('push_subscribed', '1');
   return true;
+}
+
+/** Update the reminder time in Supabase for this device's push subscription */
+export async function updateReminderTime(time: string): Promise<void> {
+  localStorage.setItem('reminderTime', time);
+
+  // Only update Supabase if push is subscribed
+  if (localStorage.getItem('push_subscribed') !== '1') return;
+
+  const { error } = await supabase
+    .from('push_subscriptions')
+    .update({ reminder_time: time })
+    .eq('device_id', getDeviceId());
+
+  if (error) {
+    console.error('Failed to update reminder time:', error);
+  }
 }
 
 /** Unsubscribe from push notifications */
@@ -72,7 +100,6 @@ export async function unsubscribeFromPush(): Promise<void> {
 
 /** Check if currently subscribed to push */
 export async function isPushSubscribed(): Promise<boolean> {
-  // Quick check from localStorage first
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     return false;
   }
@@ -91,7 +118,6 @@ export async function isPushSubscribed(): Promise<boolean> {
     }
     return subscribed;
   } catch {
-    // Fallback to localStorage if SW not ready yet
     return localStorage.getItem('push_subscribed') === '1';
   }
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 import { getGoal, calculateProjection, updateGoalStatus, deleteGoal } from '../services/goalService'
 import { getDailyMeasurements, getWeeklyMeasurements } from '../services/dataService'
 import type { Goal, GoalProjection } from '../types'
@@ -139,7 +140,7 @@ function GoalDetailView() {
         data-interactive
         onClick={() => navigate(-1)}
       >
-        ← Zurück
+        <ArrowLeft size={16} /> Zurück
       </button>
 
       <h1>{METRIC_LABELS[goal.metricType]}{goal.zone ? ` — ${ZONE_LABELS[goal.zone]}` : ''}</h1>

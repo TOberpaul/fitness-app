@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 import { getEarnedMilestones, getStreaks } from '../services/gamificationService'
 import AchievementCard from '../components/AchievementCard'
 import type { Milestone, Streaks, StreakAchievement } from '../types'
@@ -50,7 +51,7 @@ function AchievementsView() {
         data-interactive
         onClick={() => navigate(-1)}
       >
-        ← Zurück
+        <ArrowLeft size={16} /> Zurück
       </button>
 
       <h1>Erfolge</h1>

@@ -117,7 +117,7 @@ describe('DailyInputView', () => {
   it('save button has correct data attributes', () => {
     render(<DailyInputView />);
     const saveBtn = screen.getByText('Speichern');
-    expect(saveBtn.getAttribute('data-material')).toBe('vibrant');
+    expect(saveBtn.getAttribute('data-material')).toBe('inverted');
     expect(saveBtn.hasAttribute('data-interactive')).toBe(true);
   });
 
