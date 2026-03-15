@@ -40,7 +40,7 @@
   width: calc( 2* var(--size-container));
   height: var(--size-container);
   border-radius: var(--size-border-radius-full);
-  border: none;
+  border: var(--size-1) solid var(--db-border);
   background: var(--db-background);
   cursor: pointer;
   padding: 0;
@@ -50,12 +50,11 @@
 
 .toggle-knob {
   position: absolute;
-  top: var(--size-4);
-  left: var(--size-4);
+  top: var(--size-3);
+  left: var(--size-3);
   width: calc(var(--size-container) - 2 * var(--size-4));
   height: calc(var(--size-container) - 2 * var(--size-4));
   background: var(--db-background);
-  border: var(--size-1) solid var(--db-border);
   border-radius: var(--size-border-radius-full);
   transition: transform 0.25s;
   pointer-events: none;
