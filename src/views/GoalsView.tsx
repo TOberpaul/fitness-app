@@ -108,6 +108,7 @@ function GoalsView() {
 
   return (
     <div className="goals-view">
+      <h1>Ziele</h1>
       <img
         className="goals-view-hero"
         src={`${import.meta.env.BASE_URL}Goal.png`}

@@ -10,10 +10,6 @@
   flex: 1;
 }
 
-.weekly-input h1 {
-  align-self: flex-start;
-}
-
 .weekly-input-body {
   flex: 1;
   display: flex;

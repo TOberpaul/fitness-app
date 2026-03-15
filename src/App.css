@@ -39,3 +39,7 @@
   scroll-snap-align: start;
   overflow-y: auto;
 }
+
+.snap-panel h1 {
+  text-align: center;
+}
