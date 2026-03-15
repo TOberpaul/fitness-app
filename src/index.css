@@ -50,9 +50,10 @@ h1, h2, p {
     }
 
 @media (hover: none) {
-  [data-interactive]:hover:not(:active) {
-    --db-background: var(--db-background-default);
-    --db-text: var(--db-text-default);
-    --db-visual: var(--db-visual-default);
+  [data-interactive] {
+    -webkit-tap-highlight-color: transparent;
+  }
+  [data-interactive]:hover {
+    --db-background: var(--material-bg-default);
   }
 }
