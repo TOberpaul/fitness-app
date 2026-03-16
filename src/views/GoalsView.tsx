@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import EmptyState from '../components/EmptyState'
 import GoalCard from '../components/GoalCard'
@@ -45,67 +45,71 @@ function GoalsView() {
   })
   const [nonScaleVictories, setNonScaleVictories] = useState<NonScaleVictory[]>([])
   const [streaks, setStreaks] = useState<Streaks | null>(null)
-  useEffect(() => {
-    async function loadData() {
-      let dailyMeasurements: DailyMeasurement[] = []
-      let weeklyMeasurements: WeeklyMeasurement[] = []
-      try {
-        const allData = await getAllData()
-        dailyMeasurements = allData.dailyMeasurements
-        weeklyMeasurements = allData.weeklyMeasurements
-        setHasDailyData(dailyMeasurements.length > 0)
-        setHasWeeklyData(weeklyMeasurements.length > 0)
 
-        const sortedDaily = [...dailyMeasurements]
-          .filter(m => m.weight != null)
-          .sort((a, b) => a.date.localeCompare(b.date))
-        if (sortedDaily.length > 0) {
-          const mostRecent = sortedDaily[sortedDaily.length - 1]
-          setCurrentWeight(mostRecent.weight ?? null)
-          const recentDate = new Date(mostRecent.date)
-          const sevenDaysAgo = new Date(recentDate)
-          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-          const sevenDaysAgoStr = sevenDaysAgo.toISOString().slice(0, 10)
-          const olderEntries = sortedDaily.filter(m => m.date <= sevenDaysAgoStr)
-          if (olderEntries.length > 0 && mostRecent.weight != null) {
-            const olderWeight = olderEntries[olderEntries.length - 1].weight
-            if (olderWeight != null) {
-              setWeeklyWeightChange(+(mostRecent.weight - olderWeight).toFixed(1))
-            }
+  const loadData = useCallback(async () => {
+    let dailyMeasurements: DailyMeasurement[] = []
+    let weeklyMeasurements: WeeklyMeasurement[] = []
+    try {
+      const allData = await getAllData()
+      dailyMeasurements = allData.dailyMeasurements
+      weeklyMeasurements = allData.weeklyMeasurements
+      setHasDailyData(dailyMeasurements.length > 0)
+      setHasWeeklyData(weeklyMeasurements.length > 0)
+
+      const sortedDaily = [...dailyMeasurements]
+        .filter(m => m.weight != null)
+        .sort((a, b) => a.date.localeCompare(b.date))
+      if (sortedDaily.length > 0) {
+        const mostRecent = sortedDaily[sortedDaily.length - 1]
+        setCurrentWeight(mostRecent.weight ?? null)
+        const recentDate = new Date(mostRecent.date)
+        const sevenDaysAgo = new Date(recentDate)
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+        const sevenDaysAgoStr = sevenDaysAgo.toISOString().slice(0, 10)
+        const olderEntries = sortedDaily.filter(m => m.date <= sevenDaysAgoStr)
+        if (olderEntries.length > 0 && mostRecent.weight != null) {
+          const olderWeight = olderEntries[olderEntries.length - 1].weight
+          if (olderWeight != null) {
+            setWeeklyWeightChange(+(mostRecent.weight - olderWeight).toFixed(1))
           }
         }
-
-        setBodyCompassTrends(calculateTrends(weeklyMeasurements))
-        setNonScaleVictories(detectNonScaleVictories(dailyMeasurements, weeklyMeasurements))
-
-        const weekStart = getWeekStart(new Date())
-        setConsistencyScore(calculateConsistencyScore(weekStart, dailyMeasurements, weeklyMeasurements.length > 0))
-
-        const earned = await getEarnedMilestones()
-        setMilestones(earned.sort((a, b) => b.earnedAt.localeCompare(a.earnedAt)).slice(0, 3))
-        setStreaks(await getStreaks())
-      } catch {
-        setHasDailyData(false)
-        setHasWeeklyData(false)
       }
-      try {
-        const goals = await getActiveGoals()
-        setHasGoals(goals.length > 0)
-        if (goals.length > 0) {
-          const firstGoal = goals[0]
-          setActiveGoal(firstGoal)
-          const measurements = firstGoal.metricType === 'circumference' ? weeklyMeasurements : dailyMeasurements
-          setProjection(calculateProjection(firstGoal, measurements))
-        } else {
-          setActiveGoal(null)
-          setProjection(null)
-        }
-      } catch {
-        setHasGoals(false)
-      }
+
+      setBodyCompassTrends(calculateTrends(weeklyMeasurements))
+      setNonScaleVictories(detectNonScaleVictories(dailyMeasurements, weeklyMeasurements))
+
+      const weekStart = getWeekStart(new Date())
+      setConsistencyScore(calculateConsistencyScore(weekStart, dailyMeasurements, weeklyMeasurements.length > 0))
+
+      const earned = await getEarnedMilestones()
+      setMilestones(earned.sort((a, b) => b.earnedAt.localeCompare(a.earnedAt)).slice(0, 3))
+      setStreaks(await getStreaks())
+    } catch {
+      setHasDailyData(false)
+      setHasWeeklyData(false)
     }
-    loadData()
+    try {
+      const goals = await getActiveGoals()
+      setHasGoals(goals.length > 0)
+      if (goals.length > 0) {
+        const firstGoal = goals[0]
+        setActiveGoal(firstGoal)
+        const measurements = firstGoal.metricType === 'circumference' ? weeklyMeasurements : dailyMeasurements
+        setProjection(calculateProjection(firstGoal, measurements))
+      } else {
+        setActiveGoal(null)
+        setProjection(null)
+      }
+    } catch {
+      setHasGoals(false)
+    }
   }, [])
+
+  useEffect(() => {
+    loadData()
+    window.addEventListener('data-updated', loadData)
+    return () => window.removeEventListener('data-updated', loadData)
+  }, [loadData])
 
   return (
     <div className="goals-view">

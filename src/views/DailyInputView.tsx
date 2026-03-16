@@ -81,6 +81,7 @@ function DailyInputView() {
       })
       setSuccessMessage('Gespeichert!')
       setTimeout(() => setSuccessMessage(''), 2000)
+      window.dispatchEvent(new CustomEvent('data-updated'))
 
       // Fire-and-forget gamification hooks
       try {

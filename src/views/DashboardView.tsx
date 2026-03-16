@@ -81,7 +81,12 @@ function DashboardView() {
     }
   }, [activeTab, timeRange, circumferenceField])
 
-  useEffect(() => { loadData() }, [loadData])
+  useEffect(() => {
+    loadData()
+    const onDataUpdated = () => { loadData() }
+    window.addEventListener('data-updated', onDataUpdated)
+    return () => window.removeEventListener('data-updated', onDataUpdated)
+  }, [loadData])
 
   const currentPoint = crosshairPoint
     ?? (data.length > 0 ? data[data.length - 1] : null)

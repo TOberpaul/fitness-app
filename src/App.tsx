@@ -11,7 +11,7 @@ import GoalDetailView from './views/GoalDetailView'
 import AchievementsView from './views/AchievementsView'
 import GoalOnboarding from './views/GoalOnboarding'
 import BottomNavigation from './components/BottomNavigation'
-import { initConnectionState } from './services/fitbitService'
+import { initConnectionState, isConnected, syncData } from './services/fitbitService'
 import { syncIfNeeded } from './services/cloudSync'
 import { getAllGoals } from './services/goalService'
 import { getAllData } from './services/dataService'
@@ -106,7 +106,18 @@ function AppContent() {
   const [showOnboarding, setShowOnboarding] = useState(false)
 
   useEffect(() => {
-    initConnectionState()
+    async function init() {
+      await initConnectionState()
+      if (isConnected()) {
+        try {
+          await syncData()
+          window.dispatchEvent(new CustomEvent('data-updated'))
+        } catch {
+          // Sync errors should not block app startup
+        }
+      }
+    }
+    init()
     syncIfNeeded()
 
     async function checkOnboarding() {

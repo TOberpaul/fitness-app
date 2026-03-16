@@ -150,6 +150,7 @@ function WeeklyInputView() {
       setSuccessMessage('Gespeichert!')
       setDialogOpen(false)
       setTimeout(() => setSuccessMessage(''), 3000)
+      window.dispatchEvent(new CustomEvent('data-updated'))
 
       // Fire-and-forget gamification hooks
       try {
