@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { createGoal } from '../services/goalService'
 import { getDailyMeasurements, getWeeklyMeasurements } from '../services/dataService'
+import { normalizeDecimal } from '../utils/validation'
 import type { GoalMetricType, CircumferenceZone } from '../types'
+import Dialog from '../components/core/Dialog'
 import './GoalCreateView.css'
 
 const METRIC_LABELS: Record<GoalMetricType, string> = {
@@ -23,8 +24,7 @@ const ZONE_LABELS: Record<CircumferenceZone, string> = {
 const ZONES: CircumferenceZone[] = ['chest', 'waist', 'hip', 'belly', 'upperArm', 'thigh']
 const METRIC_TYPES: GoalMetricType[] = ['weight', 'bodyFat', 'circumference']
 
-function GoalCreateView() {
-  const navigate = useNavigate()
+function GoalCreateView({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
   const [metricType, setMetricType] = useState<GoalMetricType>('weight')
   const [zone, setZone] = useState<CircumferenceZone>('waist')
   const [startValue, setStartValue] = useState('')
@@ -81,8 +81,8 @@ function GoalCreateView() {
   const handleSubmit = async () => {
     setError('')
 
-    const start = Number(startValue)
-    const target = Number(targetValue)
+    const start = Number(normalizeDecimal(startValue))
+    const target = Number(normalizeDecimal(targetValue))
 
     if (isNaN(start) || startValue.trim() === '') {
       setError('Bitte einen gültigen Startwert eingeben.')
@@ -108,7 +108,8 @@ function GoalCreateView() {
         targetValue: target,
         ...(deadline ? { deadline } : {}),
       })
-      navigate('/')
+      onCreated()
+      onClose()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Fehler beim Erstellen des Ziels.')
     } finally {
@@ -117,9 +118,7 @@ function GoalCreateView() {
   }
 
   return (
-    <div className="goal-create adaptive">
-      <h1>Neues Ziel erstellen</h1>
-
+    <Dialog title="Neues Ziel erstellen" onClose={onClose}>
       <div className="goal-create-field">
         <label>Metrik-Typ</label>
         <div className="goal-create-metric-options">
@@ -215,7 +214,7 @@ function GoalCreateView() {
       >
         {submitting ? 'Wird erstellt…' : 'Ziel erstellen'}
       </button>
-    </div>
+    </Dialog>
   )
 }
 

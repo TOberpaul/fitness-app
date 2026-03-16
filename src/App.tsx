@@ -6,7 +6,6 @@ import WeeklyInputView from './views/WeeklyInputView'
 import GoalsView from './views/GoalsView'
 import FitbitCallbackView from './views/FitbitCallbackView'
 import SettingsView from './views/SettingsView'
-import GoalCreateView from './views/GoalCreateView'
 import GoalDetailView from './views/GoalDetailView'
 import AchievementsView from './views/AchievementsView'
 import GoalOnboarding from './views/GoalOnboarding'
@@ -36,6 +35,7 @@ function MainPanels() {
     return idx >= 0 ? idx : 0
   })
   const containerRef = useRef<HTMLDivElement>(null)
+  const skipScrollUpdate = useRef(false)
 
   // On mount, scroll to the initial panel without animation
   useEffect(() => {
@@ -46,6 +46,7 @@ function MainPanels() {
   // Scroll to panel when requested programmatically (from nav click)
   const scrollTo = useCallback((index: number) => {
     if (!containerRef.current) return
+    skipScrollUpdate.current = true
     setActiveIndex(index)
     containerRef.current.scrollTo({ left: index * containerRef.current.offsetWidth, behavior: 'smooth' })
     const base = import.meta.env.BASE_URL.replace(/\/$/, '')
@@ -64,13 +65,21 @@ function MainPanels() {
     if (!container) return
 
     let urlTimer: ReturnType<typeof setTimeout>
+    let skipResetTimer: ReturnType<typeof setTimeout>
 
     const onScroll = () => {
       if (container.offsetWidth === 0) return
       const idx = Math.round(container.scrollLeft / container.offsetWidth)
+
+      if (skipScrollUpdate.current) {
+        // Check if we've arrived at the target — then re-enable live tracking
+        clearTimeout(skipResetTimer)
+        skipResetTimer = setTimeout(() => { skipScrollUpdate.current = false }, 100)
+        return
+      }
+
       if (idx >= 0 && idx < SNAP_ROUTES.length) {
         setActiveIndex(idx)
-        // Debounce URL update to avoid excessive history calls
         clearTimeout(urlTimer)
         urlTimer = setTimeout(() => updateUrl(idx), 150)
       }
@@ -80,6 +89,7 @@ function MainPanels() {
     return () => {
       container.removeEventListener('scroll', onScroll)
       clearTimeout(urlTimer)
+      clearTimeout(skipResetTimer)
     }
   }, [updateUrl])
 
@@ -146,7 +156,6 @@ function AppContent() {
           <Route path="/settings" element={<MainPanels />} />
           {/* Detail routes (no snap) */}
           <Route path="/callback" element={<FitbitCallbackView />} />
-          <Route path="/goals/new" element={<GoalCreateView />} />
           <Route path="/goals/:id" element={<GoalDetailView />} />
           <Route path="/achievements" element={<AchievementsView />} />
           <Route path="/onboarding" element={<Navigate to="/" replace />} />

@@ -10,6 +10,7 @@ import { getActiveGoals, calculateProjection } from '../services/goalService'
 import { calculateConsistencyScore, getEarnedMilestones, detectNonScaleVictories, getStreaks } from '../services/gamificationService'
 import { getWeekStart } from '../utils/date'
 import type { DailyMeasurement, WeeklyMeasurement, Goal, GoalProjection, ConsistencyScore, Milestone, CircumferenceZone, TrendDirection, NonScaleVictory, Streaks, StreakAchievement } from '../types'
+import GoalCreateView from './GoalCreateView'
 import './GoalsView.css'
 
 function calculateTrends(weeklyMeasurements: WeeklyMeasurement[]): Record<CircumferenceZone, TrendDirection | null> {
@@ -34,8 +35,8 @@ function GoalsView() {
   const [hasDailyData, setHasDailyData] = useState<boolean | null>(null)
   const [hasWeeklyData, setHasWeeklyData] = useState<boolean | null>(null)
   const [hasGoals, setHasGoals] = useState<boolean | null>(null)
-  const [activeGoal, setActiveGoal] = useState<Goal | null>(null)
-  const [projection, setProjection] = useState<GoalProjection | null>(null)
+  const [activeGoals, setActiveGoals] = useState<Goal[]>([])
+  const [projections, setProjections] = useState<Map<string, GoalProjection>>(new Map())
   const [consistencyScore, setConsistencyScore] = useState<ConsistencyScore | null>(null)
   const [milestones, setMilestones] = useState<Milestone[]>([])
   const [currentWeight, setCurrentWeight] = useState<number | null>(null)
@@ -45,6 +46,7 @@ function GoalsView() {
   })
   const [nonScaleVictories, setNonScaleVictories] = useState<NonScaleVictory[]>([])
   const [streaks, setStreaks] = useState<Streaks | null>(null)
+  const [showCreateGoal, setShowCreateGoal] = useState(false)
 
   const loadData = useCallback(async () => {
     let dailyMeasurements: DailyMeasurement[] = []
@@ -91,15 +93,13 @@ function GoalsView() {
     try {
       const goals = await getActiveGoals()
       setHasGoals(goals.length > 0)
-      if (goals.length > 0) {
-        const firstGoal = goals[0]
-        setActiveGoal(firstGoal)
-        const measurements = firstGoal.metricType === 'circumference' ? weeklyMeasurements : dailyMeasurements
-        setProjection(calculateProjection(firstGoal, measurements))
-      } else {
-        setActiveGoal(null)
-        setProjection(null)
+      setActiveGoals(goals)
+      const projMap = new Map<string, GoalProjection>()
+      for (const g of goals) {
+        const measurements = g.metricType === 'circumference' ? weeklyMeasurements : dailyMeasurements
+        projMap.set(g.id, calculateProjection(g, measurements))
       }
+      setProjections(projMap)
     } catch {
       setHasGoals(false)
     }
@@ -124,26 +124,42 @@ function GoalsView() {
         <EmptyState
           message="Noch kein Ziel gesetzt"
           ctaLabel="Erstes Ziel erstellen"
-          onCtaClick={() => navigate('/goals/new')}
+          onCtaClick={() => setShowCreateGoal(true)}
         />
-      ) : activeGoal && (
+      ) : activeGoals.length > 0 && (
         <>
-          {hasDailyData && (
-            <CoachingSummary
-              currentWeight={currentWeight}
-              weeklyWeightChange={weeklyWeightChange}
-              activeGoal={activeGoal}
-              projection={projection}
-            />
-          )}
+          {hasDailyData && (() => {
+            const weightGoal = activeGoals.find(g => g.metricType === 'weight') || activeGoals[0]
+            const weightProj = projections.get(weightGoal.id) || null
+            return (
+              <CoachingSummary
+                currentWeight={currentWeight}
+                weeklyWeightChange={weeklyWeightChange}
+                activeGoal={weightGoal}
+                projection={weightProj}
+              />
+            )
+          })()}
 
-          <div data-color="blue" data-material="origin">
-            <GoalCard
-              goal={activeGoal}
-              projection={projection}
-              onClick={() => navigate('/goals/' + activeGoal.id)}
-            />
-          </div>
+          {activeGoals.map((goal) => (
+            <div key={goal.id} data-color="blue" data-material="origin">
+              <GoalCard
+                goal={goal}
+                projection={projections.get(goal.id) || null}
+                onClick={() => navigate('/goals/' + goal.id)}
+              />
+            </div>
+          ))}
+
+          <button
+            className="goals-view-add adaptive"
+            data-material="inverted"
+            data-container-contrast="max"
+            data-interactive
+            onClick={() => setShowCreateGoal(true)}
+          >
+            Neues Ziel erstellen
+          </button>
 
           {hasWeeklyData && (
             <div data-color="green" data-material="filled">
@@ -189,6 +205,13 @@ function GoalsView() {
             )
           })()}
         </>
+      )}
+
+      {showCreateGoal && (
+        <GoalCreateView
+          onClose={() => setShowCreateGoal(false)}
+          onCreated={() => { loadData(); window.dispatchEvent(new CustomEvent('data-updated')) }}
+        />
       )}
     </div>
   )
