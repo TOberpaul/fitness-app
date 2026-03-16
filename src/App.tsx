@@ -36,7 +36,6 @@ function MainPanels() {
     return idx >= 0 ? idx : 0
   })
   const containerRef = useRef<HTMLDivElement>(null)
-  const programmaticScroll = useRef(false)
 
   // On mount, scroll to the initial panel without animation
   useEffect(() => {
@@ -54,39 +53,36 @@ function MainPanels() {
     window.history.replaceState(null, '', base + SNAP_ROUTES[index])
   }, [])
 
-  // Detect settled panel from scroll position
-  const syncIndexFromScroll = useCallback(() => {
-    const container = containerRef.current
-    if (!container || container.offsetWidth === 0) return
-    const idx = Math.round(container.scrollLeft / container.offsetWidth)
-    if (idx >= 0 && idx < SNAP_ROUTES.length) {
-      setActiveIndex(idx)
-      const base = import.meta.env.BASE_URL.replace(/\/$/, '')
-      window.history.replaceState(null, '', base + SNAP_ROUTES[idx])
-    }
-    programmaticScroll.current = false
+  // Detect settled panel from scroll position and update URL
+  const updateUrl = useCallback((idx: number) => {
+    const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+    window.history.replaceState(null, '', base + SNAP_ROUTES[idx])
   }, [])
 
-  // Listen for scroll end to update active index
+  // Live-update active index during scroll
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
-    if ('onscrollend' in window) {
-      const onScrollEnd = () => syncIndexFromScroll()
-      container.addEventListener('scrollend', onScrollEnd)
-      return () => container.removeEventListener('scrollend', onScrollEnd)
-    } else {
-      // Fallback: debounce scroll events
-      let timer: ReturnType<typeof setTimeout>
-      const onScroll = () => {
-        clearTimeout(timer)
-        timer = setTimeout(syncIndexFromScroll, 60)
+    let urlTimer: ReturnType<typeof setTimeout>
+
+    const onScroll = () => {
+      if (container.offsetWidth === 0) return
+      const idx = Math.round(container.scrollLeft / container.offsetWidth)
+      if (idx >= 0 && idx < SNAP_ROUTES.length) {
+        setActiveIndex(idx)
+        // Debounce URL update to avoid excessive history calls
+        clearTimeout(urlTimer)
+        urlTimer = setTimeout(() => updateUrl(idx), 150)
       }
-      container.addEventListener('scroll', onScroll)
-      return () => { container.removeEventListener('scroll', onScroll); clearTimeout(timer) }
     }
-  }, [syncIndexFromScroll])
+
+    container.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      container.removeEventListener('scroll', onScroll)
+      clearTimeout(urlTimer)
+    }
+  }, [updateUrl])
 
   return (
     <PanelContext.Provider value={{ activeIndex, scrollTo }}>

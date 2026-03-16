@@ -37,8 +37,11 @@ function SettingsView() {
   }
 
   useEffect(() => {
-    setFitbitConnected(isConnected())
+    const checkConnection = () => setFitbitConnected(isConnected())
+    checkConnection()
     isPushSubscribed().then(setPushSubscribed)
+    window.addEventListener('data-updated', checkConnection)
+    return () => window.removeEventListener('data-updated', checkConnection)
   }, [])
 
   const showStatus = (setter: (s: string) => void, message: string) => {
