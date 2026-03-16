@@ -15,8 +15,10 @@ export const EASINGS = {
 
 export const STAGGER_DELAY = 0.06 // 60ms zwischen Kinder-Elementen
 
+import type { Variants } from 'motion/react'
+
 // Varianten-Definitionen
-export type AnimationVariants = {
+export type AnimationVariants = Variants & {
   initial: Record<string, unknown>
   animate: Record<string, unknown>
   exit?: Record<string, unknown>

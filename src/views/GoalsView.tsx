@@ -163,7 +163,7 @@ function GoalsView() {
                     layout
                     data-color="blue"
                     data-material="origin"
-                    variants={getVariants(fadeIn, reducedMotion) as import('motion/react').Variants}
+                    variants={getVariants(fadeIn, reducedMotion)}
                     initial="initial"
                     animate="animate"
                     exit="exit"
@@ -211,7 +211,7 @@ function GoalsView() {
                     data-color={level.color}
                     data-material="filled"
                     data-content-contrast="min"
-                    variants={getVariants(scaleIn, reducedMotion) as import('motion/react').Variants}
+                    variants={getVariants(scaleIn, reducedMotion)}
                     initial="initial"
                     animate="animate"
                   >
@@ -235,7 +235,7 @@ function GoalsView() {
                       data-color="pink"
                       data-material="filled"
                       data-content-contrast="min"
-                      variants={getVariants(fadeIn, reducedMotion) as import('motion/react').Variants}
+                      variants={getVariants(fadeIn, reducedMotion)}
                     >
                       <Sparkles className="goals-view-icon" />
                       <span className="goals-view-nsv-message">{nsv.message}</span>

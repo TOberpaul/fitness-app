@@ -7,8 +7,8 @@ import * as dataService from '../services/dataService';
 import * as dateUtils from '../utils/date';
 
 // Mock motion/react so AnimatePresence and motion.div render synchronously in tests
-vi.mock('motion/react', () => {
-  const React = require('react');
+vi.mock('motion/react', async () => {
+  const React = await import('react');
   return {
     motion: new Proxy({}, {
       get: (_target: unknown, prop: string) => {
