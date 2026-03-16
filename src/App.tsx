@@ -46,7 +46,6 @@ function MainPanels() {
   // Scroll to panel when requested programmatically (from nav click)
   const scrollTo = useCallback((index: number) => {
     if (!containerRef.current) return
-    programmaticScroll.current = true
     setActiveIndex(index)
     containerRef.current.scrollTo({ left: index * containerRef.current.offsetWidth, behavior: 'smooth' })
     const base = import.meta.env.BASE_URL.replace(/\/$/, '')
