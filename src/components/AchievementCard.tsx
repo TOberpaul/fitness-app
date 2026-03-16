@@ -1,5 +1,9 @@
+import { motion } from 'motion/react'
 import type { Milestone, StreakAchievement } from '../types'
+import { scaleIn, tapFeedback } from '../animations/presets'
+import { useReducedMotion, getVariants } from '../animations/hooks'
 import './AchievementCard.css'
+import './core/Card.css'
 
 interface AchievementCardProps {
   achievement: Milestone | StreakAchievement
@@ -23,22 +27,27 @@ function AchievementCard({ achievement, icon, onClick }: AchievementCardProps) {
   const detail = getDetail(achievement)
   const isClickable = !!onClick
   const iconSrc = icon || `${import.meta.env.BASE_URL}Party.png`
+  const reducedMotion = useReducedMotion()
 
   return (
-    <div
-      className="achievement-card adaptive"
+    <motion.div
+      className="achievement-card core-card adaptive"
       {...(isClickable ? { 'data-interactive': true } : {})}
       role={isClickable ? 'button' : undefined}
       tabIndex={isClickable ? 0 : undefined}
       onClick={isClickable ? onClick : undefined}
       onKeyDown={isClickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick!() } } : undefined}
+      variants={getVariants(scaleIn, reducedMotion)}
+      initial="initial"
+      animate="animate"
+      {...tapFeedback}
     >
       <img className="achievement-card-icon" src={iconSrc} alt="" />
       <div className="achievement-card-content">
         <span className="achievement-card-label">{achievement.label}</span>
         <span className="achievement-card-detail">{detail}</span>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

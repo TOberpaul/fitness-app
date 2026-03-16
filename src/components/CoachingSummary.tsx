@@ -1,5 +1,7 @@
 import type { Goal, GoalProjection } from '../types'
+import { useAnimatedNumber } from '../animations/hooks'
 import './CoachingSummary.css'
+import './core/Card.css'
 
 interface CoachingSummaryProps {
   currentWeight: number | null
@@ -21,18 +23,16 @@ const TREND_LABELS: Record<string, string> = {
   'insufficient-data': 'Noch nicht genug Daten',
 }
 
-function formatWeightChange(change: number): string {
-  const prefix = change > 0 ? '+' : ''
-  return `${prefix}${change.toFixed(1)} kg`
-}
-
 function CoachingSummary({ currentWeight, weeklyWeightChange, activeGoal, projection }: CoachingSummaryProps) {
+  const animatedWeight = useAnimatedNumber(currentWeight ?? 0, 1)
+  const animatedChange = useAnimatedNumber(weeklyWeightChange ?? 0, 1)
+
   return (
-    <div className="coaching-summary adaptive">
+    <div className="coaching-summary core-card adaptive">
       <div className="coaching-summary-row">
         <span className="coaching-summary-label">Aktuelles Gewicht</span>
         <span className="coaching-summary-value">
-          {currentWeight !== null ? `${currentWeight.toFixed(1)} kg` : 'Keine Daten'}
+          {currentWeight !== null ? `${animatedWeight} kg` : 'Keine Daten'}
         </span>
       </div>
 
@@ -43,7 +43,7 @@ function CoachingSummary({ currentWeight, weeklyWeightChange, activeGoal, projec
             className="coaching-summary-change"
             data-direction={weeklyWeightChange < 0 ? 'loss' : 'gain'}
           >
-            {formatWeightChange(weeklyWeightChange)}
+            {weeklyWeightChange > 0 ? '+' : ''}{animatedChange} kg
           </span>
         </div>
       )}

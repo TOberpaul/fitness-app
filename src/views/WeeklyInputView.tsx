@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { saveWeeklyMeasurement, getWeeklyMeasurement, getAllData } from '../services/dataService'
 import { validateCircumference, roundToOneDecimal, normalizeDecimal } from '../utils/validation'
 import { getWeekStart } from '../utils/date'
@@ -9,11 +9,26 @@ import StepFlowSummary from '../components/StepFlowSummary'
 import Dialog from '../components/core/Dialog'
 import { updateWeeklyStreak, evaluateMilestones, getEarnedMilestones, getStreaks, detectNonScaleVictories } from '../services/gamificationService'
 import { evaluateGoals, getAllGoals } from '../services/goalService'
+import { motion, AnimatePresence } from 'motion/react'
+import { fadeIn, DURATIONS, EASINGS } from '../animations/presets'
+import type { AnimationVariants } from '../animations/presets'
+import { useReducedMotion, getVariants } from '../animations/hooks'
 import './WeeklyInputView.css'
+
+const SLIDE_DISTANCE = 300
+
+function getSlideVariants(direction: 'forward' | 'backward'): AnimationVariants {
+  const sign = direction === 'forward' ? 1 : -1
+  return {
+    initial: { x: sign * SLIDE_DISTANCE, opacity: 0 },
+    animate: { x: 0, opacity: 1, transition: { duration: DURATIONS.standard, ease: EASINGS.easeOut } },
+    exit: { x: -sign * SLIDE_DISTANCE, opacity: 0, transition: { duration: DURATIONS.micro } },
+  }
+}
 
 /** Zone configuration in the required order */
 const ZONE_CONFIG: { zone: CircumferenceZone; label: string; hint: string; illustration: string }[] = [
-  { zone: 'chest', label: 'Brust', hint: 'Miss den Umfang auf Höhe der Brustwarzen', illustration: `${import.meta.env.BASE_URL}Measurement-Breast.svg` },
+  { zone: 'chest', label: 'Brust', hint: 'Miss den Umfang auf Höhe der Brust', illustration: `${import.meta.env.BASE_URL}Measurement-Breast.svg` },
   { zone: 'waist', label: 'Taille', hint: 'Miss den schmalsten Punkt deines Oberkörpers', illustration: `${import.meta.env.BASE_URL}Measurement-Taille.svg` },
   { zone: 'belly', label: 'Bauch', hint: 'Miss auf Höhe des Bauchnabels', illustration: `${import.meta.env.BASE_URL}Measurement-belly.svg` },
   { zone: 'hip', label: 'Hüfte', hint: 'Miss den breitesten Punkt deiner Hüfte', illustration: `${import.meta.env.BASE_URL}Measurement-Hip.svg` },
@@ -34,6 +49,10 @@ function WeeklyInputView() {
   const [weekStart] = useState(() => getWeekStart(new Date()))
   const [dialogOpen, setDialogOpen] = useState(false)
   const [step, setStep] = useState(1) // 1-6=Zones, 7=Summary
+  const [direction, setDirection] = useState<'forward' | 'backward'>('forward')
+  const prevStepRef = useRef(step)
+  const hasNavigated = useRef(false)
+  const reducedMotion = useReducedMotion()
   const [entries, setEntries] = useState<StepFlowEntry[]>(() =>
     ZONE_CONFIG.map(({ zone, label }) => ({
       zone,
@@ -92,8 +111,18 @@ function WeeklyInputView() {
     }
   }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Track navigation direction for slide animation
+  useEffect(() => {
+    if (prevStepRef.current !== step) {
+      hasNavigated.current = true
+      setDirection(step > prevStepRef.current ? 'forward' : 'backward')
+      prevStepRef.current = step
+    }
+  }, [step])
+
   const openDialog = () => {
     setStep(1)
+    hasNavigated.current = false
     setDialogOpen(true)
   }
 
@@ -206,37 +235,53 @@ function WeeklyInputView() {
         <p className="weekly-input-success">{successMessage}</p>
       )}
 
-      {dialogOpen && (
-        <Dialog title={dialogTitle} onClose={closeDialog}>
+      <Dialog title={dialogTitle} onClose={closeDialog} open={dialogOpen}>
+        <AnimatePresence mode="wait" custom={direction} initial={false}>
           {step <= TOTAL_STEPS ? (
-            <StepFlowScreen
-              zone={ZONE_CONFIG[step - 1].zone}
-              label={ZONE_CONFIG[step - 1].label}
-              hint={ZONE_CONFIG[step - 1].hint}
-              illustration={ZONE_CONFIG[step - 1].illustration}
-              value={currentInput}
-              onChange={(val) => {
-                setCurrentInput(val)
-                setError(undefined)
-              }}
-              onNext={handleNext}
-              onSkip={handleSkip}
-              onCancel={closeDialog}
-              onBack={() => setStep(s => s - 1)}
-              error={error}
-              stepIndex={step}
-              totalSteps={TOTAL_STEPS}
-            />
+            <motion.div
+              key={step}
+              variants={hasNavigated.current ? getVariants(getSlideVariants(direction), reducedMotion) as import('motion/react').Variants : undefined}
+              initial={hasNavigated.current ? "initial" : false}
+              animate="animate"
+              exit="exit"
+            >
+              <StepFlowScreen
+                zone={ZONE_CONFIG[step - 1].zone}
+                label={ZONE_CONFIG[step - 1].label}
+                hint={ZONE_CONFIG[step - 1].hint}
+                illustration={ZONE_CONFIG[step - 1].illustration}
+                value={currentInput}
+                onChange={(val) => {
+                  setCurrentInput(val)
+                  setError(undefined)
+                }}
+                onNext={handleNext}
+                onSkip={handleSkip}
+                onCancel={closeDialog}
+                onBack={() => setStep(s => s - 1)}
+                error={error}
+                stepIndex={step}
+                totalSteps={TOTAL_STEPS}
+              />
+            </motion.div>
           ) : (
-            <StepFlowSummary
-              entries={entries}
-              previousWeek={previousWeek}
-              onConfirm={handleConfirm}
-              onBack={handleBack}
-            />
+            <motion.div
+              key="summary"
+              variants={getVariants(fadeIn, reducedMotion) as import('motion/react').Variants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <StepFlowSummary
+                entries={entries}
+                previousWeek={previousWeek}
+                onConfirm={handleConfirm}
+                onBack={handleBack}
+              />
+            </motion.div>
           )}
-        </Dialog>
-      )}
+        </AnimatePresence>
+      </Dialog>
     </div>
   )
 }

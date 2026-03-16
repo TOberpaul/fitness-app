@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'motion/react'
+import { CircleCheck, TriangleAlert, CircleX, Sparkles } from 'lucide-react'
+import { staggerContainer, fadeIn, scaleIn, EASINGS } from '../animations/presets'
+import { useReducedMotion, getVariants } from '../animations/hooks'
 import EmptyState from '../components/EmptyState'
 import GoalCard from '../components/GoalCard'
 import AchievementCard from '../components/AchievementCard'
@@ -11,6 +15,7 @@ import { calculateConsistencyScore, getEarnedMilestones, detectNonScaleVictories
 import { getWeekStart } from '../utils/date'
 import type { DailyMeasurement, WeeklyMeasurement, Goal, GoalProjection, ConsistencyScore, Milestone, CircumferenceZone, TrendDirection, NonScaleVictory, Streaks, StreakAchievement } from '../types'
 import GoalCreateView from './GoalCreateView'
+import '../components/core/Card.css'
 import './GoalsView.css'
 
 function calculateTrends(weeklyMeasurements: WeeklyMeasurement[]): Record<CircumferenceZone, TrendDirection | null> {
@@ -30,8 +35,15 @@ function calculateTrends(weeklyMeasurements: WeeklyMeasurement[]): Record<Circum
   return trends
 }
 
+function getConsistencyLevel(score: number) {
+  if (score >= 70) return { color: 'green', icon: CircleCheck, label: 'Stark' } as const
+  if (score >= 40) return { color: 'orange', icon: TriangleAlert, label: 'Dranbleiben' } as const
+  return { color: 'red', icon: CircleX, label: 'Aufholen' } as const
+}
+
 function GoalsView() {
   const navigate = useNavigate()
+  const reducedMotion = useReducedMotion()
   const [hasDailyData, setHasDailyData] = useState<boolean | null>(null)
   const [hasWeeklyData, setHasWeeklyData] = useState<boolean | null>(null)
   const [hasGoals, setHasGoals] = useState<boolean | null>(null)
@@ -141,78 +153,145 @@ function GoalsView() {
             )
           })()}
 
-          {activeGoals.map((goal) => (
-            <div key={goal.id} data-color="blue" data-material="origin">
-              <GoalCard
-                goal={goal}
-                projection={projections.get(goal.id) || null}
-                onClick={() => navigate('/goals/' + goal.id)}
-              />
-            </div>
-          ))}
+          <section className="goals-view-section">
+            <h2 className="goals-view-section-title">Aktive Ziele</h2>
+            <motion.div variants={staggerContainer} initial="initial" animate="animate">
+              <AnimatePresence>
+                {activeGoals.map((goal) => (
+                  <motion.div
+                    key={goal.id}
+                    layout
+                    data-color="blue"
+                    data-material="origin"
+                    variants={getVariants(fadeIn, reducedMotion) as import('motion/react').Variants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                  >
+                    <GoalCard
+                      goal={goal}
+                      projection={projections.get(goal.id) || null}
+                      onClick={() => navigate('/goals/' + goal.id)}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
 
-          <button
-            className="goals-view-add adaptive"
-            data-material="inverted"
-            data-container-contrast="max"
-            data-interactive
-            onClick={() => setShowCreateGoal(true)}
-          >
-            Neues Ziel erstellen
-          </button>
+            <button
+              className="goals-view-add adaptive"
+              data-material="inverted"
+              data-container-contrast="max"
+              data-interactive
+              onClick={() => setShowCreateGoal(true)}
+            >
+              Neues Ziel erstellen
+            </button>
+          </section>
 
           {hasWeeklyData && (
-            <div data-color="green" data-material="filled">
-              <BodyCompass trends={bodyCompassTrends} />
-            </div>
-          )}
-
-          {consistencyScore && (
-            <div className="goals-view-consistency adaptive" data-color="orange" data-material="filled" data-content-contrast="min">
-              <span>Diese Woche: {consistencyScore.score}% on track</span>
-            </div>
-          )}
-
-          {nonScaleVictories.length > 0 && (
-            <div className="goals-view-nsv" data-color="pink" data-material="filled" data-content-contrast="min">
-              {nonScaleVictories.map((nsv, i) => (
-                <p key={i} className="goals-view-nsv-message">{nsv.message}</p>
-              ))}
-            </div>
-          )}
-
-          {milestones.length > 0 && (
-            <div className="goals-view-achievements" data-color="violet" data-material="filled">
-              {milestones.map((m) => (
-                <AchievementCard
-                  key={m.id}
-                  achievement={m}
-                />
-              ))}
-            </div>
-          )}
-
-          {streaks && (streaks.dailyStreak > 0 || streaks.weeklyStreak > 0) && (() => {
-            const items: StreakAchievement[] = []
-            if (streaks.dailyStreak > 0) items.push({ type: 'daily-streak', count: streaks.dailyStreak, label: `${streaks.dailyStreak} Tage am Stück gewogen` })
-            if (streaks.weeklyStreak > 0) items.push({ type: 'weekly-streak', count: streaks.weeklyStreak, label: `${streaks.weeklyStreak} Wochen Umfänge gemessen` })
-            return (
-              <div className="goals-view-streaks" data-color="red" data-material="filled">
-                {items.map((s) => (
-                  <AchievementCard key={s.type} achievement={s} icon={`${import.meta.env.BASE_URL}Flame.png`} />
-                ))}
+            <section className="goals-view-section">
+              <h2 className="goals-view-section-title">Körperkompass</h2>
+              <div data-color="green" data-material="filled">
+                <BodyCompass trends={bodyCompassTrends} />
               </div>
-            )
-          })()}
+            </section>
+          )}
+
+          {(consistencyScore || nonScaleVictories.length > 0 || milestones.length > 0 || (streaks && (streaks.dailyStreak > 0 || streaks.weeklyStreak > 0))) && (
+            <section className="goals-view-section">
+              <h2 className="goals-view-section-title">Fortschritt & Erfolge</h2>
+
+              {consistencyScore && (() => {
+                const level = getConsistencyLevel(consistencyScore.score)
+                const Icon = level.icon
+                return (
+                  <motion.div
+                    className="goals-view-consistency core-card adaptive"
+                    data-color={level.color}
+                    data-material="filled"
+                    data-content-contrast="min"
+                    variants={getVariants(scaleIn, reducedMotion) as import('motion/react').Variants}
+                    initial="initial"
+                    animate="animate"
+                  >
+                    <Icon className="goals-view-icon" />
+                    <span>Diese Woche: {consistencyScore.score}% on track</span>
+                  </motion.div>
+                )
+              })()}
+
+              {nonScaleVictories.length > 0 && (
+                <motion.div
+                  className="goals-view-nsv"
+                  variants={staggerContainer}
+                  initial="initial"
+                  animate="animate"
+                >
+                  {nonScaleVictories.map((nsv, i) => (
+                    <motion.div
+                      key={i}
+                      className="goals-view-nsv-card core-card adaptive"
+                      data-color="pink"
+                      data-material="filled"
+                      data-content-contrast="min"
+                      variants={getVariants(fadeIn, reducedMotion) as import('motion/react').Variants}
+                    >
+                      <Sparkles className="goals-view-icon" />
+                      <span className="goals-view-nsv-message">{nsv.message}</span>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+
+              {milestones.length > 0 && (
+                <motion.div
+                  className="goals-view-achievements"
+                  data-color="violet"
+                  data-material="filled"
+                  variants={staggerContainer}
+                  initial="initial"
+                  animate="animate"
+                >
+                  {milestones.map((m) => (
+                    <AchievementCard
+                      key={m.id}
+                      achievement={m}
+                    />
+                  ))}
+                </motion.div>
+              )}
+
+              {streaks && (streaks.dailyStreak > 0 || streaks.weeklyStreak > 0) && (() => {
+                const items: StreakAchievement[] = []
+                if (streaks.dailyStreak > 0) items.push({ type: 'daily-streak', count: streaks.dailyStreak, label: `${streaks.dailyStreak} Tage am Stück gewogen` })
+                if (streaks.weeklyStreak > 0) items.push({ type: 'weekly-streak', count: streaks.weeklyStreak, label: `${streaks.weeklyStreak} Wochen Umfänge gemessen` })
+                return (
+                  <motion.div
+                    className="goals-view-streaks"
+                    data-color="red"
+                    data-material="filled"
+                    variants={staggerContainer}
+                    initial="initial"
+                    animate="animate"
+                    transition={EASINGS.bounce}
+                  >
+                    {items.map((s) => (
+                      <AchievementCard key={s.type} achievement={s} icon={`${import.meta.env.BASE_URL}Flame.png`} />
+                    ))}
+                  </motion.div>
+                )
+              })()}
+            </section>
+          )}
         </>
       )}
 
-      {showCreateGoal && (
-        <GoalCreateView
-          onClose={() => setShowCreateGoal(false)}
-          onCreated={() => { loadData(); window.dispatchEvent(new CustomEvent('data-updated')) }}
-        />
-      )}
+      <GoalCreateView
+        open={showCreateGoal}
+        onClose={() => setShowCreateGoal(false)}
+        onCreated={() => { loadData(); window.dispatchEvent(new CustomEvent('data-updated')) }}
+      />
     </div>
   )
 }

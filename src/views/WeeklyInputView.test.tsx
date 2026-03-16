@@ -6,6 +6,30 @@ import { resetDB } from '../services/db';
 import * as dataService from '../services/dataService';
 import * as dateUtils from '../utils/date';
 
+// Mock motion/react so AnimatePresence and motion.div render synchronously in tests
+vi.mock('motion/react', () => {
+  const React = require('react');
+  return {
+    motion: new Proxy({}, {
+      get: (_target: unknown, prop: string) => {
+        const MotionComponent = (props: Record<string, unknown>) => {
+          const motionKeys = new Set(['variants', 'initial', 'animate', 'exit', 'whileTap', 'whileHover',
+            'layout', 'layoutId', 'custom', 'onAnimationComplete', 'transition']);
+          const filtered: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(props)) {
+            if (!motionKeys.has(key)) filtered[key] = value;
+          }
+          return React.createElement(prop, filtered);
+        };
+        MotionComponent.displayName = `motion.${prop}`;
+        return MotionComponent;
+      },
+    }),
+    AnimatePresence: ({ children }: { children: unknown }) => children,
+    useReducedMotion: () => false,
+  };
+});
+
 beforeEach(() => {
   resetDB();
   indexedDB.deleteDatabase('fitness-tracker');
@@ -66,7 +90,9 @@ describe('WeeklyInputView', () => {
     fireEvent.click(screen.getByText('Weiter'));
     expect(screen.getByText(/muss zwischen/)).toBeDefined();
 
-    fireEvent.change(input, { target: { value: '90' } });
+    // Re-query the input after error state change
+    const inputAfterError = screen.getByLabelText('Brust');
+    fireEvent.change(inputAfterError, { target: { value: '90' } });
     expect(screen.queryByText(/muss zwischen/)).toBeNull();
   });
 

@@ -5,6 +5,7 @@ import EmptyState from '../components/EmptyState'
 import { getDailyMeasurements, getWeeklyMeasurements, getAllData } from '../services/dataService'
 import { getDateRange, calculatePercentChange } from '../utils/date'
 import type { DataPoint, TimeRange, DailyMeasurement, WeeklyMeasurement } from '../types'
+import { useAnimatedNumber } from '../animations/hooks'
 import './DashboardView.css'
 
 type ActiveTab = 'weight' | 'bodyFat' | 'circumference'
@@ -97,6 +98,9 @@ function DashboardView() {
     ? calculatePercentChange(data[0].value, currentPoint.value)
     : null
 
+  const animatedValue = useAnimatedNumber(currentValue ?? 0, 1)
+  const animatedPercent = useAnimatedNumber(percentChange ?? 0, 1)
+
   // Show empty state only when we know there's no data at all
   if (hasDailyData === false && hasWeeklyData === false) {
     return (
@@ -165,7 +169,7 @@ function DashboardView() {
         {currentValue != null && currentPoint ? (
           <>
             <div className="dashboard-current-value">
-              {currentValue.toFixed(1)}
+              {animatedValue}
               <span className="dashboard-unit"> {getUnit(activeTab)}</span>
             </div>
             <div className="dashboard-meta">
@@ -178,7 +182,7 @@ function DashboardView() {
                   data-color={percentChange < 0 ? 'green' : percentChange > 0 ? 'red' : undefined}
                   data-content-contrast="min"
                 >
-                  {percentChange > 0 ? '+' : ''}{percentChange.toFixed(1)}%
+                  {percentChange > 0 ? '+' : ''}{animatedPercent}%
                 </span>
               )}
             </div>

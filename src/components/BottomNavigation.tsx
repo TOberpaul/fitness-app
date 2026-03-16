@@ -1,5 +1,8 @@
 import { ChartLine, Scale, RulerDimensionLine, Target, Settings } from 'lucide-react'
+import { motion } from 'motion/react'
 import { usePanelContext } from '../App'
+import { EASINGS } from '../animations/presets'
+import { useReducedMotion } from '../animations/hooks'
 import './BottomNavigation.css'
 
 const TABS = [
@@ -12,6 +15,11 @@ const TABS = [
 
 function BottomNavigation() {
   const { activeIndex, scrollTo } = usePanelContext()
+  const reducedMotion = useReducedMotion()
+
+  const indicatorTransition = reducedMotion
+    ? { duration: 0 }
+    : EASINGS.spring
 
   return (
     <nav className="bottom-nav adaptive">
@@ -28,6 +36,12 @@ function BottomNavigation() {
               : { 'data-material': 'transparent' })}
             onClick={() => scrollTo(tab.index)}
           >
+            <motion.div
+              className="bottom-nav-active-indicator"
+              initial={false}
+              animate={{ opacity: isActive ? 0.12 : 0 }}
+              transition={indicatorTransition}
+            />
             <Icon className="bottom-nav-icon" />
             <span className="bottom-nav-label sr-only">{tab.label}</span>
           </button>

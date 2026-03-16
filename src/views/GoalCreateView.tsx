@@ -24,7 +24,7 @@ const ZONE_LABELS: Record<CircumferenceZone, string> = {
 const ZONES: CircumferenceZone[] = ['chest', 'waist', 'hip', 'belly', 'upperArm', 'thigh']
 const METRIC_TYPES: GoalMetricType[] = ['weight', 'bodyFat', 'circumference']
 
-function GoalCreateView({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+function GoalCreateView({ open = true, onClose, onCreated }: { open?: boolean; onClose: () => void; onCreated: () => void }) {
   const [metricType, setMetricType] = useState<GoalMetricType>('weight')
   const [zone, setZone] = useState<CircumferenceZone>('waist')
   const [startValue, setStartValue] = useState('')
@@ -118,7 +118,7 @@ function GoalCreateView({ onClose, onCreated }: { onClose: () => void; onCreated
   }
 
   return (
-    <Dialog title="Neues Ziel erstellen" onClose={onClose}>
+    <Dialog title="Neues Ziel erstellen" onClose={onClose} open={open}>
       <div className="goal-create-field">
         <label>Metrik-Typ</label>
         <div className="goal-create-metric-options">

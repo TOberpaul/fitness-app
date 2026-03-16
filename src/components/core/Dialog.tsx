@@ -1,5 +1,8 @@
 import type { ReactNode } from 'react'
 import { X } from 'lucide-react'
+import { motion, AnimatePresence } from 'motion/react'
+import { dialogVariants, backdropVariants } from '../../animations/presets'
+import { useReducedMotion, getVariants } from '../../animations/hooks'
 import './Dialog.css'
 
 interface DialogProps {
@@ -14,29 +17,47 @@ interface DialogProps {
 }
 
 function Dialog({ title, onClose, children, open = true }: DialogProps) {
-  if (!open) return null
+  const reducedMotion = useReducedMotion()
+  const backdrop = getVariants(backdropVariants, reducedMotion)
+  const dialog = getVariants(dialogVariants, reducedMotion)
 
   return (
-    <div className="core-dialog-backdrop" onClick={onClose}>
-      <dialog
-        className="core-dialog adaptive"
-        open
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="core-dialog-header">
-          <span className="core-dialog-title">{title}</span>
-          <button
-            className="core-dialog-close"
-            data-interactive
-            onClick={onClose}
-            aria-label="Schließen"
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="core-dialog-backdrop"
+          onClick={onClose}
+          variants={backdrop}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          key="dialog-backdrop"
+        >
+          <motion.dialog
+            className="core-dialog adaptive"
+            open
+            onClick={e => e.stopPropagation()}
+            variants={dialog}
+            initial="initial"
+            animate="animate"
+            exit="exit"
           >
-            <X size={20} />
-          </button>
-        </div>
-        {children}
-      </dialog>
-    </div>
+            <div className="core-dialog-header">
+              <span className="core-dialog-title">{title}</span>
+              <button
+                className="core-dialog-close"
+                data-interactive
+                onClick={onClose}
+                aria-label="Schließen"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            {children}
+          </motion.dialog>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 

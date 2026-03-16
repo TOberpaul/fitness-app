@@ -1,6 +1,10 @@
 import { ArrowRight } from 'lucide-react'
+import { motion } from 'motion/react'
 import type { Goal, GoalProjection } from '../types'
+import { slideUp, tapFeedback, DURATIONS, EASINGS } from '../animations/presets'
+import { useReducedMotion, getVariants } from '../animations/hooks'
 import './GoalCard.css'
+import './core/Card.css'
 
 interface GoalCardProps {
   goal: Goal
@@ -40,15 +44,20 @@ function GoalCard({ goal, projection, onClick }: GoalCardProps) {
   const unit = getUnit(goal.metricType)
   const label = METRIC_LABELS[goal.metricType] + (goal.zone ? ` — ${ZONE_LABELS[goal.zone]}` : '')
   const percentComplete = projection ? Math.min(100, Math.max(0, projection.percentComplete)) : 0
+  const reducedMotion = useReducedMotion()
 
   return (
-    <div
-      className="goal-card adaptive"
+    <motion.div
+      className="goal-card core-card adaptive"
       data-interactive
       role="button"
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
+      variants={getVariants(slideUp, reducedMotion)}
+      initial="initial"
+      animate="animate"
+      {...tapFeedback}
     >
       <div className="goal-card-header">
         <span className="goal-card-label">{label}</span>
@@ -58,9 +67,11 @@ function GoalCard({ goal, projection, onClick }: GoalCardProps) {
       </div>
 
       <div className="goal-card-progress-track">
-        <div
+        <motion.div
           className="goal-card-progress-fill"
-          style={{ '--goal-progress': `${percentComplete}%` } as React.CSSProperties}
+          initial={{ width: '0%' }}
+          animate={{ width: `${percentComplete}%` }}
+          transition={{ duration: DURATIONS.entrance, ease: EASINGS.easeOut }}
         />
       </div>
 
@@ -76,7 +87,7 @@ function GoalCard({ goal, projection, onClick }: GoalCardProps) {
           </span>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }
 

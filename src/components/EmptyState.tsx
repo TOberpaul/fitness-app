@@ -1,3 +1,6 @@
+import { motion } from 'motion/react'
+import { slideUp, STAGGER_DELAY } from '../animations/presets'
+import { useReducedMotion, getVariants } from '../animations/hooks'
 import './EmptyState.css'
 
 interface EmptyStateProps {
@@ -7,19 +10,38 @@ interface EmptyStateProps {
   onCtaClick: () => void
 }
 
+const emptyStateContainer = {
+  animate: { transition: { staggerChildren: STAGGER_DELAY, delayChildren: 0.2 } },
+}
+
 function EmptyState({ icon, message, ctaLabel, onCtaClick }: EmptyStateProps) {
+  const reducedMotion = useReducedMotion()
+  const childVariants = getVariants(slideUp, reducedMotion)
+
   return (
-    <div className="empty-state adaptive">
-      {icon && <div className="empty-state-icon">{icon}</div>}
-      <p className="empty-state-message">{message}</p>
-      <button
+    <motion.div
+      className="empty-state adaptive"
+      variants={emptyStateContainer}
+      initial="initial"
+      animate="animate"
+    >
+      {icon && (
+        <motion.div className="empty-state-icon" variants={childVariants}>
+          {icon}
+        </motion.div>
+      )}
+      <motion.p className="empty-state-message" variants={childVariants}>
+        {message}
+      </motion.p>
+      <motion.button
         className="empty-state-cta adaptive"
         data-interactive
         onClick={onCtaClick}
+        variants={childVariants}
       >
         {ctaLabel}
-      </button>
-    </div>
+      </motion.button>
+    </motion.div>
   )
 }
 

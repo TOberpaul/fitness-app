@@ -13,12 +13,22 @@
 }
 
 .bottom-nav-link {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
   color: inherit;
   width: 100%;
+}
+
+.bottom-nav-active-indicator {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--db-visual, currentColor);
+  z-index: 0;
+  pointer-events: none;
 }
 
 .bottom-nav-link.active {
