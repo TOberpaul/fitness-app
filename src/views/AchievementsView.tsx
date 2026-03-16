@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { getEarnedMilestones, getStreaks } from '../services/gamificationService'
 import AchievementCard from '../components/AchievementCard'
 import type { Milestone, Streaks, StreakAchievement } from '../types'
+import Button from '../components/core/Button'
 import './AchievementsView.css'
 
 function AchievementsView() {
@@ -46,13 +47,13 @@ function AchievementsView() {
 
   return (
     <div className="achievements adaptive">
-      <button
-        className="achievements-back adaptive"
-        data-interactive
+      <Button
+        className="achievements-back"
+        data-material="transparent"
         onClick={() => navigate(-1)}
       >
         <ArrowLeft size={16} /> Zurück
-      </button>
+      </Button>
 
       <h1>Erfolge</h1>
 

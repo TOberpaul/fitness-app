@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { getGoal, calculateProjection, updateGoalStatus, deleteGoal } from '../services/goalService'
 import { getDailyMeasurements, getWeeklyMeasurements } from '../services/dataService'
 import type { Goal, GoalProjection } from '../types'
+import Button from '../components/core/Button'
 import './GoalDetailView.css'
 
 const METRIC_LABELS: Record<string, string> = {
@@ -135,13 +136,13 @@ function GoalDetailView() {
 
   return (
     <div className="goal-detail adaptive">
-      <button
-        className="goal-detail-back adaptive"
-        data-interactive
+      <Button
+        className="goal-detail-back"
+        data-material="transparent"
         onClick={() => navigate(-1)}
       >
         <ArrowLeft size={16} /> Zurück
-      </button>
+      </Button>
 
       <h1>{METRIC_LABELS[goal.metricType]}{goal.zone ? ` — ${ZONE_LABELS[goal.zone]}` : ''}</h1>
 
@@ -231,22 +232,12 @@ function GoalDetailView() {
 
       {/* Actions */}
       <div className="goal-detail-actions">
-        <button
-          className="adaptive"
-          data-material="semi-transparent"
-          data-interactive
-          onClick={handleArchive}
-        >
+        <Button onClick={handleArchive}>
           Archivieren
-        </button>
-        <button
-          className="adaptive"
-          data-material="semi-transparent"
-          data-interactive
-          onClick={handleDelete}
-        >
+        </Button>
+        <Button onClick={handleDelete}>
           Löschen
-        </button>
+        </Button>
       </div>
     </div>
   )

@@ -4,6 +4,8 @@ import { createGoal } from '../services/goalService'
 import { requestPermission } from '../services/notificationService'
 import { subscribeToPush, updateReminderTime } from '../services/pushService'
 import Dialog from '../components/core/Dialog'
+import Button from '../components/core/Button'
+import Input from '../components/core/Input'
 import './GoalOnboarding.css'
 
 const TOTAL = 4
@@ -76,48 +78,40 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
     switch (step) {
       case 0: return (
         <>
-          <label htmlFor="ob-weight">Aktuelles Gewicht (kg)</label>
-          <input id="ob-weight" className="ob-input" type="text" inputMode="decimal"
+          <Input id="ob-weight" label="Aktuelles Gewicht (kg)" type="text" inputMode="decimal"
             placeholder="85.0" value={weight}
             onChange={e => { setWeight(e.target.value); setError('') }}
-            aria-invalid={!!error} />
-          {error && <p className="ob-error" role="alert">{error}</p>}
+            error={error || undefined} />
           <div className="core-dialog-actions">
-            <button className="adaptive" data-material="inverted" data-container-contrast="max"
-              data-interactive onClick={handleWeight}>Weiter</button>
-            <button className="core-dialog-secondary" data-interactive onClick={() => setStep(1)}>Überspringen</button>
+            <Button data-material="inverted" data-container-contrast="max" onClick={handleWeight}>Weiter</Button>
+            <Button data-material="transparent" onClick={() => setStep(1)}>Überspringen</Button>
           </div>
         </>
       )
       case 1: return (
         <>
-          <label htmlFor="ob-target">Zielgewicht (kg)</label>
-          <input id="ob-target" className="ob-input" type="text" inputMode="decimal"
+          <Input id="ob-target" label="Zielgewicht (kg)" type="text" inputMode="decimal"
             placeholder="75.0" value={targetWeight}
             onChange={e => { setTargetWeight(e.target.value); setError('') }}
-            aria-invalid={!!error} />
-          {error && <p className="ob-error" role="alert">{error}</p>}
+            error={error || undefined} />
           <div className="core-dialog-actions">
-            <button className="adaptive" data-material="inverted" data-container-contrast="max"
-              data-interactive onClick={handleGoal}>Weiter</button>
+            <Button data-material="inverted" data-container-contrast="max" onClick={handleGoal}>Weiter</Button>
             <div className="core-dialog-actions-row">
-              <button className="core-dialog-secondary" data-interactive onClick={back}>Zurück</button>
-              <button className="core-dialog-secondary" data-interactive onClick={() => setStep(2)}>Überspringen</button>
+              <Button data-material="transparent" onClick={back}>Zurück</Button>
+              <Button data-material="transparent" onClick={() => setStep(2)}>Überspringen</Button>
             </div>
           </div>
         </>
       )
       case 2: return (
         <>
-          <label htmlFor="ob-time">Tägliche Erinnerung</label>
-          <input id="ob-time" className="ob-input" type="time" value={reminderTime}
+          <Input id="ob-time" label="Tägliche Erinnerung" type="time" value={reminderTime}
             onChange={e => setReminderTime(e.target.value)} />
           <div className="core-dialog-actions">
-            <button className="adaptive" data-material="inverted" data-container-contrast="max"
-              data-interactive onClick={handleReminder}>Aktivieren</button>
+            <Button data-material="inverted" data-container-contrast="max" onClick={handleReminder}>Aktivieren</Button>
             <div className="core-dialog-actions-row">
-              <button className="core-dialog-secondary" data-interactive onClick={back}>Zurück</button>
-              <button className="core-dialog-secondary" data-interactive onClick={() => setStep(3)}>Überspringen</button>
+              <Button data-material="transparent" onClick={back}>Zurück</Button>
+              <Button data-material="transparent" onClick={() => setStep(3)}>Überspringen</Button>
             </div>
           </div>
         </>
@@ -130,9 +124,8 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
             Wöchentliche Umfangmessung
           </label>
           <div className="core-dialog-actions">
-            <button className="adaptive" data-material="inverted" data-container-contrast="max"
-              data-interactive onClick={handleWeekly}>Fertig</button>
-            <button className="core-dialog-secondary" data-interactive onClick={back}>Zurück</button>
+            <Button data-material="inverted" data-container-contrast="max" onClick={handleWeekly}>Fertig</Button>
+            <Button data-material="transparent" onClick={back}>Zurück</Button>
           </div>
         </>
       )

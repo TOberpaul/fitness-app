@@ -11,19 +11,16 @@ import { updateWeeklyStreak, evaluateMilestones, getEarnedMilestones, getStreaks
 import { evaluateGoals, getAllGoals } from '../services/goalService'
 import { motion, AnimatePresence } from 'motion/react'
 import { fadeIn, DURATIONS, EASINGS } from '../animations/presets'
-import type { AnimationVariants } from '../animations/presets'
 import { useReducedMotion, getVariants } from '../animations/hooks'
+import Button from '../components/core/Button'
 import './WeeklyInputView.css'
 
 const SLIDE_DISTANCE = 300
 
-function getSlideVariants(direction: 'forward' | 'backward'): AnimationVariants {
-  const sign = direction === 'forward' ? 1 : -1
-  return {
-    initial: { x: sign * SLIDE_DISTANCE, opacity: 0 },
-    animate: { x: 0, opacity: 1, transition: { duration: DURATIONS.standard, ease: EASINGS.easeOut } },
-    exit: { x: -sign * SLIDE_DISTANCE, opacity: 0, transition: { duration: DURATIONS.micro } },
-  }
+const slideVariants = {
+  initial: (dir: number) => ({ x: dir * SLIDE_DISTANCE, opacity: 0 }),
+  animate: { x: 0, opacity: 1, transition: { duration: DURATIONS.standard, ease: EASINGS.easeOut } },
+  exit: (dir: number) => ({ x: -dir * SLIDE_DISTANCE, opacity: 0, transition: { duration: DURATIONS.micro } }),
 }
 
 /** Zone configuration in the required order */
@@ -50,7 +47,6 @@ function WeeklyInputView() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [step, setStep] = useState(1) // 1-6=Zones, 7=Summary
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward')
-  const prevStepRef = useRef(step)
   const hasNavigated = useRef(false)
   const reducedMotion = useReducedMotion()
   const [entries, setEntries] = useState<StepFlowEntry[]>(() =>
@@ -102,6 +98,14 @@ function WeeklyInputView() {
     loadExistingData()
   }, [loadPreviousWeek, loadExistingData])
 
+  // Preload all step illustrations to prevent layout shift
+  useEffect(() => {
+    for (const config of ZONE_CONFIG) {
+      const img = new Image()
+      img.src = config.illustration
+    }
+  }, [])
+
   // Sync currentInput when step changes
   useEffect(() => {
     if (step >= 1 && step <= TOTAL_STEPS) {
@@ -110,15 +114,6 @@ function WeeklyInputView() {
       setError(undefined)
     }
   }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Track navigation direction for slide animation
-  useEffect(() => {
-    if (prevStepRef.current !== step) {
-      hasNavigated.current = true
-      setDirection(step > prevStepRef.current ? 'forward' : 'backward')
-      prevStepRef.current = step
-    }
-  }, [step])
 
   const openDialog = () => {
     setStep(1)
@@ -143,6 +138,8 @@ function WeeklyInputView() {
       return
     }
     const rounded = roundToOneDecimal(value)
+    hasNavigated.current = true
+    setDirection('forward')
     setEntries(prev => {
       const next = [...prev]
       next[step - 1] = { ...next[step - 1], value: rounded, skipped: false }
@@ -154,6 +151,8 @@ function WeeklyInputView() {
   }
 
   const handleSkip = () => {
+    hasNavigated.current = true
+    setDirection('forward')
     setEntries(prev => {
       const next = [...prev]
       next[step - 1] = { ...next[step - 1], value: null, skipped: true }
@@ -202,6 +201,8 @@ function WeeklyInputView() {
   }
 
   const handleBack = () => {
+    hasNavigated.current = true
+    setDirection('backward')
     setStep(1)
   }
 
@@ -222,25 +223,24 @@ function WeeklyInputView() {
         </p>
       </div>
 
-      <button
-        className="weekly-input-start adaptive"
+      <Button
         data-material="inverted"
         data-container-contrast="max"
-        data-interactive
         onClick={openDialog}
       >
         Messung starten
-      </button>
+      </Button>
       {successMessage && (
         <p className="weekly-input-success">{successMessage}</p>
       )}
 
       <Dialog title={dialogTitle} onClose={closeDialog} open={dialogOpen}>
-        <AnimatePresence mode="wait" custom={direction} initial={false}>
+        <AnimatePresence mode="wait" custom={direction === 'forward' ? 1 : -1} initial={false}>
           {step <= TOTAL_STEPS ? (
             <motion.div
               key={step}
-              variants={hasNavigated.current ? getVariants(getSlideVariants(direction), reducedMotion) as import('motion/react').Variants : undefined}
+              custom={direction === 'forward' ? 1 : -1}
+              variants={reducedMotion ? undefined : slideVariants}
               initial={hasNavigated.current ? "initial" : false}
               animate="animate"
               exit="exit"
@@ -258,7 +258,7 @@ function WeeklyInputView() {
                 onNext={handleNext}
                 onSkip={handleSkip}
                 onCancel={closeDialog}
-                onBack={() => setStep(s => s - 1)}
+                onBack={() => { hasNavigated.current = true; setDirection('backward'); setStep(s => s - 1) }}
                 error={error}
                 stepIndex={step}
                 totalSteps={TOTAL_STEPS}
@@ -267,7 +267,7 @@ function WeeklyInputView() {
           ) : (
             <motion.div
               key="summary"
-              variants={getVariants(fadeIn, reducedMotion) as import('motion/react').Variants}
+              variants={getVariants(fadeIn, reducedMotion)}
               initial="initial"
               animate="animate"
               exit="exit"

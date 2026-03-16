@@ -15,6 +15,8 @@ import { calculateConsistencyScore, getEarnedMilestones, detectNonScaleVictories
 import { getWeekStart } from '../utils/date'
 import type { DailyMeasurement, WeeklyMeasurement, Goal, GoalProjection, ConsistencyScore, Milestone, CircumferenceZone, TrendDirection, NonScaleVictory, Streaks, StreakAchievement } from '../types'
 import GoalCreateView from './GoalCreateView'
+import Button from '../components/core/Button'
+import Section from '../components/core/Section'
 import '../components/core/Card.css'
 import './GoalsView.css'
 
@@ -153,8 +155,7 @@ function GoalsView() {
             )
           })()}
 
-          <section className="goals-view-section">
-            <h2 className="goals-view-section-title">Aktive Ziele</h2>
+          <Section title="Aktive Ziele">
             <motion.div variants={staggerContainer} initial="initial" animate="animate">
               <AnimatePresence>
                 {activeGoals.map((goal) => (
@@ -178,29 +179,25 @@ function GoalsView() {
               </AnimatePresence>
             </motion.div>
 
-            <button
-              className="goals-view-add adaptive"
+            <Button
               data-material="inverted"
               data-container-contrast="max"
-              data-interactive
               onClick={() => setShowCreateGoal(true)}
             >
               Neues Ziel erstellen
-            </button>
-          </section>
+            </Button>
+          </Section>
 
           {hasWeeklyData && (
-            <section className="goals-view-section">
-              <h2 className="goals-view-section-title">Körperkompass</h2>
+            <Section title="Körperkompass">
               <div data-color="green" data-material="filled">
                 <BodyCompass trends={bodyCompassTrends} />
               </div>
-            </section>
+            </Section>
           )}
 
           {(consistencyScore || nonScaleVictories.length > 0 || milestones.length > 0 || (streaks && (streaks.dailyStreak > 0 || streaks.weeklyStreak > 0))) && (
-            <section className="goals-view-section">
-              <h2 className="goals-view-section-title">Fortschritt & Erfolge</h2>
+            <Section title="Fortschritt & Erfolge">
 
               {consistencyScore && (() => {
                 const level = getConsistencyLevel(consistencyScore.score)
@@ -264,8 +261,8 @@ function GoalsView() {
 
               {streaks && (streaks.dailyStreak > 0 || streaks.weeklyStreak > 0) && (() => {
                 const items: StreakAchievement[] = []
-                if (streaks.dailyStreak > 0) items.push({ type: 'daily-streak', count: streaks.dailyStreak, label: `${streaks.dailyStreak} Tage am Stück gewogen` })
-                if (streaks.weeklyStreak > 0) items.push({ type: 'weekly-streak', count: streaks.weeklyStreak, label: `${streaks.weeklyStreak} Wochen Umfänge gemessen` })
+                if (streaks.dailyStreak > 0) items.push({ type: 'daily-streak', count: streaks.dailyStreak, label: `${streaks.dailyStreak} ${streaks.dailyStreak === 1 ? 'Tag' : 'Tage'} am Stück gewogen` })
+                if (streaks.weeklyStreak > 0) items.push({ type: 'weekly-streak', count: streaks.weeklyStreak, label: `${streaks.weeklyStreak} ${streaks.weeklyStreak === 1 ? 'Woche' : 'Wochen'} Umfänge gemessen` })
                 return (
                   <motion.div
                     className="goals-view-streaks"
@@ -282,7 +279,7 @@ function GoalsView() {
                   </motion.div>
                 )
               })()}
-            </section>
+            </Section>
           )}
         </>
       )}

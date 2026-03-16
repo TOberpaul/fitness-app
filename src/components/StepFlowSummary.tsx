@@ -1,4 +1,5 @@
 import type { StepFlowEntry, WeeklyMeasurement, CircumferenceZone } from '../types'
+import Button from './core/Button'
 import './StepFlowSummary.css'
 
 interface StepFlowSummaryProps {
@@ -107,22 +108,12 @@ function StepFlowSummary({
       )}
 
       <div className="core-dialog-actions">
-        <button
-          className="adaptive"
-          data-material="inverted"
-          data-container-contrast="max"
-          data-interactive
-          onClick={onConfirm}
-        >
+        <Button data-material="inverted" data-container-contrast="max" onClick={onConfirm}>
           Bestätigen
-        </button>
-        <button
-          className="core-dialog-secondary"
-          data-interactive
-          onClick={onBack}
-        >
+        </Button>
+        <Button data-material="transparent" onClick={onBack}>
           Zurück
-        </button>
+        </Button>
       </div>
     </div>
   )

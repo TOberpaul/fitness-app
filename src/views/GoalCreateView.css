@@ -45,11 +45,6 @@
   color: var(--db-critical);
 }
 
-.goal-create-submit {
-  height: var(--size-container);
-  font-weight: bold;
-}
-
 .goal-create-success {
   font-size: var(--size-text);
   text-align: center;

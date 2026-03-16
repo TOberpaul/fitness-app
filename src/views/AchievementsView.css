@@ -8,12 +8,7 @@
 
 .achievements-back {
   align-self: flex-start;
-  background: none;
-  border: none;
-  color: var(--db-visual);
-  font-size: var(--size-text);
-  cursor: pointer;
-  padding: 0;
+  width: auto;
 }
 
 .achievements-hero {

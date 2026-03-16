@@ -4,6 +4,8 @@ import { getDailyMeasurements, getWeeklyMeasurements } from '../services/dataSer
 import { normalizeDecimal } from '../utils/validation'
 import type { GoalMetricType, CircumferenceZone } from '../types'
 import Dialog from '../components/core/Dialog'
+import Button from '../components/core/Button'
+import Input from '../components/core/Input'
 import './GoalCreateView.css'
 
 const METRIC_LABELS: Record<GoalMetricType, string> = {
@@ -161,9 +163,8 @@ function GoalCreateView({ open = true, onClose, onCreated }: { open?: boolean; o
             {startValue} {metricType === 'weight' ? 'kg' : metricType === 'bodyFat' ? '%' : 'cm'} (letzte Messung)
           </p>
         ) : (
-          <input
+          <Input
             id="goal-start"
-            className="adaptive"
             type="text"
             inputMode="decimal"
             placeholder="Startwert eingeben"
@@ -173,47 +174,39 @@ function GoalCreateView({ open = true, onClose, onCreated }: { open?: boolean; o
         )}
       </div>
 
-      <div className="goal-create-field">
-        <label htmlFor="goal-target">Zielwert</label>
-        <input
-          id="goal-target"
-          className="adaptive"
-          type="text"
-          inputMode="decimal"
-          placeholder="Zielwert eingeben"
-          value={targetValue}
-          onChange={(e) => {
-            setTargetValue(e.target.value)
-            setError('')
-          }}
-        />
-      </div>
+      <Input
+        id="goal-target"
+        label="Zielwert"
+        type="text"
+        inputMode="decimal"
+        placeholder="Zielwert eingeben"
+        value={targetValue}
+        onChange={(e) => {
+          setTargetValue(e.target.value)
+          setError('')
+        }}
+      />
 
-      <div className="goal-create-field">
-        <label htmlFor="goal-deadline">Deadline (optional)</label>
-        <input
-          id="goal-deadline"
-          className="adaptive"
-          type="date"
-          value={deadline}
-          onChange={(e) => setDeadline(e.target.value)}
-        />
-      </div>
+      <Input
+        id="goal-deadline"
+        label="Deadline (optional)"
+        type="date"
+        value={deadline}
+        onChange={(e) => setDeadline(e.target.value)}
+      />
 
       {error && (
         <p className="goal-create-error">{error}</p>
       )}
 
-      <button
-        className="goal-create-submit adaptive"
+      <Button
         data-material="inverted"
         data-container-contrast="max"
-        data-interactive
         onClick={handleSubmit}
         disabled={submitting}
       >
         {submitting ? 'Wird erstellt…' : 'Ziel erstellen'}
-      </button>
+      </Button>
     </Dialog>
   )
 }

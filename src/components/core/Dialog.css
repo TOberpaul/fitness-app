@@ -17,10 +17,17 @@
   gap: var(--spacing-padding);
   width: 100%;
   max-width: 24rem;
+  min-height: 60vh;
   border-radius: var(--size-border-radius);
   padding: var(--spacing-padding);
   max-height: 90vh;
   overflow-y: auto;
+}
+
+.core-dialog > *:not(.core-dialog-header) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .core-dialog-header {
@@ -50,6 +57,7 @@
   flex-direction: column;
   width: 100%;
   gap: var(--size-gap);
+  margin-top: auto;
 }
 
 .core-dialog-actions button {
@@ -64,10 +72,3 @@
   gap: var(--spacing-padding);
 }
 
-.core-dialog-secondary {
-  background: transparent;
-  border: none;
-  color: var(--db-text);
-  cursor: pointer;
-  font-size: var(--size-text);
-}

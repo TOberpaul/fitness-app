@@ -3,6 +3,8 @@ import { isConnected, syncData, initiateAuth, disconnect } from '../services/fit
 import { exportToFile, importFromFile } from '../services/serializationService'
 import { getAllData, importData } from '../services/dataService'
 import { subscribeToPush, unsubscribeFromPush, isPushSubscribed, updateReminderTime } from '../services/pushService'
+import Button from '../components/core/Button'
+import Section from '../components/core/Section'
 import './SettingsView.css'
 
 function SettingsView() {
@@ -95,28 +97,26 @@ function SettingsView() {
     <div className="settings adaptive">
       <h1>Einstellungen</h1>
 
-      <section className="settings-section">
-        <h2>Fitbit</h2>
+      <Section title="Fitbit">
         <div className="settings-buttons">
           {fitbitConnected ? (
             <>
-              <button className="adaptive" data-interactive onClick={handleSync}>Fitbit Sync</button>
-              <button className="adaptive" data-interactive onClick={async () => { await disconnect(); setFitbitConnected(false) }}>
+              <Button onClick={handleSync}>Fitbit Sync</Button>
+              <Button onClick={async () => { await disconnect(); setFitbitConnected(false) }}>
                 Fitbit trennen
-              </button>
+              </Button>
             </>
           ) : (
-            <button className="adaptive" data-interactive onClick={() => initiateAuth()}>Fitbit verbinden</button>
+            <Button onClick={() => initiateAuth()}>Fitbit verbinden</Button>
           )}
         </div>
         {syncStatus && <p className="settings-status">{syncStatus}</p>}
-      </section>
+      </Section>
 
-      <section className="settings-section">
-        <h2>Daten</h2>
+      <Section title="Daten">
         <div className="settings-buttons">
-          <button className="adaptive" data-interactive onClick={handleExport}>Export</button>
-          <button className="adaptive" data-interactive onClick={() => fileInputRef.current?.click()}>Import</button>
+          <Button onClick={handleExport}>Export</Button>
+          <Button onClick={() => fileInputRef.current?.click()}>Import</Button>
           <input
             ref={fileInputRef}
             type="file"
@@ -126,10 +126,9 @@ function SettingsView() {
           />
         </div>
         {importStatus && <p className="settings-status">{importStatus}</p>}
-      </section>
+      </Section>
 
-      <section className="settings-section">
-        <h2>Erscheinungsbild</h2>
+      <Section title="Erscheinungsbild">
         <div className="dashboard-tabs adaptive" data-material="semi-transparent">
           {(['system', 'light', 'dark'] as ThemeMode[]).map((mode) => (
             <button
@@ -144,10 +143,9 @@ function SettingsView() {
             </button>
           ))}
         </div>
-      </section>
+      </Section>
 
-      <section className="settings-section">
-        <h2>Benachrichtigungen</h2>
+      <Section title="Benachrichtigungen">
         <label className="settings-toggle-row">
           <span>Erinnerungen</span>
           <button
@@ -177,14 +175,13 @@ function SettingsView() {
             }}
           />
         </label>
-      </section>
+      </Section>
 
-      <section className="settings-section">
-        <button className="adaptive" data-interactive
-          onClick={() => window.dispatchEvent(new CustomEvent('show-onboarding'))}>
+      <Section>
+        <Button onClick={() => window.dispatchEvent(new CustomEvent('show-onboarding'))}>
           Einrichtung wiederholen
-        </button>
-      </section>
+        </Button>
+      </Section>
     </div>
   )
 }

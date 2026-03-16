@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { dialogVariants, backdropVariants } from '../../animations/presets'
@@ -21,7 +22,7 @@ function Dialog({ title, onClose, children, open = true }: DialogProps) {
   const backdrop = getVariants(backdropVariants, reducedMotion)
   const dialog = getVariants(dialogVariants, reducedMotion)
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
@@ -57,7 +58,8 @@ function Dialog({ title, onClose, children, open = true }: DialogProps) {
           </motion.dialog>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }
 

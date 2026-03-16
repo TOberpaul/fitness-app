@@ -1,4 +1,6 @@
 import type { CircumferenceZone } from '../types'
+import Button from './core/Button'
+import Input from './core/Input'
 import './StepFlowScreen.css'
 
 interface StepFlowScreenProps {
@@ -43,7 +45,7 @@ function StepFlowScreen({
 
       <p className="step-flow-hint">{hint}</p>
 
-      <input
+      <Input
         className="step-flow-input"
         type="text"
         inputMode="decimal"
@@ -51,28 +53,20 @@ function StepFlowScreen({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         aria-label={label}
-        aria-invalid={!!error}
+        error={error}
       />
 
-      {error && <p className="step-flow-error" role="alert">{error}</p>}
-
       <div className="core-dialog-actions">
-        <button
-          className="adaptive"
-          data-interactive
-          data-material="inverted"
-          data-container-contrast="max"
-          onClick={onNext}
-        >
+        <Button data-material="inverted" data-container-contrast="max" onClick={onNext}>
           Weiter
-        </button>
+        </Button>
         {stepIndex > 1 ? (
           <div className="core-dialog-actions-row">
-            <button className="core-dialog-secondary" data-interactive onClick={onBack}>Zurück</button>
-            <button className="core-dialog-secondary" data-interactive onClick={onSkip}>Überspringen</button>
+            <Button data-material="transparent" onClick={onBack}>Zurück</Button>
+            <Button data-material="transparent" onClick={onSkip}>Überspringen</Button>
           </div>
         ) : (
-          <button className="core-dialog-secondary" data-interactive onClick={onSkip}>Überspringen</button>
+          <Button data-material="transparent" onClick={onSkip}>Überspringen</Button>
         )}
       </div>
     </div>

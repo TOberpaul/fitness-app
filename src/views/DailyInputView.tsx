@@ -5,6 +5,8 @@ import { formatDate } from '../utils/date'
 import { WEIGHT_MIN, WEIGHT_MAX, BODY_FAT_MIN, BODY_FAT_MAX } from '../types'
 import { updateDailyStreak, evaluateMilestones, getEarnedMilestones, getStreaks, detectNonScaleVictories } from '../services/gamificationService'
 import { evaluateGoals, getAllGoals } from '../services/goalService'
+import Button from '../components/core/Button'
+import Input from '../components/core/Input'
 import './DailyInputView.css'
 
 function DailyInputView() {
@@ -108,65 +110,50 @@ function DailyInputView() {
       <h1>Tägliche Eingabe</h1>
 
       <div className="daily-input-body">
-        <div className="daily-input-field">
-          <label htmlFor="daily-date">Datum</label>
-          <input
-            id="daily-date"
-            className="adaptive"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div>
+        <Input
+          id="daily-date"
+          label="Datum"
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
 
-        <div className="daily-input-field">
-          <label htmlFor="daily-weight">Gewicht (kg)</label>
-          <input
-            id="daily-weight"
-            className="adaptive"
-            type="text"
-            inputMode="decimal"
-            placeholder={`${WEIGHT_MIN}–${WEIGHT_MAX}`}
-            value={weightInput}
-            onChange={(e) => {
-              setWeightInput(e.target.value)
-              setWeightError('')
-            }}
-          />
-          {weightError && (
-            <span className="daily-input-error" data-color="red">{weightError}</span>
-          )}
-        </div>
+        <Input
+          id="daily-weight"
+          label="Gewicht (kg)"
+          type="text"
+          inputMode="decimal"
+          placeholder={`${WEIGHT_MIN}–${WEIGHT_MAX}`}
+          value={weightInput}
+          error={weightError || undefined}
+          onChange={(e) => {
+            setWeightInput(e.target.value)
+            setWeightError('')
+          }}
+        />
 
-        <div className="daily-input-field">
-          <label htmlFor="daily-bodyfat">Körperfett (%)</label>
-          <input
-            id="daily-bodyfat"
-            className="adaptive"
-            type="text"
-            inputMode="decimal"
-            placeholder={`${BODY_FAT_MIN}–${BODY_FAT_MAX}`}
-            value={bodyFatInput}
-            onChange={(e) => {
-              setBodyFatInput(e.target.value)
-              setBodyFatError('')
-            }}
-          />
-          {bodyFatError && (
-            <span className="daily-input-error" data-color="red">{bodyFatError}</span>
-          )}
-        </div>
+        <Input
+          id="daily-bodyfat"
+          label="Körperfett (%)"
+          type="text"
+          inputMode="decimal"
+          placeholder={`${BODY_FAT_MIN}–${BODY_FAT_MAX}`}
+          value={bodyFatInput}
+          error={bodyFatError || undefined}
+          onChange={(e) => {
+            setBodyFatInput(e.target.value)
+            setBodyFatError('')
+          }}
+        />
       </div>
 
-      <button
-        className="daily-input-save adaptive"
+      <Button
         data-material="inverted"
         data-container-contrast="max"
-        data-interactive
         onClick={handleSave}
       >
         Speichern
-      </button>
+      </Button>
 
       {successMessage && (
         <p className="daily-input-success">{successMessage}</p>

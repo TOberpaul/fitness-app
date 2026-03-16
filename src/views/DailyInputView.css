@@ -16,30 +16,6 @@
   gap: var(--spacing-padding);
 }
 
-.daily-input-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-gap);
-}
-
-.daily-input-field input {
-  height: var(--size-container);
-}
-
-.daily-input-field input:focus {
-  outline: var(--size-2) solid var(--db-visual);
-  outline-offset: var(--size-1);
-}
-
-.daily-input-error {
-  font-size: var(--size-text);
-}
-
-.daily-input-save {
-  height: var(--size-container);
-  font-weight: bold;
-}
-
 .daily-input-success {
   font-size: var(--size-text);
   text-align: center;

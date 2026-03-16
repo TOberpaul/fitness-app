@@ -6,12 +6,13 @@
   border: none;
   gap: var(--spacing-padding);
   padding: 0;
+  flex: 1;
 }
 
 .step-flow-illustration {
   width: 100%;
   max-width: 10rem;
-  height: auto;
+  height: 10rem;
   object-fit: contain;
 }
 
@@ -41,9 +42,4 @@
 
 .step-flow-input::placeholder {
   color: var(--db-border);
-}
-
-.step-flow-error {
-  font-size: var(--size-text);
-  color: var(--db-warning);
 }

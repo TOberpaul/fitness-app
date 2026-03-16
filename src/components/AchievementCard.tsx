@@ -19,7 +19,9 @@ function getDetail(achievement: Milestone | StreakAchievement): string {
   if (isMilestone(achievement)) {
     return `Erreicht am ${achievement.earnedAt}`
   }
-  const unit = achievement.type === 'daily-streak' ? 'Tage' : 'Wochen'
+  const unit = achievement.type === 'daily-streak'
+    ? (achievement.count === 1 ? 'Tag' : 'Tage')
+    : (achievement.count === 1 ? 'Woche' : 'Wochen')
   return `${achievement.count} ${unit}`
 }
 

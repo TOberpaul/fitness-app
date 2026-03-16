@@ -5,28 +5,6 @@
   display: block;
 }
 
-.ob-input {
-  height: var(--size-container);
-  text-align: center;
-  font-size: var(--size-text-max);
-  border: var(--size-1) solid var(--db-border);
-  border-radius: var(--size-border-radius);
-  background: var(--db-background);
-  color: var(--db-text);
-  width: 100%;
-}
-
-.ob-input:focus {
-  outline: var(--size-2) solid var(--db-visual);
-  outline-offset: var(--size-1);
-}
-
-.ob-error {
-  font-size: var(--size-text);
-  color: var(--db-critical);
-  margin: 0;
-}
-
 .ob-toggle {
   display: flex;
   align-items: center;
