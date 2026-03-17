@@ -77,3 +77,13 @@
   justify-content: center;
   flex-wrap: wrap;
 }
+
+.dashboard-badge-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  min-height: 0;
+  padding: 0;
+  background: none;
+  object-fit: contain;
+}

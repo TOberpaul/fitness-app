@@ -84,6 +84,24 @@ export async function updateGoalStatus(id: string, status: GoalStatus): Promise<
 }
 
 /**
+ * Update editable fields of a goal (targetValue, deadline).
+ */
+export async function updateGoal(id: string, updates: { targetValue?: number; deadline?: string }): Promise<void> {
+  const db = await getDB();
+  const goal = await db.get('goals', id);
+  if (!goal) {
+    throw new Error(`Goal mit ID "${id}" nicht gefunden.`);
+  }
+
+  if (updates.targetValue !== undefined) goal.targetValue = updates.targetValue;
+  if (updates.deadline !== undefined) goal.deadline = updates.deadline || undefined;
+  goal.updatedAt = new Date().toISOString();
+
+  await db.put('goals', goal);
+  syncIfNeeded().catch(() => {});
+}
+
+/**
  * Delete a goal from IndexedDB.
  */
 export async function deleteGoal(id: string): Promise<void> {

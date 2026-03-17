@@ -6,6 +6,7 @@ import type { GoalMetricType, CircumferenceZone } from '../types'
 import Dialog from '../components/core/Dialog'
 import Button from '../components/core/Button'
 import Input from '../components/core/Input'
+import RadioGroup from '../components/core/RadioGroup'
 import './GoalCreateView.css'
 
 const METRIC_LABELS: Record<GoalMetricType, string> = {
@@ -25,6 +26,8 @@ const ZONE_LABELS: Record<CircumferenceZone, string> = {
 
 const ZONES: CircumferenceZone[] = ['chest', 'waist', 'hip', 'belly', 'upperArm', 'thigh']
 const METRIC_TYPES: GoalMetricType[] = ['weight', 'bodyFat', 'circumference']
+
+const METRIC_OPTIONS = METRIC_TYPES.map((t) => ({ value: t, label: METRIC_LABELS[t] }))
 
 function GoalCreateView({ open = true, onClose, onCreated }: { open?: boolean; onClose: () => void; onCreated: () => void }) {
   const [metricType, setMetricType] = useState<GoalMetricType>('weight')
@@ -121,24 +124,13 @@ function GoalCreateView({ open = true, onClose, onCreated }: { open?: boolean; o
 
   return (
     <Dialog title="Neues Ziel erstellen" onClose={onClose} open={open}>
-      <div className="goal-create-field">
-        <label>Metrik-Typ</label>
-        <div className="goal-create-metric-options">
-          {METRIC_TYPES.map((type) => (
-            <label key={type}>
-              <input
-                className="adaptive"
-                type="radio"
-                name="metricType"
-                value={type}
-                checked={metricType === type}
-                onChange={() => setMetricType(type)}
-              />
-              {METRIC_LABELS[type]}
-            </label>
-          ))}
-        </div>
-      </div>
+      <RadioGroup
+        name="metricType"
+        label="Metrik-Typ"
+        options={METRIC_OPTIONS}
+        value={metricType}
+        onChange={(v) => setMetricType(v as GoalMetricType)}
+      />
 
       {metricType === 'circumference' && (
         <div className="goal-create-field">

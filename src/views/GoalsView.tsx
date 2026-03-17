@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import { CircleCheck, TriangleAlert, CircleX, Sparkles } from 'lucide-react'
 import { staggerContainer, fadeIn, scaleIn, EASINGS } from '../animations/presets'
@@ -15,7 +14,9 @@ import { calculateConsistencyScore, getEarnedMilestones, detectNonScaleVictories
 import { getWeekStart } from '../utils/date'
 import type { DailyMeasurement, WeeklyMeasurement, Goal, GoalProjection, ConsistencyScore, Milestone, CircumferenceZone, TrendDirection, NonScaleVictory, Streaks, StreakAchievement } from '../types'
 import GoalCreateView from './GoalCreateView'
+import GoalDetailView from './GoalDetailView'
 import Button from '../components/core/Button'
+import Notification from '../components/core/Notification'
 import Section from '../components/core/Section'
 import '../components/core/Card.css'
 import './GoalsView.css'
@@ -44,7 +45,6 @@ function getConsistencyLevel(score: number) {
 }
 
 function GoalsView() {
-  const navigate = useNavigate()
   const reducedMotion = useReducedMotion()
   const [hasDailyData, setHasDailyData] = useState<boolean | null>(null)
   const [hasWeeklyData, setHasWeeklyData] = useState<boolean | null>(null)
@@ -61,6 +61,7 @@ function GoalsView() {
   const [nonScaleVictories, setNonScaleVictories] = useState<NonScaleVictory[]>([])
   const [streaks, setStreaks] = useState<Streaks | null>(null)
   const [showCreateGoal, setShowCreateGoal] = useState(false)
+  const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null)
 
   const loadData = useCallback(async () => {
     let dailyMeasurements: DailyMeasurement[] = []
@@ -128,11 +129,6 @@ function GoalsView() {
   return (
     <div className="goals-view">
       <h1>Ziele</h1>
-      <img
-        className="goals-view-hero"
-        src={`${import.meta.env.BASE_URL}Goal.png`}
-        alt="Ziele Illustration"
-      />
 
       {hasGoals === false ? (
         <EmptyState
@@ -156,14 +152,12 @@ function GoalsView() {
           })()}
 
           <Section title="Aktive Ziele">
-            <motion.div variants={staggerContainer} initial="initial" animate="animate">
+            <motion.div className="goals-view-list" variants={staggerContainer} initial="initial" animate="animate">
               <AnimatePresence>
                 {activeGoals.map((goal) => (
                   <motion.div
                     key={goal.id}
                     layout
-                    data-color="blue"
-                    data-material="origin"
                     variants={getVariants(fadeIn, reducedMotion)}
                     initial="initial"
                     animate="animate"
@@ -172,7 +166,7 @@ function GoalsView() {
                     <GoalCard
                       goal={goal}
                       projection={projections.get(goal.id) || null}
-                      onClick={() => navigate('/goals/' + goal.id)}
+                      onClick={() => setSelectedGoalId(goal.id)}
                     />
                   </motion.div>
                 ))}
@@ -204,16 +198,18 @@ function GoalsView() {
                 const Icon = level.icon
                 return (
                   <motion.div
-                    className="goals-view-consistency core-card adaptive"
-                    data-color={level.color}
-                    data-material="filled"
-                    data-content-contrast="min"
                     variants={getVariants(scaleIn, reducedMotion)}
                     initial="initial"
                     animate="animate"
                   >
-                    <Icon className="goals-view-icon" />
-                    <span>Diese Woche: {consistencyScore.score}% on track</span>
+                    <Notification
+                      icon={<Icon />}
+                      data-color={level.color}
+                      data-material="filled"
+                      data-content-contrast="min"
+                    >
+                      Diese Woche: {consistencyScore.score}% on track
+                    </Notification>
                   </motion.div>
                 )
               })()}
@@ -244,8 +240,6 @@ function GoalsView() {
               {milestones.length > 0 && (
                 <motion.div
                   className="goals-view-achievements"
-                  data-color="violet"
-                  data-material="filled"
                   variants={staggerContainer}
                   initial="initial"
                   animate="animate"
@@ -254,6 +248,7 @@ function GoalsView() {
                     <AchievementCard
                       key={m.id}
                       achievement={m}
+                      color="violet"
                     />
                   ))}
                 </motion.div>
@@ -266,15 +261,13 @@ function GoalsView() {
                 return (
                   <motion.div
                     className="goals-view-streaks"
-                    data-color="red"
-                    data-material="filled"
                     variants={staggerContainer}
                     initial="initial"
                     animate="animate"
                     transition={EASINGS.bounce}
                   >
                     {items.map((s) => (
-                      <AchievementCard key={s.type} achievement={s} icon={`${import.meta.env.BASE_URL}Flame.png`} />
+                      <AchievementCard key={s.type} achievement={s} icon={`${import.meta.env.BASE_URL}Flame.png`} color="red" />
                     ))}
                   </motion.div>
                 )
@@ -289,6 +282,15 @@ function GoalsView() {
         onClose={() => setShowCreateGoal(false)}
         onCreated={() => { loadData(); window.dispatchEvent(new CustomEvent('data-updated')) }}
       />
+
+      {selectedGoalId && (
+        <GoalDetailView
+          goalId={selectedGoalId}
+          open={!!selectedGoalId}
+          onClose={() => setSelectedGoalId(null)}
+          onChanged={() => { loadData(); window.dispatchEvent(new CustomEvent('data-updated')) }}
+        />
+      )}
     </div>
   )
 }

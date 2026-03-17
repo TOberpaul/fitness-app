@@ -43,6 +43,11 @@
 }
 
 .core-dialog-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--size-container);
+  min-height: var(--size-container);
   background: none;
   border: none;
   font-size: var(--size-text-max);
@@ -50,6 +55,12 @@
   cursor: pointer;
   padding: 0;
   line-height: 1;
+  border-radius: var(--size-border-radius);
+}
+
+.core-dialog-close svg {
+  width: var(--size-icon);
+  height: var(--size-icon);
 }
 
 .core-dialog-actions {

@@ -12,27 +12,8 @@
   gap: var(--size-gap);
 }
 
-.goal-create-field input,
 .goal-create-field select {
   height: var(--size-container);
-}
-
-.goal-create-field input:focus,
-.goal-create-field select:focus {
-  outline: var(--size-2) solid var(--db-visual);
-  outline-offset: var(--size-1);
-}
-
-.goal-create-metric-options {
-  display: flex;
-  gap: var(--size-gap);
-}
-
-.goal-create-metric-options label {
-  display: flex;
-  align-items: center;
-  gap: var(--size-gap);
-  cursor: pointer;
 }
 
 .goal-create-start-display {

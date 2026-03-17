@@ -1,10 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
-import { getGoal, calculateProjection, updateGoalStatus, deleteGoal } from '../services/goalService'
+import { Pencil, Trash2, CircleCheck, TriangleAlert, HelpCircle, ShieldAlert } from 'lucide-react'
+import { getGoal, calculateProjection, updateGoal, deleteGoal } from '../services/goalService'
 import { getDailyMeasurements, getWeeklyMeasurements } from '../services/dataService'
+import { normalizeDecimal } from '../utils/validation'
 import type { Goal, GoalProjection } from '../types'
 import Button from '../components/core/Button'
+import Dialog from '../components/core/Dialog'
+import Input from '../components/core/Input'
+import Notification from '../components/core/Notification'
+import Section from '../components/core/Section'
 import './GoalDetailView.css'
 
 const METRIC_LABELS: Record<string, string> = {
@@ -26,7 +30,14 @@ const TREND_MESSAGES: Record<string, string> = {
   ahead: 'Du liegst vor deinem Zielplan',
   'on-track': 'Du bist auf Kurs',
   behind: 'Etwas mehr Tempo nötig — du schaffst das',
+  unrealistic: 'Das benötigte Tempo ist ungesund — passe Zielwert oder Deadline an',
   'insufficient-data': 'Noch nicht genug Daten für eine Prognose',
+}
+
+const HEALTHY_LIMITS: Record<string, number> = {
+  weight: 1.0,
+  bodyFat: 0.5,
+  circumference: 2.0,
 }
 
 function getUnit(metricType: string): string {
@@ -61,31 +72,31 @@ function daysRemaining(deadline: string): number {
   return Math.ceil((dl.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-function GoalDetailView() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+interface GoalDetailViewProps {
+  goalId: string
+  open: boolean
+  onClose: () => void
+  onChanged: () => void
+}
+
+function GoalDetailView({ goalId, open, onClose, onChanged }: GoalDetailViewProps) {
   const [goal, setGoal] = useState<Goal | null>(null)
   const [projection, setProjection] = useState<GoalProjection | null>(null)
   const [loading, setLoading] = useState(true)
-  const [notFound, setNotFound] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [editTarget, setEditTarget] = useState('')
+  const [editDeadline, setEditDeadline] = useState('')
+  const [editError, setEditError] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const loadGoal = useCallback(async () => {
-    if (!id) {
-      setNotFound(true)
-      setLoading(false)
-      return
-    }
-
+    if (!goalId) return
+    setLoading(true)
     try {
-      const g = await getGoal(id)
-      if (!g) {
-        setNotFound(true)
-        setLoading(false)
-        return
-      }
+      const g = await getGoal(goalId)
+      if (!g) { setLoading(false); return }
       setGoal(g)
 
-      // Load measurements for projection
       const to = new Date().toISOString().slice(0, 10)
       const fromDate = new Date()
       fromDate.setFullYear(fromDate.getFullYear() - 2)
@@ -97,149 +108,204 @@ function GoalDetailView() {
       } else {
         measurements = await getDailyMeasurements(from, to)
       }
-
-      const proj = calculateProjection(g, measurements as never)
-      setProjection(proj)
-    } catch {
-      setNotFound(true)
-    } finally {
-      setLoading(false)
-    }
-  }, [id])
+      setProjection(calculateProjection(g, measurements as never))
+    } catch { /* ignore */ }
+    setLoading(false)
+  }, [goalId])
 
   useEffect(() => {
-    loadGoal()
-  }, [loadGoal])
-
-  const handleArchive = async () => {
-    if (!id) return
-    await updateGoalStatus(id, 'archived')
-    navigate(-1)
-  }
+    if (open) loadGoal()
+  }, [open, loadGoal])
 
   const handleDelete = async () => {
-    if (!id) return
-    await deleteGoal(id)
-    navigate(-1)
+    await deleteGoal(goalId)
+    onChanged()
+    onClose()
   }
 
-  if (loading) {
-    return <div className="goal-detail-loading adaptive">Laden…</div>
+  const startEditing = () => {
+    if (!goal) return
+    setEditTarget(String(goal.targetValue))
+    setEditDeadline(goal.deadline || '')
+    setEditError('')
+    setEditing(true)
   }
 
-  if (notFound || !goal) {
-    return <div className="goal-detail-not-found adaptive">Ziel nicht gefunden.</div>
+  const handleSave = async () => {
+    if (!goal) return
+    const target = Number(normalizeDecimal(editTarget))
+    if (isNaN(target) || editTarget.trim() === '') {
+      setEditError('Bitte einen gültigen Zielwert eingeben.')
+      return
+    }
+    if (target === goal.startValue) {
+      setEditError('Zielwert darf nicht dem Startwert entsprechen.')
+      return
+    }
+    await updateGoal(goalId, { targetValue: target, deadline: editDeadline })
+    setEditing(false)
+    onChanged()
+    loadGoal()
   }
 
-  const unit = getUnit(goal.metricType)
-  const isReached = goal.status === 'reached'
+  if (!open) return null
+
+  const title = goal
+    ? `${METRIC_LABELS[goal.metricType]}${goal.zone ? ` — ${ZONE_LABELS[goal.zone]}` : ''}`
+    : 'Ziel'
 
   return (
-    <div className="goal-detail adaptive">
-      <Button
-        className="goal-detail-back"
-        data-material="transparent"
-        onClick={() => navigate(-1)}
-      >
-        <ArrowLeft size={16} /> Zurück
-      </Button>
-
-      <h1>{METRIC_LABELS[goal.metricType]}{goal.zone ? ` — ${ZONE_LABELS[goal.zone]}` : ''}</h1>
-
-      {/* Reached goal congratulation */}
-      {isReached && (
-        <div className="goal-detail-reached adaptive">
-          <p className="goal-detail-reached-message">Glückwunsch! Ziel erreicht!</p>
-          {goal.reachedAt && (
-            <p className="goal-detail-reached-duration">
-              Dauer: {formatDuration(calculateDurationDays(goal.createdAt, goal.reachedAt))}
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* Values section */}
-      <div className="goal-detail-section adaptive">
-        <div className="goal-detail-values">
-          <div className="goal-detail-row">
-            <span className="goal-detail-row-label">Startwert</span>
-            <span className="goal-detail-row-value">{goal.startValue.toFixed(1)} {unit}</span>
-          </div>
-          {projection && (
-            <div className="goal-detail-row">
-              <span className="goal-detail-row-label">Aktueller Wert</span>
-              <span className="goal-detail-row-value">{projection.currentValue.toFixed(1)} {unit}</span>
-            </div>
-          )}
-          <div className="goal-detail-row">
-            <span className="goal-detail-row-label">Zielwert</span>
-            <span className="goal-detail-row-value">{goal.targetValue.toFixed(1)} {unit}</span>
-          </div>
-          {projection && (
-            <div className="goal-detail-row">
-              <span className="goal-detail-row-label">Verbleibende Distanz</span>
-              <span className="goal-detail-row-value">{projection.remainingDistance.toFixed(1)} {unit}</span>
-            </div>
-          )}
-          {goal.deadline && (
-            <div className="goal-detail-row">
-              <span className="goal-detail-row-label">Deadline</span>
-              <span className="goal-detail-row-value">{formatDate(goal.deadline)}</span>
-            </div>
-          )}
-          {goal.deadline && (
-            <div className="goal-detail-row">
-              <span className="goal-detail-row-label">Verbleibende Zeit</span>
-              <span className="goal-detail-row-value">
-                {daysRemaining(goal.deadline) > 0
-                  ? `${daysRemaining(goal.deadline)} Tage`
-                  : 'Abgelaufen'}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Projection section */}
-      {projection && (
-        <div className="goal-detail-section adaptive">
-          <h2>Prognose</h2>
-          <div className="goal-detail-projection">
-            {projection.requiredWeeklyTempo !== null && (
-              <div className="goal-detail-row">
-                <span className="goal-detail-row-label">Benötigtes Wochentempo</span>
-                <span className="goal-detail-row-value">{projection.requiredWeeklyTempo.toFixed(2)} {unit}/Woche</span>
+    <>
+      <Dialog title={title} open={open} onClose={onClose}>
+        {loading ? (
+          <p>Laden…</p>
+        ) : !goal ? (
+          <p>Ziel nicht gefunden.</p>
+        ) : (
+          <div className="goal-detail">
+            {goal.status === 'reached' && (
+              <div className="goal-detail-reached">
+                <p className="goal-detail-reached-message">Glückwunsch! Ziel erreicht!</p>
+                {goal.reachedAt && (
+                  <p className="goal-detail-reached-duration">
+                    Dauer: {formatDuration(calculateDurationDays(goal.createdAt, goal.reachedAt))}
+                  </p>
+                )}
               </div>
             )}
-            {projection.currentWeeklyRate !== null && (
-              <div className="goal-detail-row">
-                <span className="goal-detail-row-label">Aktuelles Wochentempo</span>
-                <span className="goal-detail-row-value">{Math.abs(projection.currentWeeklyRate).toFixed(2)} {unit}/Woche</span>
+
+            <Section>
+              <div className="goal-detail-values">
+                <div className="goal-detail-row">
+                  <span className="goal-detail-row-label">Startwert</span>
+                  <span className="goal-detail-row-value">{goal.startValue.toFixed(1)} {getUnit(goal.metricType)}</span>
+                </div>
+                {projection && (
+                  <div className="goal-detail-row">
+                    <span className="goal-detail-row-label">Aktueller Wert</span>
+                    <span className="goal-detail-row-value">{projection.currentValue.toFixed(1)} {getUnit(goal.metricType)}</span>
+                  </div>
+                )}
+                <div className="goal-detail-row">
+                  <span className="goal-detail-row-label">Zielwert</span>
+                  <span className="goal-detail-row-value">{goal.targetValue.toFixed(1)} {getUnit(goal.metricType)}</span>
+                </div>
+                {projection && (
+                  <div className="goal-detail-row">
+                    <span className="goal-detail-row-label">Verbleibende Distanz</span>
+                    <span className="goal-detail-row-value">{projection.remainingDistance.toFixed(1)} {getUnit(goal.metricType)}</span>
+                  </div>
+                )}
+                <div className="goal-detail-row">
+                  <span className="goal-detail-row-label">Deadline</span>
+                  <span className="goal-detail-row-value">{goal.deadline ? formatDate(goal.deadline) : '—'}</span>
+                </div>
+                {goal.deadline && (
+                  <div className="goal-detail-row">
+                    <span className="goal-detail-row-label">Verbleibende Zeit</span>
+                    <span className="goal-detail-row-value">
+                      {daysRemaining(goal.deadline) > 0
+                        ? `${daysRemaining(goal.deadline)} ${daysRemaining(goal.deadline) === 1 ? 'Tag' : 'Tage'}`
+                        : 'Abgelaufen'}
+                    </span>
+                  </div>
+                )}
               </div>
+            </Section>
+
+            {projection && (
+              <Section title="Prognose">
+                <div className="goal-detail-projection">
+                  {projection.requiredWeeklyTempo !== null && (
+                    <div className="goal-detail-row">
+                      <span className="goal-detail-row-label">Benötigtes Wochentempo</span>
+                      <span className="goal-detail-row-value">{projection.requiredWeeklyTempo.toFixed(2)} {getUnit(goal.metricType)}/Woche</span>
+                    </div>
+                  )}
+                  {projection.currentWeeklyRate !== null && (
+                    <div className="goal-detail-row">
+                      <span className="goal-detail-row-label">Aktuelles Wochentempo</span>
+                      <span className="goal-detail-row-value">{Math.abs(projection.currentWeeklyRate).toFixed(2)} {getUnit(goal.metricType)}/Woche</span>
+                    </div>
+                  )}
+                  {projection.projectedDate && (
+                    <div className="goal-detail-row">
+                      <span className="goal-detail-row-label">Voraussichtliches Erreichen</span>
+                      <span className="goal-detail-row-value">{formatDate(projection.projectedDate)}</span>
+                    </div>
+                  )}
+                  {(() => {
+                    const limit = HEALTHY_LIMITS[goal.metricType] ?? 1.0
+                    const isUnrealistic = projection.requiredWeeklyTempo !== null && projection.requiredWeeklyTempo > limit
+                    const feedback = isUnrealistic ? 'unrealistic' : projection.trendFeedback
+
+                    const trendConfig: Record<string, { color: string; Icon: typeof CircleCheck }> = {
+                      ahead: { color: 'green', Icon: CircleCheck },
+                      'on-track': { color: 'green', Icon: CircleCheck },
+                      behind: { color: 'orange', Icon: TriangleAlert },
+                      unrealistic: { color: 'red', Icon: ShieldAlert },
+                      'insufficient-data': { color: 'red', Icon: HelpCircle },
+                    }
+                    const { color, Icon } = trendConfig[feedback] ?? trendConfig['insufficient-data']
+                    return (
+                      <Notification
+                        icon={<Icon />}
+                        data-color={color}
+                        data-material="filled"
+                        data-content-contrast="min"
+                      >
+                        {TREND_MESSAGES[feedback]}
+                      </Notification>
+                    )
+                  })()}
+                </div>
+              </Section>
             )}
-            {projection.projectedDate && (
-              <div className="goal-detail-row">
-                <span className="goal-detail-row-label">Voraussichtliches Erreichen</span>
-                <span className="goal-detail-row-value">{formatDate(projection.projectedDate)}</span>
-              </div>
-            )}
-            <div className="goal-detail-trend" data-trend={projection.trendFeedback}>
-              {TREND_MESSAGES[projection.trendFeedback]}
+
+            <div className="goal-detail-actions">
+              <Button className="goal-detail-icon-button" onClick={startEditing} aria-label="Bearbeiten">
+                <Pencil />
+              </Button>
+              <Button className="goal-detail-icon-button" onClick={() => setConfirmDelete(true)} aria-label="Löschen">
+                <Trash2 />
+              </Button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Dialog>
 
-      {/* Actions */}
-      <div className="goal-detail-actions">
-        <Button onClick={handleArchive}>
-          Archivieren
-        </Button>
-        <Button onClick={handleDelete}>
-          Löschen
-        </Button>
-      </div>
-    </div>
+      <Dialog title="Ziel bearbeiten" open={editing} onClose={() => setEditing(false)}>
+        <div className="goal-detail-edit-form">
+          <Input
+            id="edit-target"
+            label={goal ? `Zielwert (${getUnit(goal.metricType)})` : 'Zielwert'}
+            type="text"
+            inputMode="decimal"
+            value={editTarget}
+            onChange={(e) => setEditTarget(e.target.value)}
+          />
+          <Input
+            id="edit-deadline"
+            label="Deadline"
+            type="date"
+            value={editDeadline}
+            onChange={(e) => setEditDeadline(e.target.value)}
+          />
+          {editError && <span className="goal-detail-edit-error" role="alert">{editError}</span>}
+          <Button onClick={handleSave}>Speichern</Button>
+        </div>
+      </Dialog>
+
+      <Dialog title="Ziel löschen" open={confirmDelete} onClose={() => setConfirmDelete(false)}>
+        <div className="goal-detail-edit-form">
+          <p>Dieses Ziel wirklich löschen? Das kann nicht rückgängig gemacht werden.</p>
+          <div className="goal-detail-dialog-actions">
+            <Button onClick={handleDelete}>Löschen</Button>
+            <Button data-material="transparent" onClick={() => setConfirmDelete(false)}>Abbrechen</Button>
+          </div>
+        </div>
+      </Dialog>
+    </>
   )
 }
 

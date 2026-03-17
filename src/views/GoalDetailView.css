@@ -1,25 +1,7 @@
 .goal-detail {
   display: flex;
   flex-direction: column;
-  border: none;
   gap: var(--spacing-padding);
-  padding: var(--spacing-padding);
-}
-
-.goal-detail-back {
-  align-self: flex-start;
-  width: auto;
-}
-
-.goal-detail-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-gap);
-}
-
-.goal-detail-metric-label {
-  font-size: var(--size-text);
-  color: var(--db-text);
 }
 
 .goal-detail-values {
@@ -50,28 +32,6 @@
   gap: var(--size-gap);
 }
 
-.goal-detail-trend {
-  font-size: var(--size-text);
-  padding: var(--size-gap);
-  border-radius: var(--size-2);
-}
-
-.goal-detail-trend[data-trend="ahead"] {
-  color: var(--db-successful);
-}
-
-.goal-detail-trend[data-trend="on-track"] {
-  color: var(--db-successful);
-}
-
-.goal-detail-trend[data-trend="behind"] {
-  color: var(--db-warning);
-}
-
-.goal-detail-trend[data-trend="insufficient-data"] {
-  color: var(--db-text);
-}
-
 .goal-detail-reached {
   display: flex;
   flex-direction: column;
@@ -93,21 +53,36 @@
 .goal-detail-actions {
   display: flex;
   gap: var(--size-gap);
-  margin-top: var(--spacing-padding);
 }
 
 .goal-detail-actions button {
   flex: 1;
 }
 
-.goal-detail-loading {
-  text-align: center;
-  padding: var(--spacing-padding);
-  color: var(--db-text);
+.goal-detail-icon-button {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: var(--size-container);
+  min-height: var(--size-container);
 }
 
-.goal-detail-not-found {
-  text-align: center;
-  padding: var(--spacing-padding);
+.goal-detail-icon-button svg {
+  width: var(--size-icon);
+  height: var(--size-icon);
+}
+
+.goal-detail-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-padding);
+}
+
+.goal-detail-edit-error {
+  font-size: var(--size-text);
   color: var(--db-critical);
+}
+
+.goal-detail-dialog-actions {
+  display: flex;
+  gap: var(--size-gap);
 }

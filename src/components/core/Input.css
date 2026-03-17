@@ -8,11 +8,6 @@
   height: var(--size-container);
 }
 
-.core-input:focus {
-  outline: var(--size-2) solid var(--db-visual);
-  outline-offset: var(--size-1);
-}
-
 .core-input-error {
   font-size: var(--size-text);
   color: var(--db-critical, var(--db-warning));

@@ -1,10 +1,9 @@
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, CircleCheck, TriangleAlert, HelpCircle, ShieldAlert } from 'lucide-react'
 import { motion } from 'motion/react'
 import type { Goal, GoalProjection } from '../types'
 import { slideUp, tapFeedback, DURATIONS, EASINGS } from '../animations/presets'
 import { useReducedMotion, getVariants } from '../animations/hooks'
 import './GoalCard.css'
-import './core/Card.css'
 
 interface GoalCardProps {
   goal: Goal
@@ -27,11 +26,29 @@ const ZONE_LABELS: Record<string, string> = {
   thigh: 'Oberschenkel',
 }
 
-const TREND_MESSAGES: Record<string, string> = {
-  ahead: 'Vor dem Plan',
-  'on-track': 'Auf Kurs',
-  behind: 'Mehr Tempo nötig',
-  'insufficient-data': 'Noch nicht genug Daten',
+const HEALTHY_LIMITS: Record<string, number> = {
+  weight: 1.0,
+  bodyFat: 0.5,
+  circumference: 2.0,
+}
+
+type TrendStatus = 'ahead' | 'on-track' | 'behind' | 'unrealistic' | 'insufficient-data'
+
+const STATUS_CONFIG: Record<TrendStatus, { color: string; Icon: typeof CircleCheck; label: string }> = {
+  ahead: { color: 'green', Icon: CircleCheck, label: 'Vor dem Plan' },
+  'on-track': { color: 'green', Icon: CircleCheck, label: 'Auf Kurs' },
+  behind: { color: 'orange', Icon: TriangleAlert, label: 'Mehr Tempo nötig' },
+  unrealistic: { color: 'red', Icon: ShieldAlert, label: 'Ziel anpassen' },
+  'insufficient-data': { color: 'blue', Icon: HelpCircle, label: 'Noch nicht genug Daten' },
+}
+
+function getTrendStatus(goal: Goal, projection: GoalProjection | null): TrendStatus {
+  if (!projection) return 'insufficient-data'
+  const limit = HEALTHY_LIMITS[goal.metricType] ?? 1.0
+  if (projection.requiredWeeklyTempo !== null && projection.requiredWeeklyTempo > limit) {
+    return 'unrealistic'
+  }
+  return projection.trendFeedback as TrendStatus
 }
 
 function getUnit(metricType: string): string {
@@ -46,9 +63,12 @@ function GoalCard({ goal, projection, onClick }: GoalCardProps) {
   const percentComplete = projection ? Math.min(100, Math.max(0, projection.percentComplete)) : 0
   const reducedMotion = useReducedMotion()
 
+  const status = getTrendStatus(goal, projection)
+  const { color: statusColor, Icon: StatusIcon, label: statusLabel } = STATUS_CONFIG[status]
+
   return (
     <motion.div
-      className="goal-card core-card adaptive"
+      className="goal-card adaptive"
       data-interactive
       role="button"
       tabIndex={0}
@@ -59,11 +79,22 @@ function GoalCard({ goal, projection, onClick }: GoalCardProps) {
       animate="animate"
       {...tapFeedback}
     >
+      <div className="goal-card-icon-area adaptive" data-material="filled-2" data-color={statusColor}>
+        <img src={`${import.meta.env.BASE_URL}Goal.png`} alt="" />
+      </div>
+      <div className="goal-card-content">
       <div className="goal-card-header">
         <span className="goal-card-label">{label}</span>
-        <span className="goal-card-values">
-          {projection ? projection.currentValue.toFixed(1) : goal.startValue.toFixed(1)} <ArrowRight size={14} /> {goal.targetValue.toFixed(1)} {unit}
-        </span>
+        {projection && (
+          <span className="goal-card-status adaptive" data-size="lg" data-color={statusColor} data-material="filled" data-content-contrast="min">
+            <StatusIcon />
+            {statusLabel}
+          </span>
+        )}
+      </div>
+
+      <div className="goal-card-values">
+        {projection ? projection.currentValue.toFixed(1) : goal.startValue.toFixed(1)} <ArrowRight /> {goal.targetValue.toFixed(1)} {unit}
       </div>
 
       <div className="goal-card-progress-track">
@@ -76,16 +107,12 @@ function GoalCard({ goal, projection, onClick }: GoalCardProps) {
       </div>
 
       <div className="goal-card-footer">
-        {projection && (
-          <span className="goal-card-trend" data-trend={projection.trendFeedback}>
-            {TREND_MESSAGES[projection.trendFeedback]}
-          </span>
-        )}
         {projection?.requiredWeeklyTempo !== null && projection?.requiredWeeklyTempo !== undefined && (
           <span className="goal-card-tempo">
             {projection.requiredWeeklyTempo.toFixed(1)} {unit}/Woche
           </span>
         )}
+      </div>
       </div>
     </motion.div>
   )

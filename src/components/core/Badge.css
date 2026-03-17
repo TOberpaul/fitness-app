@@ -1,0 +1,13 @@
+.core-badge {
+  position: relative;
+  display: inline-flex;
+}
+
+.core-badge-count {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  transform: translate(25%, 25%);
+  min-height: 0;
+  border-radius: var(--size-border-radius-full);
+}

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
@@ -21,12 +21,26 @@ function Dialog({ title, onClose, children, open = true }: DialogProps) {
   const reducedMotion = useReducedMotion()
   const backdrop = getVariants(backdropVariants, reducedMotion)
   const dialog = getVariants(dialogVariants, reducedMotion)
+  const dialogRef = useRef<HTMLDialogElement>(null)
+
+  useEffect(() => {
+    const root = document.getElementById('root')
+    if (!root) return
+    if (open) {
+      root.setAttribute('inert', '')
+      dialogRef.current?.focus()
+    } else {
+      root.removeAttribute('inert')
+    }
+    return () => root.removeAttribute('inert')
+  }, [open])
 
   return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
           className="core-dialog-backdrop"
+          data-size="xl"
           onClick={onClose}
           variants={backdrop}
           initial="initial"
@@ -35,8 +49,10 @@ function Dialog({ title, onClose, children, open = true }: DialogProps) {
           key="dialog-backdrop"
         >
           <motion.dialog
+            ref={dialogRef}
             className="core-dialog adaptive"
             open
+            tabIndex={-1}
             onClick={e => e.stopPropagation()}
             variants={dialog}
             initial="initial"
@@ -51,7 +67,7 @@ function Dialog({ title, onClose, children, open = true }: DialogProps) {
                 onClick={onClose}
                 aria-label="Schließen"
               >
-                <X size={20} />
+                <X />
               </button>
             </div>
             {children}

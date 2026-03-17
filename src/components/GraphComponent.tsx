@@ -70,6 +70,7 @@ function GraphComponent({
 
     const container = containerRef.current
     const width = container.clientWidth || 300
+    const height = container.clientHeight || 200
 
     const timestamps = sortedData.map((d) => Date.parse(d.date) / 1000)
     const values = sortedData.map((d) => d.value)
@@ -77,7 +78,7 @@ function GraphComponent({
 
     const opts: uPlot.Options = {
       width,
-      height: 200,
+      height,
       padding: [24, 24, 24, 24],
       cursor: {
         y: false,
@@ -133,7 +134,7 @@ function GraphComponent({
       if (containerRef.current) {
         chart.setSize({
           width: containerRef.current.clientWidth,
-          height: 200,
+          height: containerRef.current.clientHeight,
         })
       }
     }

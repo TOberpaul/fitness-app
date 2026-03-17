@@ -1,0 +1,19 @@
+.core-notification {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--size-gap);
+  padding: var(--size-padding);
+}
+
+.core-notification-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--size-line-height);
+  flex-shrink: 0;
+}
+
+.core-notification-icon svg {
+  width: var(--size-icon);
+  height: var(--size-icon);
+}

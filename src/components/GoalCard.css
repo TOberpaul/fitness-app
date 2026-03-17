@@ -1,25 +1,79 @@
 .goal-card {
   display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+}
+
+.goal-card-icon-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--size-padding-min) var(--size-padding);
+  flex-shrink: 0;
+  border-left: none;
+  border-top: none;
+  border-bottom: none;
+  border-radius: 0;
+}
+
+.goal-card-icon-area img {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+}
+
+.goal-card-content {
+  display: flex;
   flex-direction: column;
   gap: var(--size-gap);
-  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+  padding: var(--size-padding);
 }
 
 .goal-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: var(--size-gap);
 }
 
 .goal-card-label {
   font-size: var(--size-text);
   font-weight: bold;
   color: var(--db-text);
+  white-space: nowrap;
+}
+
+.goal-card-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.goal-card-status svg {
+  width: 1em;
+  height: 1em;
 }
 
 .goal-card-values {
   font-size: var(--size-text);
   color: var(--db-text);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+}
+
+.goal-card-values svg {
+  width: 1em;
+  height: 1em;
 }
 
 .goal-card-progress-track {
@@ -40,30 +94,12 @@
 .goal-card-footer {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-}
-
-.goal-card-trend {
-  font-size: var(--size-text);
-}
-
-.goal-card-trend[data-trend="ahead"] {
-  color: var(--db-successful);
-}
-
-.goal-card-trend[data-trend="on-track"] {
-  color: var(--db-successful);
-}
-
-.goal-card-trend[data-trend="behind"] {
-  color: var(--db-warning);
-}
-
-.goal-card-trend[data-trend="insufficient-data"] {
-  color: var(--db-text);
+  align-items: baseline;
+  gap: var(--size-gap);
 }
 
 .goal-card-tempo {
   font-size: var(--size-text);
   color: var(--db-text);
+  white-space: nowrap;
 }

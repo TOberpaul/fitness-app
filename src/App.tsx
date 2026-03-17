@@ -6,7 +6,6 @@ import WeeklyInputView from './views/WeeklyInputView'
 import GoalsView from './views/GoalsView'
 import FitbitCallbackView from './views/FitbitCallbackView'
 import SettingsView from './views/SettingsView'
-import GoalDetailView from './views/GoalDetailView'
 import AchievementsView from './views/AchievementsView'
 import GoalOnboarding from './views/GoalOnboarding'
 import BottomNavigation from './components/BottomNavigation'
@@ -156,7 +155,6 @@ function AppContent() {
           <Route path="/settings" element={<MainPanels />} />
           {/* Detail routes (no snap) */}
           <Route path="/callback" element={<FitbitCallbackView />} />
-          <Route path="/goals/:id" element={<GoalDetailView />} />
           <Route path="/achievements" element={<AchievementsView />} />
           <Route path="/onboarding" element={<Navigate to="/" replace />} />
         </Routes>

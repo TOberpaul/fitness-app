@@ -2,9 +2,12 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import GraphComponent from '../components/GraphComponent'
 import EmptyState from '../components/EmptyState'
+import Badge from '../components/core/Badge'
 import { getDailyMeasurements, getWeeklyMeasurements, getAllData } from '../services/dataService'
 import { getDateRange, calculatePercentChange } from '../utils/date'
-import type { DataPoint, TimeRange, DailyMeasurement, WeeklyMeasurement } from '../types'
+import { getActiveGoals, calculateProjection } from '../services/goalService'
+import { getStreaks } from '../services/gamificationService'
+import type { DataPoint, TimeRange, DailyMeasurement, WeeklyMeasurement, Streaks } from '../types'
 import { useAnimatedNumber } from '../animations/hooks'
 import './DashboardView.css'
 
@@ -56,6 +59,8 @@ function DashboardView() {
   const [circumferenceField, setCircumferenceField] = useState<CircumferenceField>('waist')
   const [hasDailyData, setHasDailyData] = useState<boolean | null>(null)
   const [hasWeeklyData, setHasWeeklyData] = useState<boolean | null>(null)
+  const [streaks, setStreaks] = useState<Streaks | null>(null)
+  const [goalPercent, setGoalPercent] = useState<number | null>(null)
 
   useEffect(() => {
     async function checkDataExistence() {
@@ -63,6 +68,19 @@ function DashboardView() {
         const allData = await getAllData()
         setHasDailyData(allData.dailyMeasurements.length > 0)
         setHasWeeklyData(allData.weeklyMeasurements.length > 0)
+
+        const s = await getStreaks()
+        setStreaks(s)
+
+        const goals = await getActiveGoals()
+        if (goals.length > 0) {
+          const g = goals.find(gl => gl.metricType === 'weight') || goals[0]
+          const measurements = g.metricType === 'circumference'
+            ? allData.weeklyMeasurements
+            : allData.dailyMeasurements
+          const proj = calculateProjection(g, measurements as never)
+          setGoalPercent(Math.min(100, Math.max(0, Math.round(proj.percentComplete))))
+        }
       } catch {
         setHasDailyData(false)
         setHasWeeklyData(false)
@@ -168,14 +186,14 @@ function DashboardView() {
       <div className="dashboard-value-display">
         {currentValue != null && currentPoint ? (
           <>
+            <span className="dashboard-current-date" data-emphasis="weak">
+              {new Date(currentPoint.date + 'T00:00:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </span>
             <div className="dashboard-current-value">
               {animatedValue}
               <span className="dashboard-unit"> {getUnit(activeTab)}</span>
             </div>
             <div className="dashboard-meta">
-              <span className="dashboard-current-date" data-emphasis="weak">
-                {new Date(currentPoint.date + 'T00:00:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' })}
-              </span>
               {percentChange != null && (
                 <span
                   className="dashboard-percent-change adaptive"
@@ -184,6 +202,16 @@ function DashboardView() {
                 >
                   {percentChange > 0 ? '+' : ''}{animatedPercent}%
                 </span>
+              )}
+              {goalPercent != null && (
+                <Badge count={`${goalPercent}%`} color="blue">
+                  <img className="dashboard-badge-icon" src={`${import.meta.env.BASE_URL}Goal.png`} alt="Ziel" />
+                </Badge>
+              )}
+              {streaks && streaks.dailyStreak > 0 && (
+                <Badge count={streaks.dailyStreak} color="red">
+                  <img className="dashboard-badge-icon" src={`${import.meta.env.BASE_URL}Flame.png`} alt="Streak" />
+                </Badge>
               )}
             </div>
           </>
