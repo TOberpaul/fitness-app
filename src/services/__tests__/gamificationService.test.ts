@@ -14,7 +14,7 @@ import {
   detectNonScaleVictories,
   detectMicroWins,
 } from '../gamificationService';
-import type { Goal, Milestone, MilestoneContext, Streaks, DailyMeasurement, WeeklyMeasurement } from '../../types';
+import type { Goal, Milestone, MilestoneContext, DailyMeasurement, WeeklyMeasurement } from '../../types';
 
 beforeEach(() => {
   resetDB();
