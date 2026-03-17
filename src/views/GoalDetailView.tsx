@@ -35,7 +35,7 @@ const TREND_MESSAGES: Record<string, string> = {
 }
 
 const HEALTHY_LIMITS: Record<string, number> = {
-  weight: 1.0,
+  weight: 2.0,
   bodyFat: 0.5,
   circumference: 2.0,
 }
@@ -247,6 +247,10 @@ function GoalDetailView({ goalId, open, onClose, onChanged }: GoalDetailViewProp
                       'insufficient-data': { color: 'red', Icon: HelpCircle },
                     }
                     const { color, Icon } = trendConfig[feedback] ?? trendConfig['insufficient-data']
+                    const unit = getUnit(goal.metricType)
+                    const message = isUnrealistic
+                      ? `${projection.requiredWeeklyTempo!.toFixed(1)} ${unit}/Woche benötigt — empfohlen sind max. ${limit} ${unit}/Woche. Passe Zielwert oder Deadline an.`
+                      : TREND_MESSAGES[feedback]
                     return (
                       <Notification
                         icon={<Icon />}
@@ -254,7 +258,7 @@ function GoalDetailView({ goalId, open, onClose, onChanged }: GoalDetailViewProp
                         data-material="filled"
                         data-content-contrast="min"
                       >
-                        {TREND_MESSAGES[feedback]}
+                        {message}
                       </Notification>
                     )
                   })()}

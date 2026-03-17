@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { usePanelContext } from '../App'
 import GraphComponent from '../components/GraphComponent'
 import EmptyState from '../components/EmptyState'
 import Badge from '../components/core/Badge'
@@ -52,6 +53,7 @@ function circumferenceToDataPoints(measurements: WeeklyMeasurement[], field: Cir
 
 function DashboardView() {
   const navigate = useNavigate()
+  const { scrollTo } = usePanelContext()
   const [activeTab, setActiveTab] = useState<ActiveTab>('weight')
   const [timeRange, setTimeRange] = useState<TimeRange>('1M')
   const [crosshairPoint, setCrosshairPoint] = useState<DataPoint | null>(null)
@@ -204,14 +206,18 @@ function DashboardView() {
                 </span>
               )}
               {goalPercent != null && (
-                <Badge count={`${goalPercent}%`} color="blue">
-                  <img className="dashboard-badge-icon" src={`${import.meta.env.BASE_URL}Goal.png`} alt="Ziel" />
-                </Badge>
+                <button className="dashboard-badge-button" onClick={() => scrollTo(3)} aria-label="Zu Zielen">
+                  <Badge count={`${goalPercent}%`} color="blue">
+                    <img className="dashboard-badge-icon" src={`${import.meta.env.BASE_URL}Goal.png`} alt="Ziel" />
+                  </Badge>
+                </button>
               )}
               {streaks && streaks.dailyStreak > 0 && (
-                <Badge count={streaks.dailyStreak} color="red">
-                  <img className="dashboard-badge-icon" src={`${import.meta.env.BASE_URL}Flame.png`} alt="Streak" />
-                </Badge>
+                <button className="dashboard-badge-button" onClick={() => scrollTo(3)} aria-label="Zu Zielen">
+                  <Badge count={streaks.dailyStreak} color="red">
+                    <img className="dashboard-badge-icon" src={`${import.meta.env.BASE_URL}Flame.png`} alt="Streak" />
+                  </Badge>
+                </button>
               )}
             </div>
           </>

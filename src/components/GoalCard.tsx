@@ -27,7 +27,7 @@ const ZONE_LABELS: Record<string, string> = {
 }
 
 const HEALTHY_LIMITS: Record<string, number> = {
-  weight: 1.0,
+  weight: 2.0,
   bodyFat: 0.5,
   circumference: 2.0,
 }
@@ -86,7 +86,7 @@ function GoalCard({ goal, projection, onClick }: GoalCardProps) {
       <div className="goal-card-header">
         <span className="goal-card-label">{label}</span>
         {projection && (
-          <span className="goal-card-status adaptive" data-size="lg" data-color={statusColor} data-material="filled" data-content-contrast="min">
+          <span className="goal-card-status adaptive" data-size="md" data-color={statusColor} data-material="filled" data-content-contrast="min">
             <StatusIcon />
             {statusLabel}
           </span>

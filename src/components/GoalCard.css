@@ -40,6 +40,7 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: var(--size-gap);
+  flex-wrap: wrap;
 }
 
 .goal-card-label {

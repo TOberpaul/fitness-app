@@ -78,6 +78,13 @@
   flex-wrap: wrap;
 }
 
+.dashboard-badge-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
 .dashboard-badge-icon {
   width: 2.5rem;
   height: 2.5rem;
