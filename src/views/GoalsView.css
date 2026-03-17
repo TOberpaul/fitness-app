@@ -5,50 +5,6 @@
   padding: var(--spacing-padding);
 }
 
-.goals-view-nsv {
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-gap);
-}
-
-.goals-view-nsv-message {
-  font-size: var(--size-text);
-  color: var(--db-visual);
-}
-
-.goals-view-nsv-card {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--size-gap, 0.5rem);
-}
-
-.goals-view-achievements {
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-gap);
-}
-
-.goals-view-streaks {
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-gap);
-}
-
-.goals-view-streak-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
-.goals-view-icon {
-  width: var(--size-icon);
-  height: var(--size-icon);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--size-line-height);
-}
-
 .goals-view-list {
   display: flex;
   flex-direction: column;

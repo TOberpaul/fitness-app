@@ -1,22 +1,22 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { CircleCheck, TriangleAlert, CircleX, Sparkles } from 'lucide-react'
-import { staggerContainer, fadeIn, scaleIn, EASINGS } from '../animations/presets'
+import { staggerContainer, fadeIn } from '../animations/presets'
 import { useReducedMotion, getVariants } from '../animations/hooks'
 import EmptyState from '../components/EmptyState'
 import GoalCard from '../components/GoalCard'
-import AchievementCard from '../components/AchievementCard'
 import CoachingSummary from '../components/CoachingSummary'
 import BodyCompass from '../components/BodyCompass'
+import LiveStatus from '../components/LiveStatus'
+import ProgressJourney from '../components/ProgressJourney'
+import AchievementSection from '../components/AchievementSection'
 import { getAllData } from '../services/dataService'
-import { getActiveGoals, calculateProjection } from '../services/goalService'
-import { calculateConsistencyScore, getEarnedMilestones, detectNonScaleVictories, getStreaks } from '../services/gamificationService'
+import { getActiveGoals, getAllGoals, calculateProjection } from '../services/goalService'
+import { calculateConsistencyScore, detectMicroWins, getAllAchievements, evaluateMilestones, getStreaks, getEarnedMilestones } from '../services/gamificationService'
 import { getWeekStart } from '../utils/date'
-import type { DailyMeasurement, WeeklyMeasurement, Goal, GoalProjection, ConsistencyScore, Milestone, CircumferenceZone, TrendDirection, NonScaleVictory, Streaks, StreakAchievement } from '../types'
+import type { DailyMeasurement, WeeklyMeasurement, Goal, GoalProjection, ConsistencyScore, CircumferenceZone, TrendDirection, MicroWin, Achievement } from '../types'
 import GoalCreateView from './GoalCreateView'
 import GoalDetailView from './GoalDetailView'
 import Button from '../components/core/Button'
-import Notification from '../components/core/Notification'
 import Section from '../components/core/Section'
 import '../components/core/Card.css'
 import './GoalsView.css'
@@ -38,12 +38,6 @@ function calculateTrends(weeklyMeasurements: WeeklyMeasurement[]): Record<Circum
   return trends
 }
 
-function getConsistencyLevel(score: number) {
-  if (score >= 70) return { color: 'green', icon: CircleCheck, label: 'Stark' } as const
-  if (score >= 40) return { color: 'orange', icon: TriangleAlert, label: 'Dranbleiben' } as const
-  return { color: 'red', icon: CircleX, label: 'Aufholen' } as const
-}
-
 function GoalsView() {
   const reducedMotion = useReducedMotion()
   const [hasDailyData, setHasDailyData] = useState<boolean | null>(null)
@@ -52,28 +46,31 @@ function GoalsView() {
   const [activeGoals, setActiveGoals] = useState<Goal[]>([])
   const [projections, setProjections] = useState<Map<string, GoalProjection>>(new Map())
   const [consistencyScore, setConsistencyScore] = useState<ConsistencyScore | null>(null)
-  const [milestones, setMilestones] = useState<Milestone[]>([])
   const [currentWeight, setCurrentWeight] = useState<number | null>(null)
   const [weeklyWeightChange, setWeeklyWeightChange] = useState<number | null>(null)
   const [bodyCompassTrends, setBodyCompassTrends] = useState<Record<CircumferenceZone, TrendDirection | null>>({
     chest: null, waist: null, belly: null, hip: null, upperArm: null, thigh: null
   })
-  const [nonScaleVictories, setNonScaleVictories] = useState<NonScaleVictory[]>([])
-  const [streaks, setStreaks] = useState<Streaks | null>(null)
+  const [microWins, setMicroWins] = useState<MicroWin[]>([])
+  const [achievements, setAchievements] = useState<Achievement[]>([])
+  const [dailyMeasurements, setDailyMeasurements] = useState<DailyMeasurement[]>([])
+  const [weeklyMeasurements, setWeeklyMeasurements] = useState<WeeklyMeasurement[]>([])
   const [showCreateGoal, setShowCreateGoal] = useState(false)
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null)
 
   const loadData = useCallback(async () => {
-    let dailyMeasurements: DailyMeasurement[] = []
-    let weeklyMeasurements: WeeklyMeasurement[] = []
+    let dailyMeas: DailyMeasurement[] = []
+    let weeklyMeas: WeeklyMeasurement[] = []
     try {
       const allData = await getAllData()
-      dailyMeasurements = allData.dailyMeasurements
-      weeklyMeasurements = allData.weeklyMeasurements
-      setHasDailyData(dailyMeasurements.length > 0)
-      setHasWeeklyData(weeklyMeasurements.length > 0)
+      dailyMeas = allData.dailyMeasurements
+      weeklyMeas = allData.weeklyMeasurements
+      setDailyMeasurements(dailyMeas)
+      setWeeklyMeasurements(weeklyMeas)
+      setHasDailyData(dailyMeas.length > 0)
+      setHasWeeklyData(weeklyMeas.length > 0)
 
-      const sortedDaily = [...dailyMeasurements]
+      const sortedDaily = [...dailyMeas]
         .filter(m => m.weight != null)
         .sort((a, b) => a.date.localeCompare(b.date))
       if (sortedDaily.length > 0) {
@@ -92,15 +89,19 @@ function GoalsView() {
         }
       }
 
-      setBodyCompassTrends(calculateTrends(weeklyMeasurements))
-      setNonScaleVictories(detectNonScaleVictories(dailyMeasurements, weeklyMeasurements))
+      setBodyCompassTrends(calculateTrends(weeklyMeas))
+      setMicroWins(detectMicroWins(dailyMeas, weeklyMeas))
 
       const weekStart = getWeekStart(new Date())
-      setConsistencyScore(calculateConsistencyScore(weekStart, dailyMeasurements, weeklyMeasurements.length > 0))
+      setConsistencyScore(calculateConsistencyScore(weekStart, dailyMeas, weeklyMeas.length > 0))
 
-      const earned = await getEarnedMilestones()
-      setMilestones(earned.sort((a, b) => b.earnedAt.localeCompare(a.earnedAt)).slice(0, 3))
-      setStreaks(await getStreaks())
+      // Retroactively evaluate milestones for newly added types
+      const allGoals = await getAllGoals()
+      const streaks = await getStreaks()
+      const earnedMilestones = await getEarnedMilestones()
+      await evaluateMilestones({ goals: allGoals, streaks, dailyMeasurements: dailyMeas, earnedMilestones })
+
+      setAchievements(await getAllAchievements())
     } catch {
       setHasDailyData(false)
       setHasWeeklyData(false)
@@ -111,7 +112,7 @@ function GoalsView() {
       setActiveGoals(goals)
       const projMap = new Map<string, GoalProjection>()
       for (const g of goals) {
-        const measurements = g.metricType === 'circumference' ? weeklyMeasurements : dailyMeasurements
+        const measurements = g.metricType === 'circumference' ? weeklyMeas : dailyMeas
         projMap.set(g.id, calculateProjection(g, measurements))
       }
       setProjections(projMap)
@@ -147,6 +148,18 @@ function GoalsView() {
                 weeklyWeightChange={weeklyWeightChange}
                 activeGoal={weightGoal}
                 projection={weightProj}
+              />
+            )
+          })()}
+
+          {(() => {
+            const weightGoal = activeGoals.find(g => g.metricType === 'weight') || activeGoals[0]
+            const primaryProjection = projections.get(weightGoal.id) || null
+            return (
+              <LiveStatus
+                projection={primaryProjection}
+                consistencyScore={consistencyScore}
+                microWins={microWins}
               />
             )
           })()}
@@ -190,90 +203,14 @@ function GoalsView() {
             </Section>
           )}
 
-          {(consistencyScore || nonScaleVictories.length > 0 || milestones.length > 0 || (streaks && (streaks.dailyStreak > 0 || streaks.weeklyStreak > 0))) && (
-            <Section title="Fortschritt & Erfolge">
+          <ProgressJourney
+            goals={activeGoals}
+            projections={projections}
+            dailyMeasurements={dailyMeasurements}
+            weeklyMeasurements={weeklyMeasurements}
+          />
 
-              {consistencyScore && (() => {
-                const level = getConsistencyLevel(consistencyScore.score)
-                const Icon = level.icon
-                return (
-                  <motion.div
-                    variants={getVariants(scaleIn, reducedMotion)}
-                    initial="initial"
-                    animate="animate"
-                  >
-                    <Notification
-                      icon={<Icon />}
-                      data-color={level.color}
-                      data-material="filled"
-                      data-content-contrast="min"
-                    >
-                      Diese Woche: {consistencyScore.score}% on track
-                    </Notification>
-                  </motion.div>
-                )
-              })()}
-
-              {nonScaleVictories.length > 0 && (
-                <motion.div
-                  className="goals-view-nsv"
-                  variants={staggerContainer}
-                  initial="initial"
-                  animate="animate"
-                >
-                  {nonScaleVictories.map((nsv, i) => (
-                    <motion.div
-                      key={i}
-                      className="goals-view-nsv-card core-card adaptive"
-                      data-color="pink"
-                      data-material="filled"
-                      data-content-contrast="min"
-                      variants={getVariants(fadeIn, reducedMotion)}
-                    >
-                      <Sparkles className="goals-view-icon" />
-                      <span className="goals-view-nsv-message">{nsv.message}</span>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              )}
-
-              {milestones.length > 0 && (
-                <motion.div
-                  className="goals-view-achievements"
-                  variants={staggerContainer}
-                  initial="initial"
-                  animate="animate"
-                >
-                  {milestones.map((m) => (
-                    <AchievementCard
-                      key={m.id}
-                      achievement={m}
-                      color="violet"
-                    />
-                  ))}
-                </motion.div>
-              )}
-
-              {streaks && (streaks.dailyStreak > 0 || streaks.weeklyStreak > 0) && (() => {
-                const items: StreakAchievement[] = []
-                if (streaks.dailyStreak > 0) items.push({ type: 'daily-streak', count: streaks.dailyStreak, label: `${streaks.dailyStreak} ${streaks.dailyStreak === 1 ? 'Tag' : 'Tage'} am Stück gewogen` })
-                if (streaks.weeklyStreak > 0) items.push({ type: 'weekly-streak', count: streaks.weeklyStreak, label: `${streaks.weeklyStreak} ${streaks.weeklyStreak === 1 ? 'Woche' : 'Wochen'} Umfänge gemessen` })
-                return (
-                  <motion.div
-                    className="goals-view-streaks"
-                    variants={staggerContainer}
-                    initial="initial"
-                    animate="animate"
-                    transition={EASINGS.bounce}
-                  >
-                    {items.map((s) => (
-                      <AchievementCard key={s.type} achievement={s} icon={`${import.meta.env.BASE_URL}Flame.png`} color="red" />
-                    ))}
-                  </motion.div>
-                )
-              })()}
-            </Section>
-          )}
+          <AchievementSection achievements={achievements} />
         </>
       )}
 

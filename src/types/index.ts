@@ -195,15 +195,22 @@ export interface Milestone {
   earnedAt: string;
   /** Whether the user has been notified */
   notified: boolean;
+  /** Optional context detail, e.g. which goal was reached */
+  detail?: string;
 }
 
 /** Known milestone types */
 export type MilestoneType =
   | 'first-goal-reached'
+  | 'weight-loss-2kg'
   | 'weight-loss-5kg'
+  | 'weight-loss-10kg'
+  | 'daily-streak-7'
   | 'daily-streak-10'
   | 'daily-streak-30'
+  | 'weekly-streak-3'
   | 'weekly-streak-4'
+  | 'weekly-streak-10'
   | 'weekly-streak-12';
 
 /** Context passed to milestone evaluation */
@@ -257,4 +264,59 @@ export interface StreakAchievement {
   type: 'daily-streak' | 'weekly-streak';
   count: number;
   label: string;
+}
+
+
+// ─── Achievement & Level Types ───────────────────────────────────────
+
+/** Kategorie eines Achievements */
+export type AchievementCategory = 'progress' | 'streak';
+
+/** Status eines Achievements */
+export type AchievementStatus = 'locked' | 'earned';
+
+/** Statische Definition eines Achievements (Registry-Eintrag) */
+export interface AchievementDefinition {
+  /** Eindeutige ID, entspricht MilestoneType */
+  id: MilestoneType;
+  /** Deutsches Label für die Anzeige */
+  label: string;
+  /** Kategorie: progress oder streak */
+  category: AchievementCategory;
+  /** Emoji oder Icon-Bezeichner */
+  icon: string;
+}
+
+/** Laufzeit-Achievement mit Status (merged aus Definition + IndexedDB) */
+export interface Achievement {
+  /** Statische Definition */
+  definition: AchievementDefinition;
+  /** Aktueller Status */
+  status: AchievementStatus;
+  /** Datum der Erreichung (nur bei earned) */
+  earnedAt?: string;
+  /** Optional context detail, e.g. which goal was reached */
+  detail?: string;
+}
+
+/** Level-Information für ein Ziel */
+export interface LevelInfo {
+  /** Aktuelles Level (1-basiert) */
+  level: number;
+  /** Gesamtanzahl der Levels */
+  totalLevels: number;
+  /** Fortschritt innerhalb des aktuellen Levels (0-100) */
+  levelProgress: number;
+  /** Gesamtfortschritt über alle Levels (0-100) */
+  overallProgress: number;
+  /** Absoluter Fortschrittstext, z.B. "8 / 15 kg erreicht" */
+  absoluteText: string;
+}
+
+/** Ein erkannter Micro-Win für den Live-Status */
+export interface MicroWin {
+  /** Kurzer einzeiliger Text, z.B. "−0.6% Körperfett" */
+  text: string;
+  /** Welche Metrik betroffen ist */
+  metric: 'bodyFat' | CircumferenceZone;
 }

@@ -1,0 +1,5 @@
+.achievement-section-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}

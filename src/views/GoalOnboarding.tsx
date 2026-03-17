@@ -137,7 +137,7 @@ function GoalOnboarding({ onClose }: { onClose: () => void }) {
     <Dialog title={`Einrichtung (${step + 1}/${TOTAL})`} onClose={finish}>
       <img
         className="ob-hero"
-        src={`${import.meta.env.BASE_URL}Running.png`}
+        src={`${import.meta.env.BASE_URL}Maskot.png`}
         alt=""
       />
       {renderStep()}

@@ -12,6 +12,10 @@
   cursor: pointer;
 }
 
+.achievement-card--locked {
+  opacity: 0.6;
+}
+
 .achievement-card-icon-area {
   display: flex;
   align-items: center;
@@ -28,6 +32,11 @@
   width: 2rem;
   height: 2rem;
   object-fit: contain;
+}
+
+.achievement-card-status-icon {
+  font-size: 1.25rem;
+  line-height: 1;
 }
 
 .achievement-card-content {

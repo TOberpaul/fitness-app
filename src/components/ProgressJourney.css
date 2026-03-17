@@ -1,0 +1,49 @@
+.progress-journey {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-padding);
+}
+
+.progress-journey-goal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.progress-journey-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--size-gap);
+}
+
+.progress-journey-label {
+  font-size: var(--size-text);
+  font-weight: bold;
+  color: var(--db-text);
+}
+
+.progress-journey-level {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.progress-journey-bar-track {
+  height: var(--size-8);
+  background: var(--db-border);
+  border-radius: var(--size-8);
+  overflow: hidden;
+}
+
+.progress-journey-bar-fill {
+  height: 100%;
+  width: var(--progress, 0%);
+  background: var(--db-visual);
+  border-radius: var(--size-8);
+  transition: width 0.3s ease;
+}
+
+.progress-journey-absolute {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}

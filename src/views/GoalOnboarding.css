@@ -3,6 +3,7 @@
   max-width: 10rem;
   margin: 0 auto;
   display: block;
+  object-fit: contain;
 }
 
 .ob-toggle {

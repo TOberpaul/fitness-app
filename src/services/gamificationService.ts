@@ -1,5 +1,85 @@
 import { getDB } from './db';
-import type { Streaks, StreakInfo, Milestone, MilestoneType, MilestoneContext, DailyMeasurement, WeeklyMeasurement, ConsistencyScore, NonScaleVictory, CircumferenceZone } from '../types';
+import type { Streaks, StreakInfo, Milestone, MilestoneType, MilestoneContext, DailyMeasurement, WeeklyMeasurement, ConsistencyScore, NonScaleVictory, CircumferenceZone, Goal, LevelInfo, GoalMetricType, AchievementDefinition, Achievement, MicroWin } from '../types';
+
+/** Map metric type to display unit */
+const METRIC_UNITS: Record<GoalMetricType, string> = {
+  weight: 'kg',
+  bodyFat: '%',
+  circumference: 'cm',
+};
+
+/**
+ * Compute level information for a goal based on the current measured value.
+ *
+ * Pure function — no DB access, no randomness, no date dependency.
+ * Identical inputs always produce identical outputs (deterministic).
+ *
+ * Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 3.5, 3.6, 3.7, 3.8
+ */
+export function computeLevelInfo(goal: Goal, currentValue: number): LevelInfo {
+  const { startValue, targetValue, metricType } = goal;
+  const unit = METRIC_UNITS[metricType];
+
+  // Degenerate case: start === target
+  if (startValue === targetValue) {
+    return {
+      level: 1,
+      totalLevels: 1,
+      levelProgress: 100,
+      overallProgress: 100,
+      absoluteText: `0 / 0 ${unit} erreicht`,
+    };
+  }
+
+  const totalDistance = Math.abs(startValue - targetValue);
+
+  // Determine number of levels based on total distance
+  let totalLevels: number;
+  if (totalDistance < 6) {
+    totalLevels = 3;
+  } else if (totalDistance < 12) {
+    totalLevels = 4;
+  } else {
+    totalLevels = 5;
+  }
+
+  const stepSize = totalDistance / totalLevels;
+  const direction = targetValue < startValue ? -1 : 1;
+
+  // Progress in the direction of the goal
+  const rawProgress = (currentValue - startValue) * direction;
+  // Clamp progress to [0, totalDistance]
+  const progress = Math.max(0, Math.min(totalDistance, rawProgress));
+
+  // Overall progress percentage
+  const overallProgress = Math.max(0, Math.min(100, (progress / totalDistance) * 100));
+
+  // Current level
+  let level: number;
+  if (progress >= totalDistance) {
+    level = totalLevels;
+  } else {
+    level = Math.floor(progress / stepSize) + 1;
+    level = Math.max(1, Math.min(totalLevels, level));
+  }
+
+  // Progress within current level
+  const progressInLevel = progress - (level - 1) * stepSize;
+  const levelProgress = Math.max(0, Math.min(100, (progressInLevel / stepSize) * 100));
+
+  // Absolute progress text
+  const progressRounded = Math.round(progress * 10) / 10;
+  const distanceRounded = Math.round(totalDistance * 10) / 10;
+  const absoluteText = `${progressRounded} / ${distanceRounded} ${unit} erreicht`;
+
+  return {
+    level,
+    totalLevels,
+    levelProgress,
+    overallProgress,
+    absoluteText,
+  };
+}
 
 /** Singleton key for the streaks store */
 const STREAKS_KEY = 'current';
@@ -183,12 +263,36 @@ export async function updateWeeklyStreak(weekStart: string): Promise<StreakInfo>
 /** German labels for each milestone type */
 const MILESTONE_LABELS: Record<MilestoneType, string> = {
   'first-goal-reached': 'Erstes Ziel erreicht!',
+  'weight-loss-2kg': '2 kg abgenommen!',
   'weight-loss-5kg': '5 kg abgenommen!',
+  'weight-loss-10kg': '10 kg abgenommen!',
+  'daily-streak-7': '7 Tage am Stück gewogen!',
   'daily-streak-10': '10 Tage am Stück gewogen!',
   'daily-streak-30': '30 Tage am Stück gewogen!',
+  'weekly-streak-3': '3 Wochen Umfänge gemessen!',
   'weekly-streak-4': '4 Wochen Umfänge gemessen!',
+  'weekly-streak-10': '10 Wochen Umfänge gemessen!',
   'weekly-streak-12': '12 Wochen Umfänge gemessen!',
 };
+
+/**
+ * Static achievement definitions registry.
+ * Contains all progress and streak achievements that can be earned.
+ *
+ * Requirements: 9.1, 9.3
+ */
+export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
+  // Progress-Achievements
+  { id: 'weight-loss-2kg',    label: '2 kg verloren',           category: 'progress', icon: '🏋️' },
+  { id: 'weight-loss-5kg',    label: '5 kg verloren',           category: 'progress', icon: '💪' },
+  { id: 'weight-loss-10kg',   label: '10 kg verloren',          category: 'progress', icon: '🏆' },
+  { id: 'first-goal-reached', label: 'Erstes Ziel erreicht',    category: 'progress', icon: '🎯' },
+  // Streak-Achievements
+  { id: 'daily-streak-7',     label: '7 Tage eingetragen',      category: 'streak',   icon: '🔥' },
+  { id: 'daily-streak-30',    label: '30 Tage eingetragen',     category: 'streak',   icon: '🔥' },
+  { id: 'weekly-streak-3',    label: '3 Wochen am Stück',       category: 'streak',   icon: '📏' },
+  { id: 'weekly-streak-10',   label: '10 Wochen getrackt',      category: 'streak',   icon: '📏' },
+];
 
 /**
  * Calculate cumulative weight loss from daily measurements.
@@ -211,13 +315,14 @@ function calculateWeightLoss(dailyMeasurements: DailyMeasurement[]): number {
 /**
  * Create a new Milestone object.
  */
-function createMilestone(type: MilestoneType): Milestone {
+function createMilestone(type: MilestoneType, detail?: string): Milestone {
   return {
     id: crypto.randomUUID(),
     type,
     label: MILESTONE_LABELS[type],
     earnedAt: new Date().toISOString().split('T')[0],
     notified: false,
+    ...(detail ? { detail } : {}),
   };
 }
 
@@ -226,6 +331,40 @@ function createMilestone(type: MilestoneType): Milestone {
  */
 function hasEarned(earnedMilestones: Milestone[], type: MilestoneType): boolean {
   return earnedMilestones.some((m) => m.type === type);
+}
+
+/** German labels for goal metric types */
+const GOAL_TYPE_LABELS: Record<string, string> = {
+  weight: 'Gewicht',
+  bodyFat: 'Körperfett',
+  circumference: 'Umfang',
+};
+
+/** German labels for circumference zones */
+const GOAL_ZONE_LABELS: Record<string, string> = {
+  chest: 'Brust',
+  waist: 'Taille',
+  hip: 'Hüfte',
+  belly: 'Bauch',
+  upperArm: 'Oberarm',
+  thigh: 'Oberschenkel',
+};
+
+/**
+ * Format a human-readable detail string for a reached goal.
+ * E.g. "Gewicht: 75 kg" or "Taille: 85 cm"
+ */
+function formatGoalDetail(goal: Goal): string {
+  const unit = METRIC_UNITS[goal.metricType];
+  const target = Math.round(goal.targetValue * 10) / 10;
+
+  if (goal.metricType === 'circumference' && goal.zone) {
+    const zoneLabel = GOAL_ZONE_LABELS[goal.zone] ?? goal.zone;
+    return `${zoneLabel}: ${target} ${unit}`;
+  }
+
+  const typeLabel = GOAL_TYPE_LABELS[goal.metricType] ?? goal.metricType;
+  return `${typeLabel}: ${target} ${unit}`;
 }
 
 /**
@@ -241,42 +380,80 @@ export async function evaluateMilestones(context: MilestoneContext): Promise<Mil
 
   // 1. first-goal-reached: at least one goal has status === 'reached'
   if (!hasEarned(earnedMilestones, 'first-goal-reached')) {
-    const hasReachedGoal = goals.some((g) => g.status === 'reached');
-    if (hasReachedGoal) {
-      newMilestones.push(createMilestone('first-goal-reached'));
+    const reachedGoal = goals.find((g) => g.status === 'reached');
+    if (reachedGoal) {
+      const detail = formatGoalDetail(reachedGoal);
+      newMilestones.push(createMilestone('first-goal-reached', detail));
     }
   }
 
-  // 2. weight-loss-5kg: cumulative weight loss >= 5.0 kg
+  // Weight loss milestones — calculate once, check all thresholds
+  const weightLoss = calculateWeightLoss(dailyMeasurements);
+
+  // 2. weight-loss-2kg: cumulative weight loss >= 2.0 kg
+  if (!hasEarned(earnedMilestones, 'weight-loss-2kg')) {
+    if (weightLoss >= 2.0) {
+      newMilestones.push(createMilestone('weight-loss-2kg'));
+    }
+  }
+
+  // 3. weight-loss-5kg: cumulative weight loss >= 5.0 kg
   if (!hasEarned(earnedMilestones, 'weight-loss-5kg')) {
-    const weightLoss = calculateWeightLoss(dailyMeasurements);
     if (weightLoss >= 5.0) {
       newMilestones.push(createMilestone('weight-loss-5kg'));
     }
   }
 
-  // 3. daily-streak-10: dailyStreak >= 10
+  // 4. weight-loss-10kg: cumulative weight loss >= 10.0 kg
+  if (!hasEarned(earnedMilestones, 'weight-loss-10kg')) {
+    if (weightLoss >= 10.0) {
+      newMilestones.push(createMilestone('weight-loss-10kg'));
+    }
+  }
+
+  // 5. daily-streak-7: dailyStreak >= 7
+  if (!hasEarned(earnedMilestones, 'daily-streak-7')) {
+    if (streaks.dailyStreak >= 7) {
+      newMilestones.push(createMilestone('daily-streak-7'));
+    }
+  }
+
+  // 6. daily-streak-10: dailyStreak >= 10
   if (!hasEarned(earnedMilestones, 'daily-streak-10')) {
     if (streaks.dailyStreak >= 10) {
       newMilestones.push(createMilestone('daily-streak-10'));
     }
   }
 
-  // 4. daily-streak-30: dailyStreak >= 30
+  // 7. daily-streak-30: dailyStreak >= 30
   if (!hasEarned(earnedMilestones, 'daily-streak-30')) {
     if (streaks.dailyStreak >= 30) {
       newMilestones.push(createMilestone('daily-streak-30'));
     }
   }
 
-  // 5. weekly-streak-4: weeklyStreak >= 4
+  // 8. weekly-streak-3: weeklyStreak >= 3
+  if (!hasEarned(earnedMilestones, 'weekly-streak-3')) {
+    if (streaks.weeklyStreak >= 3) {
+      newMilestones.push(createMilestone('weekly-streak-3'));
+    }
+  }
+
+  // 9. weekly-streak-4: weeklyStreak >= 4
   if (!hasEarned(earnedMilestones, 'weekly-streak-4')) {
     if (streaks.weeklyStreak >= 4) {
       newMilestones.push(createMilestone('weekly-streak-4'));
     }
   }
 
-  // 6. weekly-streak-12: weeklyStreak >= 12
+  // 10. weekly-streak-10: weeklyStreak >= 10
+  if (!hasEarned(earnedMilestones, 'weekly-streak-10')) {
+    if (streaks.weeklyStreak >= 10) {
+      newMilestones.push(createMilestone('weekly-streak-10'));
+    }
+  }
+
+  // 11. weekly-streak-12: weeklyStreak >= 12
   if (!hasEarned(earnedMilestones, 'weekly-streak-12')) {
     if (streaks.weeklyStreak >= 12) {
       newMilestones.push(createMilestone('weekly-streak-12'));
@@ -304,6 +481,36 @@ export async function evaluateMilestones(context: MilestoneContext): Promise<Mil
 export async function getEarnedMilestones(): Promise<Milestone[]> {
   const db = await getDB();
   return db.getAll('milestones');
+}
+
+/**
+ * Get all achievements merged from static definitions and earned status from IndexedDB.
+ *
+ * For each AchievementDefinition:
+ * - If a matching Milestone exists in IndexedDB → status: 'earned', earnedAt from milestone
+ * - Otherwise → status: 'locked'
+ *
+ * On IndexedDB error: fallback to all achievements as 'locked'.
+ * Unknown MilestoneTypes in DB are ignored (only known ACHIEVEMENT_DEFINITIONS are merged).
+ *
+ * Requirements: 9.1, 9.2, 9.3, 9.4
+ */
+export async function getAllAchievements(): Promise<Achievement[]> {
+  let earnedMilestones: Milestone[] = [];
+  try {
+    earnedMilestones = await getEarnedMilestones();
+  } catch {
+    // IndexedDB error: fallback to all locked
+    earnedMilestones = [];
+  }
+
+  return ACHIEVEMENT_DEFINITIONS.map((definition) => {
+    const milestone = earnedMilestones.find((m) => m.type === definition.id);
+    if (milestone) {
+      return { definition, status: 'earned' as const, earnedAt: milestone.earnedAt, ...(milestone.detail ? { detail: milestone.detail } : {}) };
+    }
+    return { definition, status: 'locked' as const };
+  });
 }
 
 /**
@@ -453,4 +660,67 @@ export function detectNonScaleVictories(
   }
 
   return victories;
+}
+
+/**
+ * Detect micro-wins from recent measurements for the Live-Status display.
+ *
+ * Pure function — no DB access, no randomness.
+ * Unlike detectNonScaleVictories:
+ * - No "stable weight" prerequisite for circumference micro-wins
+ * - Returns MicroWin[] with short one-line texts instead of verbose messages
+ * - Same 14-day window
+ *
+ * Requirements: 7.1, 7.2, 7.3, 7.4
+ */
+export function detectMicroWins(
+  dailyMeasurements: DailyMeasurement[],
+  weeklyMeasurements: WeeklyMeasurement[]
+): MicroWin[] {
+  const wins: MicroWin[] = [];
+  const today = new Date();
+  const cutoff = new Date(today);
+  cutoff.setDate(cutoff.getDate() - 14);
+  const cutoffStr = cutoff.toISOString().split('T')[0];
+
+  // --- Body fat check ---
+  const recentDaily = dailyMeasurements
+    .filter((m) => m.date >= cutoffStr && m.bodyFat != null)
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  if (recentDaily.length >= 2) {
+    const earliest = recentDaily[0].bodyFat!;
+    const latest = recentDaily[recentDaily.length - 1].bodyFat!;
+    const drop = earliest - latest;
+
+    if (drop > 0.5) {
+      const rounded = Math.round(drop * 10) / 10;
+      wins.push({ text: `−${rounded}% Körperfett`, metric: 'bodyFat' });
+    }
+  }
+
+  // --- Circumference check (per zone, no stable-weight requirement) ---
+  const recentWeekly = weeklyMeasurements
+    .filter((m) => m.date >= cutoffStr)
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  if (recentWeekly.length >= 2) {
+    const earliestWeekly = recentWeekly[0];
+    const latestWeekly = recentWeekly[recentWeekly.length - 1];
+
+    for (const zone of CIRCUMFERENCE_ZONES) {
+      const earliestVal = earliestWeekly[zone];
+      const latestVal = latestWeekly[zone];
+
+      if (earliestVal != null && latestVal != null) {
+        const drop = earliestVal - latestVal;
+        if (drop > 0.5) {
+          const rounded = Math.round(drop * 10) / 10;
+          wins.push({ text: `−${rounded} cm ${ZONE_LABELS[zone]}`, metric: zone });
+        }
+      }
+    }
+  }
+
+  return wins;
 }

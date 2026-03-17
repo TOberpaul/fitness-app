@@ -1,0 +1,38 @@
+.live-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.live-status-trend {
+  font-size: var(--size-text);
+  font-weight: bold;
+  color: var(--db-text);
+}
+
+.live-status-trend[data-trend="ahead"] {
+  color: var(--db-successful);
+}
+
+.live-status-trend[data-trend="on-track"] {
+  color: var(--db-successful);
+}
+
+.live-status-trend[data-trend="behind"] {
+  color: var(--db-warning);
+}
+
+.live-status-trend[data-trend="insufficient-data"] {
+  color: var(--db-text);
+}
+
+.live-status-micro-wins {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.live-status-micro-win {
+  font-size: var(--size-text);
+  color: var(--db-successful);
+}
