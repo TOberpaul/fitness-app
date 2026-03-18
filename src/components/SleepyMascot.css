@@ -246,6 +246,12 @@
   font-size: var(--size-text-small, 0.85rem);
   text-align: center;
   animation: hint-pulse 2s ease-in-out infinite;
+  transition: opacity 0.3s ease;
+}
+
+.mascot-hint--hidden {
+  opacity: 0;
+  animation: none;
 }
 
 @keyframes hint-pulse {

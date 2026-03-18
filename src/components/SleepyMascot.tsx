@@ -73,11 +73,9 @@ function SleepyMascot() {
         <div className="mascot-grr">Grr!</div>
         <div className="mascot-purr-text">Prrr~</div>
       </div>
-      {hintPhase < 2 && (
-        <span className="mascot-hint" data-emphasis="weak">
-          {hintPhase === 0 ? 'Antippen' : 'Nochmal wenn er wach ist'}
-        </span>
-      )}
+      <span className={`mascot-hint${hintPhase >= 2 ? ' mascot-hint--hidden' : ''}`} data-emphasis="weak">
+        {hintPhase === 0 ? 'Antippen' : 'Nochmal wenn er wach ist'}
+      </span>
     </>
   )
 }
