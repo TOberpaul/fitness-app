@@ -54,7 +54,7 @@ function SleepyMascot() {
       {/* Grr on wake */}
       <div className="mascot-grr">Grr!</div>
     </div>
-    {showHint && <span className="mascot-hint" data-emphasis="weak">Tippe mich an 👆</span>}
+    {showHint && <span className="mascot-hint" data-emphasis="weak">Antippen 👆</span>}
     </>
   )
 }

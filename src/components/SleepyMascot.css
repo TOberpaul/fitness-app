@@ -212,8 +212,10 @@
 
 /* ── Hint text ── */
 .mascot-hint {
+  position: absolute;
+  bottom: var(--size-padding);
+  right: var(--size-padding);
   font-size: var(--size-text-small, 0.85rem);
-  text-align: center;
   animation: hint-pulse 2s ease-in-out infinite;
 }
 
