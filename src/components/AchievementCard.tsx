@@ -44,6 +44,7 @@ function getDetail(achievement: Achievement | Milestone | StreakAchievement): st
 
 function getLabel(achievement: Achievement | Milestone | StreakAchievement): string {
   if (isNewAchievement(achievement)) {
+    if (achievement.status === 'locked') return '???'
     return achievement.definition.label
   }
   return achievement.label
