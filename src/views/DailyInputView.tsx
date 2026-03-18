@@ -148,6 +148,7 @@ function DailyInputView() {
       </div>
 
       <Button
+        className="daily-input-cta"
         data-material="inverted"
         data-container-contrast="max"
         onClick={handleSave}

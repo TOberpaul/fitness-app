@@ -141,7 +141,7 @@ function DashboardView() {
       <div className="dashboard-tabs adaptive" data-material="semi-transparent">
         <Button
           data-size="lg"
-          data-material={activeTab === 'weight' ? 'inverted' : undefined}
+          data-material={activeTab === 'weight' ? 'inverted' : 'semi-transparent'}
           data-container-contrast={activeTab === 'weight' ? 'max' : undefined}
           onClick={() => setActiveTab('weight')}
         >
@@ -149,7 +149,7 @@ function DashboardView() {
         </Button>
         <Button
           data-size="lg"
-          data-material={activeTab === 'bodyFat' ? 'inverted' : undefined}
+          data-material={activeTab === 'bodyFat' ? 'inverted' : 'semi-transparent'}
           data-container-contrast={activeTab === 'bodyFat' ? 'max' : undefined}
           onClick={() => setActiveTab('bodyFat')}
         >
@@ -157,7 +157,7 @@ function DashboardView() {
         </Button>
         <Button
           data-size="lg"
-          data-material={activeTab === 'circumference' ? 'inverted' : undefined}
+          data-material={activeTab === 'circumference' ? 'inverted' : 'semi-transparent'}
           data-container-contrast={activeTab === 'circumference' ? 'max' : undefined}
           onClick={() => setActiveTab('circumference')}
         >

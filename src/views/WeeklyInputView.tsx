@@ -224,6 +224,7 @@ function WeeklyInputView() {
       </div>
 
       <Button
+        className="weekly-input-cta"
         data-material="inverted"
         data-container-contrast="max"
         onClick={openDialog}

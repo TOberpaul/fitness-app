@@ -27,8 +27,15 @@ Keine rohen `<button>`, `<input>`, `<section>` Elemente in Views verwenden.
 ## Active/Selected State
 
 - Für aktive/selektierte Elemente (Tabs, Toggle-Buttons) verwende `data-material="inverted"` zusammen mit `data-container-contrast="max"` auf dem aktiven Element.
+- Inaktive Buttons in einer Tab-Leiste: `data-material="semi-transparent"`.
 - Keine Custom-CSS-Klassen wie `--active` mit eigenen Border/Background-Styles.
-- Beispiel: `<Button data-material={isActive ? 'inverted' : undefined} data-container-contrast={isActive ? 'max' : undefined}>Tab</Button>`
+- Beispiel: `<Button data-material={isActive ? 'inverted' : 'semi-transparent'} data-container-contrast={isActive ? 'max' : undefined}>Tab</Button>`
+
+## Top-Navigation Pattern
+
+- Tab-Leisten und Datums-Navigationen: Container mit `data-material="semi-transparent"`.
+- Innere Buttons: `data-size="lg"` und `data-material="semi-transparent"` (inaktiv) bzw. `data-material="inverted"` + `data-container-contrast="max"` (aktiv).
+- Icon-only Buttons in Navigationen: zusätzlich `iconOnly` Prop.
 
 ## Level-2-Seiten (Detail-Views)
 

@@ -53,9 +53,8 @@
   gap: var(--size-4);
 }
 
-.dashboard-tab {
+.dashboard-tabs .button {
   flex: 1;
-  text-align: center;
 }
 
 .dashboard-circumference-selector {

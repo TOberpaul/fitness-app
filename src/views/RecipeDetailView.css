@@ -119,23 +119,6 @@
 }
 
 /* Add ingredient section */
-.recipe-detail-search {
-  display: flex;
-  align-items: center;
-  gap: var(--size-gap);
-  padding: var(--size-padding-min);
-  border-radius: var(--size-gap);
-}
-
-.recipe-detail-search input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font: inherit;
-  font-size: var(--size-text);
-  outline: none;
-}
-
 .recipe-detail-search-results {
   display: flex;
   flex-direction: column;

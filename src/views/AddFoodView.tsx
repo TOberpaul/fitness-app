@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Search, Star } from 'lucide-react'
+import { Star } from 'lucide-react'
 import { searchFoods } from '../services/foodSearchService'
 import { getRecentFoods, getAllFavorites, getAllRecipes, saveFoodEntry, cacheFood } from '../services/nutritionService'
 import Dialog from '../components/core/Dialog'
@@ -103,16 +103,13 @@ function AddFoodView({ open, onClose, date, onFoodSelect }: AddFoodViewProps) {
     <Dialog title="Lebensmittel hinzufügen" onClose={onClose} open={open}>
       <div className="add-food-content">
         {/* Search */}
-        <div className="add-food-search">
-          <Search size={18} className="add-food-search-icon" data-emphasis="weak" />
-          <Input
-            type="text"
-            placeholder="Lebensmittel suchen..."
-            value={query}
-            onChange={e => handleSearch(e.target.value)}
-            aria-label="Lebensmittel suchen"
-          />
-        </div>
+        <Input
+          type="search"
+          placeholder="Lebensmittel suchen..."
+          value={query}
+          onChange={e => handleSearch(e.target.value)}
+          aria-label="Lebensmittel suchen"
+        />
 
         {isSearching ? (
           <Section title="Suchergebnisse">

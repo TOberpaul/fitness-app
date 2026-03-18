@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Plus, Trash2, Camera, Search } from 'lucide-react'
+import { Plus, Trash2, Camera } from 'lucide-react'
 import { searchFoods } from '../services/foodSearchService'
 import { getRecipe, getRecipeItems, saveRecipe, saveRecipeItem, uploadRecipeImage } from '../services/nutritionService'
 import { calculateNutrition, calculateRecipeTotals } from '../utils/calculationEngine'
@@ -213,16 +213,13 @@ function RecipeDetailView({ open, onClose, recipeId }: RecipeDetailViewProps) {
 
         {/* Add ingredient */}
         <Section title="Zutat hinzufügen">
-          <div className="recipe-detail-search">
-            <Search size={18} data-emphasis="weak" />
-            <Input
-              type="text"
-              placeholder="Lebensmittel suchen..."
-              value={ingredientQuery}
-              onChange={e => handleIngredientSearch(e.target.value)}
-              aria-label="Zutat suchen"
-            />
-          </div>
+          <Input
+            type="search"
+            placeholder="Lebensmittel suchen..."
+            value={ingredientQuery}
+            onChange={e => handleIngredientSearch(e.target.value)}
+            aria-label="Zutat suchen"
+          />
 
           {ingredientResults.length > 0 && !selectedFood && (
             <div className="recipe-detail-search-results">

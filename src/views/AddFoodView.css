@@ -19,27 +19,6 @@
   margin: 0;
 }
 
-.add-food-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.add-food-search-icon {
-  position: absolute;
-  left: var(--size-gap);
-  pointer-events: none;
-}
-
-.add-food-search input {
-  width: 100%;
-  padding: var(--size-padding-min) var(--size-padding-min) var(--size-padding-min) calc(var(--size-gap) * 2 + 20px);
-  border: none;
-  border-radius: var(--size-gap);
-  font-size: var(--size-text);
-  box-sizing: border-box;
-}
-
 .add-food-tabs {
   display: flex;
   gap: var(--size-gap);
