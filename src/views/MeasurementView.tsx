@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Scale, Percent, RulerDimensionLine } from 'lucide-react'
 import Card from '../components/core/Card'
+import SleepyMascot from '../components/SleepyMascot'
 import DailyInputView from './DailyInputView'
 import WeeklyInputView from './WeeklyInputView'
 import './MeasurementView.css'
@@ -14,7 +15,7 @@ function MeasurementView() {
     <div className="measurement-view">
       <h1>Messung</h1>
 
-      <img src={`${import.meta.env.BASE_URL}Sleepy.png`} alt="" className="measurement-hero" />
+      <SleepyMascot />
 
       <div className="measurement-cards">
         <Card
