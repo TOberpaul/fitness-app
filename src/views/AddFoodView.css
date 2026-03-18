@@ -1,0 +1,115 @@
+.add-food-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-padding);
+  padding: var(--spacing-padding);
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.add-food-header {
+  display: flex;
+  align-items: center;
+  gap: var(--size-gap);
+}
+
+.add-food-header h1 {
+  font-size: var(--size-text);
+  font-weight: 600;
+  margin: 0;
+}
+
+.add-food-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.add-food-search-icon {
+  position: absolute;
+  left: var(--size-gap);
+  pointer-events: none;
+}
+
+.add-food-search input {
+  width: 100%;
+  padding: var(--size-padding-min) var(--size-padding-min) var(--size-padding-min) calc(var(--size-gap) * 2 + 20px);
+  border: none;
+  border-radius: var(--size-gap);
+  font-size: var(--size-text);
+  box-sizing: border-box;
+}
+
+.add-food-tabs {
+  display: flex;
+  gap: var(--size-gap);
+}
+
+.add-food-tab {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  font-size: var(--size-text-small, 0.85rem);
+  padding: var(--size-4) 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.add-food-tab[data-active="true"] {
+  border-bottom-color: currentColor;
+}
+
+.add-food-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+  flex: 1;
+  overflow-y: auto;
+}
+
+.add-food-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.add-food-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--size-padding-min) var(--spacing-padding);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+}
+
+.add-food-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4);
+}
+
+.add-food-item-name {
+  font-weight: 600;
+}
+
+.add-food-item-brand {
+  font-size: var(--size-text-small, 0.85rem);
+}
+
+.add-food-item-kcal {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.add-food-empty {
+  text-align: center;
+  padding: var(--spacing-padding);
+}

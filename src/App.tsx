@@ -7,6 +7,11 @@ import GoalsView from './views/GoalsView'
 import FitbitCallbackView from './views/FitbitCallbackView'
 import SettingsView from './views/SettingsView'
 import AchievementsView from './views/AchievementsView'
+import NutritionView from './views/NutritionView'
+import AddFoodView from './views/AddFoodView'
+import FoodDetailView from './views/FoodDetailView'
+import RecipeListView from './views/RecipeListView'
+import RecipeDetailView from './views/RecipeDetailView'
 import GoalOnboarding from './views/GoalOnboarding'
 import BottomNavigation from './components/BottomNavigation'
 import { initConnectionState, isConnected, syncData } from './services/fitbitService'
@@ -156,6 +161,11 @@ function AppContent() {
           {/* Detail routes (no snap) */}
           <Route path="/callback" element={<FitbitCallbackView />} />
           <Route path="/achievements" element={<AchievementsView />} />
+          <Route path="/nutrition" element={<NutritionView />} />
+          <Route path="/nutrition/add" element={<AddFoodView />} />
+          <Route path="/nutrition/food/:id" element={<FoodDetailView />} />
+          <Route path="/nutrition/recipes" element={<RecipeListView />} />
+          <Route path="/nutrition/recipe/:id" element={<RecipeDetailView />} />
           <Route path="/onboarding" element={<Navigate to="/" replace />} />
         </Routes>
         {showOnboarding && <GoalOnboarding onClose={() => setShowOnboarding(false)} />}

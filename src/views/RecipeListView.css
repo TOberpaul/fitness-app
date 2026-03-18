@@ -1,0 +1,91 @@
+.recipe-list-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-padding);
+  padding: var(--spacing-padding);
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.recipe-list-header {
+  display: flex;
+  align-items: center;
+  gap: var(--size-gap);
+}
+
+.recipe-list-header h1 {
+  font-size: var(--size-text);
+  font-weight: 600;
+  margin: 0;
+}
+
+.recipe-list-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--size-gap);
+}
+
+.recipe-list-card {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font: inherit;
+  text-align: left;
+  padding: 0;
+  overflow: hidden;
+}
+
+.recipe-list-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--size-gap) var(--size-gap) 0 0;
+}
+
+.recipe-list-placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--size-gap) var(--size-gap) 0 0;
+  opacity: 0.4;
+}
+
+.recipe-list-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4, 4px);
+  padding: var(--size-padding-min);
+}
+
+.recipe-list-card-name {
+  font-weight: 600;
+  font-size: var(--size-text);
+}
+
+.recipe-list-card-kcal {
+  font-size: var(--size-text-small, 0.85rem);
+  opacity: 0.7;
+}
+
+.recipe-list-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--size-gap);
+  width: 100%;
+  padding: var(--size-padding-min);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+.recipe-list-empty {
+  text-align: center;
+  padding: var(--spacing-padding);
+}

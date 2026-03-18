@@ -1,0 +1,107 @@
+.nutrition-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-padding);
+  padding: var(--spacing-padding);
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.nutrition-date-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--size-padding-min);
+}
+
+.nutrition-date-label {
+  font-weight: 600;
+  font-size: var(--size-text);
+}
+
+.nutrition-summary {
+  text-align: center;
+  padding: var(--spacing-padding) 0;
+}
+
+.nutrition-kcal {
+  font-size: var(--size-96);
+  font-weight: 900;
+  line-height: 1.3;
+}
+
+.nutrition-kcal-unit {
+  font-size: var(--size-text);
+  font-weight: normal;
+}
+
+.nutrition-macros {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-padding);
+  margin-top: var(--size-gap);
+}
+
+.nutrition-macro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--size-4);
+}
+
+.nutrition-macro-value {
+  font-weight: 600;
+}
+
+.nutrition-macro-label {
+  font-size: var(--size-text-small, 0.85rem);
+}
+
+.nutrition-entries {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+  flex: 1;
+  overflow-y: auto;
+}
+
+.nutrition-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--size-padding-min) var(--spacing-padding);
+}
+
+.nutrition-entry-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4);
+}
+
+.nutrition-entry-name {
+  font-weight: 600;
+}
+
+.nutrition-entry-detail {
+  font-size: var(--size-text-small, 0.85rem);
+}
+
+.nutrition-entry-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--size-4);
+}
+
+.nutrition-empty {
+  text-align: center;
+  padding: var(--spacing-padding);
+}
+
+.nutrition-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--size-gap);
+  width: 100%;
+}

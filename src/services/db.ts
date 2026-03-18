@@ -9,6 +9,11 @@ import type {
   Streaks,
   Milestone,
   MilestoneType,
+  Food,
+  FoodEntry,
+  Recipe,
+  RecipeItem,
+  Favorite,
 } from '../types';
 
 export interface FitnessTrackerDB extends DBSchema {
@@ -50,6 +55,44 @@ export interface FitnessTrackerDB extends DBSchema {
       'by-earnedAt': string;
     };
   };
+  foods: {
+    key: string;
+    value: Food;
+    indexes: {
+      'by-source': string;
+      'by-name': string;
+    };
+  };
+  foodEntries: {
+    key: string;
+    value: FoodEntry;
+    indexes: {
+      'by-date': string;
+      'by-food-id': string;
+    };
+  };
+  recipes: {
+    key: string;
+    value: Recipe;
+    indexes: {
+      'by-name': string;
+      'by-created': string;
+    };
+  };
+  recipeItems: {
+    key: string;
+    value: RecipeItem;
+    indexes: {
+      'by-recipe-id': string;
+    };
+  };
+  favorites: {
+    key: string;
+    value: Favorite;
+    indexes: {
+      'by-added': string;
+    };
+  };
 }
 
 let dbInstance: IDBPDatabase<FitnessTrackerDB> | null = null;
@@ -67,7 +110,7 @@ export async function getDB(): Promise<IDBPDatabase<FitnessTrackerDB>> {
     return dbInstance;
   }
 
-  dbInstance = await openDB<FitnessTrackerDB>('fitness-tracker', 2, {
+  dbInstance = await openDB<FitnessTrackerDB>('fitness-tracker', 3, {
     upgrade(db, oldVersion) {
       if (oldVersion < 1) {
         const dailyStore = db.createObjectStore('dailyMeasurements', {
@@ -93,6 +136,26 @@ export async function getDB(): Promise<IDBPDatabase<FitnessTrackerDB>> {
         const milestoneStore = db.createObjectStore('milestones', { keyPath: 'id' });
         milestoneStore.createIndex('by-type', 'type');
         milestoneStore.createIndex('by-earnedAt', 'earnedAt');
+      }
+
+      if (oldVersion < 3) {
+        const foodStore = db.createObjectStore('foods', { keyPath: 'id' });
+        foodStore.createIndex('by-source', 'source');
+        foodStore.createIndex('by-name', 'name');
+
+        const foodEntryStore = db.createObjectStore('foodEntries', { keyPath: 'id' });
+        foodEntryStore.createIndex('by-date', 'date');
+        foodEntryStore.createIndex('by-food-id', 'food_id');
+
+        const recipeStore = db.createObjectStore('recipes', { keyPath: 'id' });
+        recipeStore.createIndex('by-name', 'name');
+        recipeStore.createIndex('by-created', 'created_at');
+
+        const recipeItemStore = db.createObjectStore('recipeItems', { keyPath: 'id' });
+        recipeItemStore.createIndex('by-recipe-id', 'recipe_id');
+
+        const favoriteStore = db.createObjectStore('favorites', { keyPath: 'food_id' });
+        favoriteStore.createIndex('by-added', 'added_at');
       }
     },
   });

@@ -318,3 +318,91 @@ export interface MicroWin {
   /** Welche Metrik betroffen ist */
   metric: 'bodyFat' | CircumferenceZone;
 }
+
+
+// ─── Nutrition Tracking Types ────────────────────────────────────────
+
+/** Datenquelle eines Lebensmittels */
+export type FoodSource = 'openfoodfacts' | 'bls' | 'usda' | 'custom';
+
+/** Normalisiertes Lebensmittel mit Nährwerten pro 100g/100ml */
+export interface Food {
+  id: string;
+  source: FoodSource;
+  name: string;
+  brand?: string;
+  kcal_per_100g: number;
+  protein_per_100g: number;
+  carbs_per_100g: number;
+  fat_per_100g: number;
+  default_unit: 'g' | 'ml';
+  portion_size_g?: number;
+  portion_label?: string;
+}
+
+/** Ein einzelner Ernährungseintrag für ein Datum */
+export interface FoodEntry {
+  id: string;
+  user_id: string;
+  date: string;
+  food_id: string;
+  name: string;
+  amount_grams: number;
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  created_at: string;
+}
+
+/** Benutzerdefiniertes Rezept */
+export interface Recipe {
+  id: string;
+  user_id: string;
+  name: string;
+  image_url?: string;
+  total_kcal: number;
+  total_protein: number;
+  total_carbs: number;
+  total_fat: number;
+  created_at: string;
+}
+
+/** Eine Zutat innerhalb eines Rezepts */
+export interface RecipeItem {
+  id: string;
+  recipe_id: string;
+  food_id: string;
+  name: string;
+  amount_grams: number;
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+/** Favorit (Referenz auf ein Food) */
+export interface Favorite {
+  food_id: string;
+  food: Food;
+  added_at: string;
+}
+
+/** Tagesübersicht mit Summen */
+export interface DailySummary {
+  date: string;
+  total_kcal: number;
+  total_protein: number;
+  total_carbs: number;
+  total_fat: number;
+  entries: FoodEntry[];
+}
+
+/** Nährwert-Export-Format */
+export interface NutritionExportData {
+  version: 1;
+  exportedAt: string;
+  foodEntries: FoodEntry[];
+  recipes: Recipe[];
+  recipeItems: RecipeItem[];
+}
