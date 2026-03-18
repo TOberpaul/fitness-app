@@ -65,7 +65,9 @@ function AchievementCard({ achievement, icon, color, onClick }: AchievementCardP
   const reducedMotion = useReducedMotion()
 
   const isLocked = isNewAchievement(achievement) && achievement.status === 'locked'
+  const isNext = isNewAchievement(achievement) && achievement.status === 'next'
   const isEarned = isNewAchievement(achievement) && achievement.status === 'earned'
+  const isDisabled = isLocked || isNext
 
   // Resolve the icon for new Achievement type
   const resolvedIcon = isNewAchievement(achievement)
@@ -81,7 +83,7 @@ function AchievementCard({ achievement, icon, color, onClick }: AchievementCardP
 
   return (
     <motion.div
-      className={`achievement-card adaptive${isLocked ? ' achievement-card--locked' : ''}`}
+      className={`achievement-card adaptive${isDisabled ? ' achievement-card--disabled' : ''}`}
       {...(isClickable ? { 'data-interactive': true } : {})}
       role={isClickable ? 'button' : undefined}
       tabIndex={isClickable ? 0 : undefined}
@@ -111,10 +113,10 @@ function AchievementCard({ achievement, icon, color, onClick }: AchievementCardP
               className="achievement-card-icon-img"
               src={resolvedIcon.src}
               alt=""
-              data-testid="achievement-icon-earned"
+              data-testid={isNext ? 'achievement-icon-next' : 'achievement-icon-earned'}
             />
           ) : (
-            <span className="achievement-card-status-icon" data-testid="achievement-icon-earned">✓</span>
+            <span className="achievement-card-status-icon" data-testid={isNext ? 'achievement-icon-next' : 'achievement-icon-earned'}>✓</span>
           )
         ) : (
           <img src={iconSrc} alt="" />

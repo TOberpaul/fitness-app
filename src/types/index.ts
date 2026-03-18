@@ -271,7 +271,7 @@ export interface StreakAchievement {
 export type AchievementCategory = 'progress' | 'streak';
 
 /** Status eines Achievements */
-export type AchievementStatus = 'locked' | 'earned';
+export type AchievementStatus = 'locked' | 'earned' | 'next';
 
 /** Statische Definition eines Achievements (Registry-Eintrag) */
 export interface AchievementDefinition {

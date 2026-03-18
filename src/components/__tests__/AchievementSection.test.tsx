@@ -65,32 +65,38 @@ describe('AchievementSection', () => {
   it('renders only progress and streak achievements (Req 4.1, 4.2)', () => {
     const achievements: Achievement[] = [
       makeAchievement('weight-loss-5kg', '5 kg verloren', 'progress', 'earned', '2025-01-15'),
-      makeAchievement('daily-streak-7', '7 Tage eingetragen', 'streak', 'locked'),
+      makeAchievement('daily-entries-7', '7 Tage eingetragen', 'streak', 'locked'),
     ]
-    const { container } = render(<AchievementSection achievements={achievements} streaks={null} />)
+    const { container } = render(<AchievementSection achievements={achievements} />)
     const cards = container.querySelectorAll('.achievement-card')
     expect(cards.length).toBe(2)
   })
 
   it('renders earned achievements before locked ones (Req 4.6)', () => {
     const achievements: Achievement[] = [
-      makeAchievement('daily-streak-7', '7 Tage eingetragen', 'streak', 'locked'),
+      makeAchievement('daily-entries-7', '7 Tage eingetragen', 'streak', 'locked'),
       makeAchievement('weight-loss-5kg', '5 kg verloren', 'progress', 'earned', '2025-01-15'),
       makeAchievement('weight-loss-2kg', '2 kg verloren', 'progress', 'locked'),
+      makeAchievement('daily-entries-3', '3 Tage eingetragen', 'streak', 'locked'),
     ]
-    const { container } = render(<AchievementSection achievements={achievements} streaks={null} />)
+    const { container } = render(<AchievementSection achievements={achievements} />)
     const cards = container.querySelectorAll('.achievement-card')
+    // earned first, then next/locked
     expect(cards[0].getAttribute('data-status')).toBe('earned')
-    expect(cards[1].getAttribute('data-status')).toBe('locked')
-    expect(cards[2].getAttribute('data-status')).toBe('locked')
+    const restStatuses = Array.from(cards).slice(1).map((c) => c.getAttribute('data-status'))
+    for (const s of restStatuses) {
+      expect(['next', 'locked']).toContain(s)
+    }
   })
 
   it('shows image icon for earned and lock image for locked (Req 4.4)', () => {
     const achievements: Achievement[] = [
       makeAchievement('weight-loss-5kg', '5 kg verloren', 'progress', 'earned', '2025-01-15'),
-      makeAchievement('daily-streak-7', '7 Tage eingetragen', 'streak', 'locked'),
+      // Need two locked in same category so second one stays 'locked'
+      makeAchievement('daily-entries-3', '3 Tage eingetragen', 'streak', 'locked'),
+      makeAchievement('daily-entries-7', '7 Tage eingetragen', 'streak', 'locked'),
     ]
-    const { container } = render(<AchievementSection achievements={achievements} streaks={null} />)
+    const { container } = render(<AchievementSection achievements={achievements} />)
     const earnedIcon = container.querySelector('[data-testid="achievement-icon-earned"]')
     const lockedIcon = container.querySelector('[data-testid="achievement-icon-locked"]')
     expect(earnedIcon).not.toBeNull()
@@ -101,7 +107,7 @@ describe('AchievementSection', () => {
     const achievements: Achievement[] = [
       makeAchievement('weight-loss-5kg', '5 kg verloren', 'progress', 'earned', '2025-01-15'),
     ]
-    const { container } = render(<AchievementSection achievements={achievements} streaks={null} />)
+    const { container } = render(<AchievementSection achievements={achievements} />)
     // Should have label but detail should be short date, not body text
     const labels = container.querySelectorAll('.achievement-card-label')
     expect(labels.length).toBe(1)
@@ -117,7 +123,7 @@ describe('AchievementSection', () => {
     const achievements: Achievement[] = [
       makeAchievement('weight-loss-5kg', '5 kg verloren', 'progress', 'earned', '2025-01-15'),
     ]
-    const { container } = render(<AchievementSection achievements={achievements} streaks={null} />)
+    const { container } = render(<AchievementSection achievements={achievements} />)
     const section = container.querySelector('.core-section')
     expect(section).not.toBeNull()
     const title = container.querySelector('.core-section-title')
@@ -128,16 +134,16 @@ describe('AchievementSection', () => {
     const achievements: Achievement[] = [
       makeAchievement('weight-loss-5kg', '5 kg verloren', 'progress', 'earned', '2025-01-15'),
     ]
-    const { container } = render(<AchievementSection achievements={achievements} streaks={null} />)
+    const { container } = render(<AchievementSection achievements={achievements} />)
     const iconArea = container.querySelector('.achievement-card-icon-area')
     expect(iconArea?.getAttribute('data-color')).toBe('violet')
   })
 
   it('does not apply data-color for locked achievements', () => {
     const achievements: Achievement[] = [
-      makeAchievement('daily-streak-7', '7 Tage eingetragen', 'streak', 'locked'),
+      makeAchievement('daily-entries-7', '7 Tage eingetragen', 'streak', 'locked'),
     ]
-    const { container } = render(<AchievementSection achievements={achievements} streaks={null} />)
+    const { container } = render(<AchievementSection achievements={achievements} />)
     const iconArea = container.querySelector('.achievement-card-icon-area')
     expect(iconArea?.hasAttribute('data-color')).toBe(false)
   })
@@ -167,11 +173,11 @@ describe('AchievementSection', () => {
 
   // Feature: gamification-restructure, Property 13: Achievement-Icon entspricht Status
   // **Validates: Requirements 4.4**
-  it('P13: earned shows icon, locked shows lock icon', () => {
+  it('P13: earned shows icon, next shows real icon, locked shows lock icon', () => {
     fc.assert(
       fc.property(achievementArb, (achievement) => {
         const achievements = [achievement]
-        const { container } = render(<AchievementSection achievements={achievements} streaks={null} />)
+        const { container } = render(<AchievementSection achievements={achievements} />)
 
         if (achievement.status === 'earned') {
           const earnedIcon = container.querySelector('[data-testid="achievement-icon-earned"]')
@@ -179,8 +185,9 @@ describe('AchievementSection', () => {
           container.remove()
           return result
         } else {
-          const lockedIcon = container.querySelector('[data-testid="achievement-icon-locked"]')
-          const result = lockedIcon !== null
+          // Single locked achievement per category becomes 'next' via filterVisible
+          const nextIcon = container.querySelector('[data-testid="achievement-icon-next"]')
+          const result = nextIcon !== null
           container.remove()
           return result
         }

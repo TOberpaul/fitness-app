@@ -12,8 +12,8 @@
   cursor: pointer;
 }
 
-.achievement-card--locked {
-  opacity: 0.6;
+.achievement-card--disabled {
+  opacity: 0.5;
 }
 
 .achievement-card-icon-area {
