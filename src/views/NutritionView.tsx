@@ -220,17 +220,19 @@ function NutritionView() {
       {/* Action buttons */}
       <div className="nutrition-bottom-actions">
         {showNewMealInput ? (
-          <div className="nutrition-new-meal-row">
-            <Input
-              id="new-meal-name"
-              placeholder="Name des Gerichts"
-              value={newMealName}
-              onChange={e => setNewMealName(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleCreateMeal()}
-            />
-            <Button onClick={handleCreateMeal}>OK</Button>
-          </div>
-          <Button width="full" data-material="transparent" onClick={() => { setShowNewMealInput(false); setNewMealName('') }}>Abbrechen</Button>
+          <>
+            <div className="nutrition-new-meal-row">
+              <Input
+                id="new-meal-name"
+                placeholder="Name des Gerichts"
+                value={newMealName}
+                onChange={e => setNewMealName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleCreateMeal()}
+              />
+              <Button onClick={handleCreateMeal}>OK</Button>
+            </div>
+            <Button width="full" data-material="transparent" onClick={() => { setShowNewMealInput(false); setNewMealName('') }}>Abbrechen</Button>
+          </>
         ) : (
           <>
             <Button variant="primary" width="full" onClick={() => setShowNewMealInput(true)}>
