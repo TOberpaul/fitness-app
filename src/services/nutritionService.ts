@@ -1,5 +1,5 @@
 import { getDB } from './db';
-import type { Food, FoodEntry, Recipe, RecipeItem, DailySummary } from '../types';
+import type { Food, FoodEntry, Meal, SavedMeal, SavedMealItem, Recipe, RecipeItem, DailySummary, MealWithEntries } from '../types';
 import { calculateDailyTotals } from '../utils/calculationEngine';
 import { supabase } from './supabase';
 
@@ -147,12 +147,189 @@ export async function getCachedFood(id: string): Promise<Food | undefined> {
   return db.get('foods', id);
 }
 
+// ─── Meals (Gerichte) ────────────────────────────────────────────────
+
+/** Create a new meal for a date */
+export async function createMeal(date: string, name: string): Promise<Meal> {
+  const db = await getDB();
+  const meal: Meal = {
+    id: crypto.randomUUID(),
+    date,
+    name,
+    created_at: new Date().toISOString(),
+  };
+  await db.put('meals', meal);
+  return meal;
+}
+
+/** Get all meals for a date */
+export async function getMealsByDate(date: string): Promise<Meal[]> {
+  const db = await getDB();
+  return db.getAllFromIndex('meals', 'by-date', date);
+}
+
+/** Get a single meal by id */
+export async function getMeal(id: string): Promise<Meal | undefined> {
+  const db = await getDB();
+  return db.get('meals', id);
+}
+
+/** Update a meal's name */
+export async function updateMealName(id: string, name: string): Promise<void> {
+  const db = await getDB();
+  const meal = await db.get('meals', id);
+  if (meal) {
+    meal.name = name;
+    await db.put('meals', meal);
+  }
+}
+
+/** Delete a meal and all its food entries */
+export async function deleteMeal(id: string): Promise<void> {
+  const db = await getDB();
+  const entries = await db.getAllFromIndex('foodEntries', 'by-meal-id', id);
+  const tx = db.transaction('foodEntries', 'readwrite');
+  for (const entry of entries) {
+    await tx.store.delete(entry.id);
+  }
+  await tx.done;
+  await db.delete('meals', id);
+}
+
+/** Get food entries for a specific meal */
+export async function getFoodEntriesByMeal(mealId: string): Promise<FoodEntry[]> {
+  const db = await getDB();
+  return db.getAllFromIndex('foodEntries', 'by-meal-id', mealId);
+}
+
+// ─── Saved Meals (Vorlagen) ──────────────────────────────────────────
+
+/** Save a meal as a reusable template */
+export async function saveMealAsTemplate(mealId: string, name: string): Promise<SavedMeal> {
+  const db = await getDB();
+  const entries = await db.getAllFromIndex('foodEntries', 'by-meal-id', mealId);
+
+  const savedMeal: SavedMeal = {
+    id: crypto.randomUUID(),
+    name,
+    total_kcal: entries.reduce((s, e) => s + e.kcal, 0),
+    total_protein: entries.reduce((s, e) => s + e.protein, 0),
+    total_carbs: entries.reduce((s, e) => s + e.carbs, 0),
+    total_fat: entries.reduce((s, e) => s + e.fat, 0),
+    created_at: new Date().toISOString(),
+  };
+  await db.put('savedMeals', savedMeal);
+
+  const tx = db.transaction('savedMealItems', 'readwrite');
+  for (const entry of entries) {
+    const item: SavedMealItem = {
+      id: crypto.randomUUID(),
+      saved_meal_id: savedMeal.id,
+      food_id: entry.food_id,
+      name: entry.name,
+      amount_grams: entry.amount_grams,
+      kcal: entry.kcal,
+      protein: entry.protein,
+      carbs: entry.carbs,
+      fat: entry.fat,
+    };
+    await tx.store.put(item);
+  }
+  await tx.done;
+
+  return savedMeal;
+}
+
+/** Get all saved meal templates */
+export async function getAllSavedMeals(): Promise<SavedMeal[]> {
+  const db = await getDB();
+  return db.getAll('savedMeals');
+}
+
+/** Delete a saved meal template and its items */
+export async function deleteSavedMeal(id: string): Promise<void> {
+  const db = await getDB();
+  const items = await db.getAllFromIndex('savedMealItems', 'by-saved-meal-id', id);
+  const tx = db.transaction('savedMealItems', 'readwrite');
+  for (const item of items) {
+    await tx.store.delete(item.id);
+  }
+  await tx.done;
+  await db.delete('savedMeals', id);
+}
+
+/** Apply a saved meal template to a date — creates a new meal with copies of all items */
+export async function applySavedMeal(savedMealId: string, date: string): Promise<Meal> {
+  const db = await getDB();
+  const savedMeal = await db.get('savedMeals', savedMealId);
+  if (!savedMeal) throw new Error('Saved meal not found');
+
+  const meal = await createMeal(date, savedMeal.name);
+  const items = await db.getAllFromIndex('savedMealItems', 'by-saved-meal-id', savedMealId);
+
+  for (const item of items) {
+    const entry: FoodEntry = {
+      id: crypto.randomUUID(),
+      user_id: 'local',
+      date,
+      meal_id: meal.id,
+      food_id: item.food_id,
+      name: item.name,
+      amount_grams: item.amount_grams,
+      kcal: item.kcal,
+      protein: item.protein,
+      carbs: item.carbs,
+      fat: item.fat,
+      created_at: new Date().toISOString(),
+    };
+    await db.put('foodEntries', entry);
+  }
+
+  return meal;
+}
+
 // ─── Daily Summary ───────────────────────────────────────────────────
 
-/** Get the daily summary for a given date */
+/** Get the daily summary for a given date, grouped by meals */
 export async function getDailySummary(date: string): Promise<DailySummary> {
   const entries = await getFoodEntriesByDate(date);
   const totals = calculateDailyTotals(entries);
+  const dbMeals = await getMealsByDate(date);
+
+  // Group entries by meal_id
+  const mealMap = new Map<string, FoodEntry[]>();
+  for (const entry of entries) {
+    const key = entry.meal_id || '__ungrouped__';
+    if (!mealMap.has(key)) mealMap.set(key, []);
+    mealMap.get(key)!.push(entry);
+  }
+
+  const meals: MealWithEntries[] = [];
+  for (const meal of dbMeals) {
+    const mealEntries = mealMap.get(meal.id) || [];
+    meals.push({
+      meal,
+      entries: mealEntries,
+      total_kcal: mealEntries.reduce((s, e) => s + e.kcal, 0),
+      total_protein: mealEntries.reduce((s, e) => s + e.protein, 0),
+      total_carbs: mealEntries.reduce((s, e) => s + e.carbs, 0),
+      total_fat: mealEntries.reduce((s, e) => s + e.fat, 0),
+    });
+  }
+
+  // Entries without a meal (legacy or orphaned)
+  const ungrouped = mealMap.get('__ungrouped__') || [];
+  if (ungrouped.length > 0) {
+    meals.unshift({
+      meal: { id: '__ungrouped__', date, name: 'Sonstige', created_at: '' },
+      entries: ungrouped,
+      total_kcal: ungrouped.reduce((s, e) => s + e.kcal, 0),
+      total_protein: ungrouped.reduce((s, e) => s + e.protein, 0),
+      total_carbs: ungrouped.reduce((s, e) => s + e.carbs, 0),
+      total_fat: ungrouped.reduce((s, e) => s + e.fat, 0),
+    });
+  }
+
   return {
     date,
     total_kcal: totals.kcal,
@@ -160,6 +337,7 @@ export async function getDailySummary(date: string): Promise<DailySummary> {
     total_carbs: totals.carbs,
     total_fat: totals.fat,
     entries,
+    meals,
   };
 }
 

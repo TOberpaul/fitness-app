@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
-import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react'
-import { getDailySummary, deleteFoodEntry } from '../services/nutritionService'
+import { ChevronLeft, ChevronRight, Plus, Trash2, Save, ChevronDown, ChevronUp } from 'lucide-react'
+import { getDailySummary, deleteFoodEntry, createMeal, deleteMeal, saveMealAsTemplate, getAllSavedMeals, applySavedMeal, deleteSavedMeal } from '../services/nutritionService'
 import Button from '../components/core/Button'
 import Card from '../components/core/Card'
 import Section from '../components/core/Section'
+import Input from '../components/core/Input'
+import Dialog from '../components/core/Dialog'
 import AddFoodView from './AddFoodView'
 import FoodDetailView from './FoodDetailView'
-import RecipeListView from './RecipeListView'
-import RecipeDetailView from './RecipeDetailView'
-import type { DailySummary } from '../types'
+import type { DailySummary, MealWithEntries, SavedMeal } from '../types'
 import './NutritionView.css'
 
 function todayString(): string {
@@ -35,12 +35,16 @@ function formatDateDE(date: string): string {
 function NutritionView() {
   const [selectedDate, setSelectedDate] = useState(todayString)
   const [summary, setSummary] = useState<DailySummary | null>(null)
+  const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set())
 
   // Dialog states
   const [showAddFood, setShowAddFood] = useState(false)
+  const [activeMealId, setActiveMealId] = useState<string | null>(null)
   const [selectedFoodId, setSelectedFoodId] = useState<string | null>(null)
-  const [showRecipeList, setShowRecipeList] = useState(false)
-  const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null)
+  const [showNewMealInput, setShowNewMealInput] = useState(false)
+  const [newMealName, setNewMealName] = useState('')
+  const [showSavedMeals, setShowSavedMeals] = useState(false)
+  const [savedMeals, setSavedMeals] = useState<SavedMeal[]>([])
 
   const loadSummary = useCallback(async () => {
     const data = await getDailySummary(selectedDate)
@@ -51,43 +55,85 @@ function NutritionView() {
     loadSummary()
   }, [loadSummary])
 
-  // Reload summary when any dialog closes (data may have changed)
+  const toggleMeal = (mealId: string) => {
+    setExpandedMeals(prev => {
+      const next = new Set(prev)
+      if (next.has(mealId)) next.delete(mealId)
+      else next.add(mealId)
+      return next
+    })
+  }
+
+  const handleCreateMeal = async () => {
+    const name = newMealName.trim() || 'Neues Gericht'
+    const meal = await createMeal(selectedDate, name)
+    setNewMealName('')
+    setShowNewMealInput(false)
+    setExpandedMeals(prev => new Set(prev).add(meal.id))
+    await loadSummary()
+  }
+
+  const handleDeleteMeal = async (mealId: string) => {
+    if (mealId === '__ungrouped__') return
+    await deleteMeal(mealId)
+    await loadSummary()
+  }
+
+  const handleDeleteEntry = async (entryId: string) => {
+    await deleteFoodEntry(entryId)
+    await loadSummary()
+  }
+
+  const handleAddFoodToMeal = (mealId: string) => {
+    setActiveMealId(mealId)
+    setShowAddFood(true)
+  }
+
   const handleAddFoodClose = () => {
     setShowAddFood(false)
+    setActiveMealId(null)
     loadSummary()
   }
 
   const handleFoodDetailClose = () => {
     setSelectedFoodId(null)
+    setActiveMealId(null)
     loadSummary()
   }
 
-  const handleDelete = async (id: string) => {
-    await deleteFoodEntry(id)
+  const handleSaveMealTemplate = async (mealGroup: MealWithEntries) => {
+    if (mealGroup.entries.length === 0) return
+    await saveMealAsTemplate(mealGroup.meal.id, mealGroup.meal.name)
+    // Feedback could be added here
+  }
+
+  const handleShowSavedMeals = async () => {
+    const meals = await getAllSavedMeals()
+    setSavedMeals(meals)
+    setShowSavedMeals(true)
+  }
+
+  const handleApplySavedMeal = async (savedMealId: string) => {
+    await applySavedMeal(savedMealId, selectedDate)
+    setShowSavedMeals(false)
     await loadSummary()
+  }
+
+  const handleDeleteSavedMeal = async (id: string) => {
+    await deleteSavedMeal(id)
+    const meals = await getAllSavedMeals()
+    setSavedMeals(meals)
   }
 
   return (
     <div className="nutrition-view">
       {/* Date navigation */}
       <Card className="nutrition-date-nav" data-material="semi-transparent">
-        <Button
-          iconOnly
-          data-size="lg"
-          data-material="semi-transparent"
-          onClick={() => setSelectedDate(prev => shiftDate(prev, -1))}
-          aria-label="Vorheriger Tag"
-        >
+        <Button iconOnly data-size="lg" data-material="semi-transparent" onClick={() => setSelectedDate(prev => shiftDate(prev, -1))} aria-label="Vorheriger Tag">
           <ChevronLeft size={20} />
         </Button>
         <span className="nutrition-date-label">{formatDateDE(selectedDate)}</span>
-        <Button
-          iconOnly
-          data-size="lg"
-          data-material="semi-transparent"
-          onClick={() => setSelectedDate(prev => shiftDate(prev, 1))}
-          aria-label="Nächster Tag"
-        >
+        <Button iconOnly data-size="lg" data-material="semi-transparent" onClick={() => setSelectedDate(prev => shiftDate(prev, 1))} aria-label="Nächster Tag">
           <ChevronRight size={20} />
         </Button>
       </Card>
@@ -114,45 +160,115 @@ function NutritionView() {
         </div>
       </Card>
 
-      {/* Food entries list */}
-      <Section title="Einträge">
-        {summary && summary.entries.length > 0 ? (
-          summary.entries.map(entry => (
-            <Card key={entry.id} className="nutrition-entry">
-              <div className="nutrition-entry-info">
-                <span className="nutrition-entry-name">{entry.name}</span>
-                <span className="nutrition-entry-detail" data-emphasis="weak">
-                  {entry.amount_grams} g · {entry.kcal.toFixed(0)} kcal
-                </span>
-              </div>
-              <Button
-                iconOnly
-                className="nutrition-entry-delete"
-                onClick={() => handleDelete(entry.id)}
-                aria-label={`${entry.name} löschen`}
-              >
-                <Trash2 size={18} />
-              </Button>
-            </Card>
-          ))
+      {/* Meals list */}
+      <Section title="Gerichte">
+        {summary && summary.meals.length > 0 ? (
+          summary.meals.map(mealGroup => {
+            const isExpanded = expandedMeals.has(mealGroup.meal.id)
+            const isUngrouped = mealGroup.meal.id === '__ungrouped__'
+            return (
+              <Card key={mealGroup.meal.id} className="nutrition-meal">
+                <div className="nutrition-meal-header" onClick={() => toggleMeal(mealGroup.meal.id)} role="button" tabIndex={0}>
+                  <div className="nutrition-meal-title">
+                    <span className="nutrition-meal-name">{mealGroup.meal.name}</span>
+                    <span className="nutrition-meal-kcal" data-emphasis="weak">{mealGroup.total_kcal.toFixed(0)} kcal</span>
+                  </div>
+                  {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </div>
+
+                {isExpanded && (
+                  <div className="nutrition-meal-body">
+                    {mealGroup.entries.map(entry => (
+                      <div key={entry.id} className="nutrition-entry">
+                        <div className="nutrition-entry-info">
+                          <span className="nutrition-entry-name">{entry.name}</span>
+                          <span className="nutrition-entry-detail" data-emphasis="weak">{entry.amount_grams} g · {entry.kcal.toFixed(0)} kcal</span>
+                        </div>
+                        <Button iconOnly onClick={() => handleDeleteEntry(entry.id)} aria-label={`${entry.name} löschen`}>
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    ))}
+
+                    <div className="nutrition-meal-actions">
+                      {!isUngrouped && (
+                        <>
+                          <Button onClick={() => handleAddFoodToMeal(mealGroup.meal.id)}>
+                            <Plus size={16} /> Hinzufügen
+                          </Button>
+                          <Button iconOnly onClick={() => handleSaveMealTemplate(mealGroup)} aria-label="Gericht speichern">
+                            <Save size={16} />
+                          </Button>
+                          <Button iconOnly onClick={() => handleDeleteMeal(mealGroup.meal.id)} aria-label="Gericht löschen">
+                            <Trash2 size={16} />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </Card>
+            )
+          })
         ) : (
           <div className="nutrition-empty" data-emphasis="weak">
-            Noch keine Einträge für diesen Tag
+            Noch keine Gerichte für diesen Tag
           </div>
         )}
       </Section>
 
-      {/* Add button */}
-      <Button className="nutrition-add-btn" onClick={() => setShowAddFood(true)}>
-        <Plus size={20} />
-        Hinzufügen
-      </Button>
+      {/* Action buttons */}
+      <div className="nutrition-bottom-actions">
+        {showNewMealInput ? (
+          <div className="nutrition-new-meal-row">
+            <Input
+              id="new-meal-name"
+              placeholder="Name des Gerichts"
+              value={newMealName}
+              onChange={e => setNewMealName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleCreateMeal()}
+            />
+            <Button onClick={handleCreateMeal}>OK</Button>
+          </div>
+        ) : (
+          <>
+            <Button className="nutrition-add-btn" onClick={() => setShowNewMealInput(true)}>
+              <Plus size={20} /> Neues Gericht
+            </Button>
+            <Button className="nutrition-saved-btn" onClick={handleShowSavedMeals}>
+              Gespeicherte Gerichte
+            </Button>
+          </>
+        )}
+      </div>
 
-      {/* Dialogs */}
+      {/* Saved meals dialog */}
+      <Dialog title="Gespeicherte Gerichte" open={showSavedMeals} onClose={() => setShowSavedMeals(false)}>
+        <div className="nutrition-saved-list">
+          {savedMeals.length > 0 ? (
+            savedMeals.map(sm => (
+              <Card key={sm.id} className="nutrition-saved-item">
+                <div className="nutrition-saved-item-info" onClick={() => handleApplySavedMeal(sm.id)} role="button" tabIndex={0}>
+                  <span className="nutrition-saved-item-name">{sm.name}</span>
+                  <span data-emphasis="weak">{sm.total_kcal.toFixed(0)} kcal</span>
+                </div>
+                <Button iconOnly onClick={() => handleDeleteSavedMeal(sm.id)} aria-label={`${sm.name} löschen`}>
+                  <Trash2 size={16} />
+                </Button>
+              </Card>
+            ))
+          ) : (
+            <div className="nutrition-empty" data-emphasis="weak">Noch keine gespeicherten Gerichte</div>
+          )}
+        </div>
+      </Dialog>
+
+      {/* Add food dialog */}
       <AddFoodView
         open={showAddFood}
         onClose={handleAddFoodClose}
         date={selectedDate}
+        mealId={activeMealId ?? undefined}
         onFoodSelect={(foodId) => {
           setShowAddFood(false)
           setSelectedFoodId(foodId)
@@ -165,27 +281,7 @@ function NutritionView() {
           onClose={handleFoodDetailClose}
           foodId={selectedFoodId}
           date={selectedDate}
-        />
-      )}
-
-      <RecipeListView
-        open={showRecipeList}
-        onClose={() => { setShowRecipeList(false); loadSummary() }}
-        onRecipeSelect={(id) => {
-          setShowRecipeList(false)
-          setSelectedRecipeId(id)
-        }}
-        onNewRecipe={() => {
-          setShowRecipeList(false)
-          setSelectedRecipeId('new')
-        }}
-      />
-
-      {selectedRecipeId && (
-        <RecipeDetailView
-          open={!!selectedRecipeId}
-          onClose={() => { setSelectedRecipeId(null); loadSummary() }}
-          recipeId={selectedRecipeId}
+          mealId={activeMealId ?? undefined}
         />
       )}
     </div>

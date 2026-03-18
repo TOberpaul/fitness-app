@@ -347,6 +347,7 @@ export interface FoodEntry {
   id: string;
   user_id: string;
   date: string;
+  meal_id: string;
   food_id: string;
   name: string;
   amount_grams: number;
@@ -355,6 +356,38 @@ export interface FoodEntry {
   carbs: number;
   fat: number;
   created_at: string;
+}
+
+/** Ein Gericht (Mahlzeit-Gruppe) für ein Datum */
+export interface Meal {
+  id: string;
+  date: string;
+  name: string;
+  created_at: string;
+}
+
+/** Gespeichertes Gericht als Vorlage */
+export interface SavedMeal {
+  id: string;
+  name: string;
+  total_kcal: number;
+  total_protein: number;
+  total_carbs: number;
+  total_fat: number;
+  created_at: string;
+}
+
+/** Eine Zutat innerhalb eines gespeicherten Gerichts */
+export interface SavedMealItem {
+  id: string;
+  saved_meal_id: string;
+  food_id: string;
+  name: string;
+  amount_grams: number;
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
 }
 
 /** Benutzerdefiniertes Rezept */
@@ -390,7 +423,7 @@ export interface Favorite {
   added_at: string;
 }
 
-/** Tagesübersicht mit Summen */
+/** Tagesübersicht mit Summen, gruppiert nach Gerichten */
 export interface DailySummary {
   date: string;
   total_kcal: number;
@@ -398,6 +431,17 @@ export interface DailySummary {
   total_carbs: number;
   total_fat: number;
   entries: FoodEntry[];
+  meals: MealWithEntries[];
+}
+
+/** Ein Gericht mit seinen Einträgen */
+export interface MealWithEntries {
+  meal: Meal;
+  entries: FoodEntry[];
+  total_kcal: number;
+  total_protein: number;
+  total_carbs: number;
+  total_fat: number;
 }
 
 /** Nährwert-Export-Format */

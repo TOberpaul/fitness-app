@@ -15,9 +15,10 @@ interface FoodDetailViewProps {
   onClose: () => void
   foodId: string | null
   date: string
+  mealId?: string
 }
 
-function FoodDetailView({ open, onClose, foodId, date }: FoodDetailViewProps) {
+function FoodDetailView({ open, onClose, foodId, date, mealId }: FoodDetailViewProps) {
   const [food, setFood] = useState<Food | null>(null)
   const [loading, setLoading] = useState(true)
   const [amount, setAmount] = useState('100')
@@ -69,6 +70,7 @@ function FoodDetailView({ open, onClose, foodId, date }: FoodDetailViewProps) {
       id: crypto.randomUUID(),
       user_id: 'local',
       date,
+      meal_id: mealId || '',
       food_id: food.id,
       name: food.name,
       amount_grams: effectiveGrams,

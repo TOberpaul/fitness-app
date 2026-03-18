@@ -11,6 +11,9 @@ import type {
   MilestoneType,
   Food,
   FoodEntry,
+  Meal,
+  SavedMeal,
+  SavedMealItem,
   Recipe,
   RecipeItem,
   Favorite,
@@ -69,6 +72,28 @@ export interface FitnessTrackerDB extends DBSchema {
     indexes: {
       'by-date': string;
       'by-food-id': string;
+      'by-meal-id': string;
+    };
+  };
+  meals: {
+    key: string;
+    value: Meal;
+    indexes: {
+      'by-date': string;
+    };
+  };
+  savedMeals: {
+    key: string;
+    value: SavedMeal;
+    indexes: {
+      'by-name': string;
+    };
+  };
+  savedMealItems: {
+    key: string;
+    value: SavedMealItem;
+    indexes: {
+      'by-saved-meal-id': string;
     };
   };
   recipes: {
@@ -110,7 +135,7 @@ export async function getDB(): Promise<IDBPDatabase<FitnessTrackerDB>> {
     return dbInstance;
   }
 
-  dbInstance = await openDB<FitnessTrackerDB>('fitness-tracker', 3, {
+  dbInstance = await openDB<FitnessTrackerDB>('fitness-tracker', 4, {
     upgrade(db, oldVersion) {
       if (oldVersion < 1) {
         const dailyStore = db.createObjectStore('dailyMeasurements', {
@@ -146,6 +171,7 @@ export async function getDB(): Promise<IDBPDatabase<FitnessTrackerDB>> {
         const foodEntryStore = db.createObjectStore('foodEntries', { keyPath: 'id' });
         foodEntryStore.createIndex('by-date', 'date');
         foodEntryStore.createIndex('by-food-id', 'food_id');
+        foodEntryStore.createIndex('by-meal-id', 'meal_id');
 
         const recipeStore = db.createObjectStore('recipes', { keyPath: 'id' });
         recipeStore.createIndex('by-name', 'name');
@@ -156,6 +182,26 @@ export async function getDB(): Promise<IDBPDatabase<FitnessTrackerDB>> {
 
         const favoriteStore = db.createObjectStore('favorites', { keyPath: 'food_id' });
         favoriteStore.createIndex('by-added', 'added_at');
+      }
+
+      if (oldVersion < 4) {
+        const mealStore = db.createObjectStore('meals', { keyPath: 'id' });
+        mealStore.createIndex('by-date', 'date');
+
+        const savedMealStore = db.createObjectStore('savedMeals', { keyPath: 'id' });
+        savedMealStore.createIndex('by-name', 'name');
+
+        const savedMealItemStore = db.createObjectStore('savedMealItems', { keyPath: 'id' });
+        savedMealItemStore.createIndex('by-saved-meal-id', 'saved_meal_id');
+
+        // Add by-meal-id index to existing foodEntries store
+        if (oldVersion >= 3) {
+          const tx = (db as unknown as { transaction: { objectStore: (name: string) => IDBObjectStore } }).transaction;
+          const feStore = tx.objectStore('foodEntries');
+          if (!feStore.indexNames.contains('by-meal-id')) {
+            feStore.createIndex('by-meal-id', 'meal_id');
+          }
+        }
       }
     },
   });

@@ -38,7 +38,6 @@
   display: flex;
   justify-content: center;
   gap: var(--spacing-padding);
-  margin-top: var(--size-gap);
 }
 
 .nutrition-macro {
@@ -56,38 +55,96 @@
   font-size: var(--size-text-small, 0.85rem);
 }
 
-.nutrition-entries {
+/* Meal cards */
+.nutrition-meal {
+  display: flex;
+  flex-direction: column;
+}
+
+.nutrition-meal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--size-padding-min) var(--spacing-padding);
+  cursor: pointer;
+}
+
+.nutrition-meal-title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4);
+}
+
+.nutrition-meal-name {
+  font-weight: 600;
+}
+
+.nutrition-meal-kcal {
+  font-size: var(--size-text-small, 0.85rem);
+}
+
+.nutrition-meal-body {
   display: flex;
   flex-direction: column;
   gap: var(--size-gap);
+  padding: 0 var(--spacing-padding) var(--size-padding-min);
 }
 
 .nutrition-entry {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--size-padding-min) var(--spacing-padding);
+  gap: var(--size-gap);
 }
 
 .nutrition-entry-info {
   display: flex;
   flex-direction: column;
   gap: var(--size-4);
+  min-width: 0;
 }
 
 .nutrition-entry-name {
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .nutrition-entry-detail {
   font-size: var(--size-text-small, 0.85rem);
 }
 
-.nutrition-entry-delete {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: var(--size-4);
+.nutrition-meal-actions {
+  display: flex;
+  gap: var(--size-gap);
+  align-items: center;
+}
+
+/* Bottom actions */
+.nutrition-bottom-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.nutrition-add-btn,
+.nutrition-saved-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--size-gap);
+  width: 100%;
+}
+
+.nutrition-new-meal-row {
+  display: flex;
+  gap: var(--size-gap);
+  align-items: flex-end;
+}
+
+.nutrition-new-meal-row .core-input {
+  flex: 1;
 }
 
 .nutrition-empty {
@@ -95,10 +152,28 @@
   padding: var(--spacing-padding);
 }
 
-.nutrition-add-btn {
+/* Saved meals dialog */
+.nutrition-saved-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.nutrition-saved-item {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--size-gap);
-  width: 100%;
+  justify-content: space-between;
+  padding: var(--size-padding-min) var(--spacing-padding);
+}
+
+.nutrition-saved-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4);
+  cursor: pointer;
+  flex: 1;
+}
+
+.nutrition-saved-item-name {
+  font-weight: 600;
 }

@@ -16,10 +16,11 @@ interface AddFoodViewProps {
   open: boolean
   onClose: () => void
   date: string
+  mealId?: string
   onFoodSelect: (foodId: string) => void
 }
 
-function AddFoodView({ open, onClose, date, onFoodSelect }: AddFoodViewProps) {
+function AddFoodView({ open, onClose, date, mealId, onFoodSelect }: AddFoodViewProps) {
   const [query, setQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Food[]>([])
   const [recentFoods, setRecentFoods] = useState<Food[]>([])
@@ -72,6 +73,7 @@ function AddFoodView({ open, onClose, date, onFoodSelect }: AddFoodViewProps) {
       id: crypto.randomUUID(),
       user_id: 'local',
       date,
+      meal_id: mealId || '',
       food_id: recipe.id,
       name: recipe.name,
       amount_grams: 0,
