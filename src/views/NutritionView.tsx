@@ -333,7 +333,6 @@ function NutritionView() {
           </Card>
         </div>
       </Dialog>
-      </div>
 
       {/* Saved meals dialog */}
       <Dialog title="Gespeicherte Gerichte" open={showSavedMeals} onClose={() => setShowSavedMeals(false)}>
