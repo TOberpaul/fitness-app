@@ -41,7 +41,7 @@
 .mascot-eye {
   position: relative;
   width: 38%;
-  aspect-ratio: 1;
+  aspect-ratio: 5 / 6;
 }
 
 /* Tilt eyes outward like the original illustration */
@@ -91,7 +91,7 @@
   position: absolute;
   inset: 10%;
   background: #fff;
-  border-radius: 50%;
+  border-radius: 45%;
   border: 2px solid #1a1a1a;
   display: flex;
   align-items: center;
@@ -107,8 +107,8 @@
 }
 
 .mascot-pupil {
-  width: 40%;
-  height: 40%;
+  width: 45%;
+  height: 50%;
   background: #1a1a1a;
   border-radius: 50%;
   transition: transform 0.15s ease;
