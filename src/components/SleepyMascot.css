@@ -107,10 +107,11 @@
 }
 
 .mascot-pupil {
-  width: 45%;
-  height: 50%;
+  width: 60%;
+  height: 60%;
   background: #1a1a1a;
-  border-radius: 50%;
+  border-radius: 100%;
+  transform: translate(15%, 15%);
   transition: transform 0.15s ease;
 }
 
