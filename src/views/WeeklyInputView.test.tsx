@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import WeeklyInputView from './WeeklyInputView';
 import { resetDB } from '../services/db';
 import * as dataService from '../services/dataService';
