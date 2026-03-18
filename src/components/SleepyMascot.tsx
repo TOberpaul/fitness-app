@@ -3,22 +3,25 @@ import './SleepyMascot.css'
 
 function SleepyMascot() {
   const [awake, setAwake] = useState(false)
+  const [showHint, setShowHint] = useState(true)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handleTap = useCallback(() => {
     if (awake) return
+    setShowHint(false)
     setAwake(true)
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => setAwake(false), 3000)
   }, [awake])
 
   return (
-    <div
-      className={`mascot${awake ? ' mascot--awake' : ''}`}
-      onClick={handleTap}
-      role="img"
-      aria-label="Schlafendes Maskottchen"
-    >
+    <>
+      <div
+        className={`mascot${awake ? ' mascot--awake' : ''}`}
+        onClick={handleTap}
+        role="img"
+        aria-label="Schlafendes Maskottchen"
+      >
       <img
         src={`${import.meta.env.BASE_URL}Sleepy.png`}
         alt=""
@@ -51,6 +54,8 @@ function SleepyMascot() {
       {/* Grr on wake */}
       <div className="mascot-grr">Grr!</div>
     </div>
+    {showHint && <span className="mascot-hint" data-emphasis="weak">Tippe mich an 👆</span>}
+    </>
   )
 }
 
