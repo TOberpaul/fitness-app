@@ -5,6 +5,7 @@
   min-height: 0;
   overflow: hidden;
   position: relative;
+  aspect-ratio: 16 / 9;
 }
 
 .graph-canvas {
