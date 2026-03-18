@@ -47,6 +47,9 @@ function SleepyMascot() {
         <span className="mascot-z mascot-z--2">z</span>
         <span className="mascot-z mascot-z--3">z</span>
       </div>
+
+      {/* Grr on wake */}
+      <div className="mascot-grr">Grr!</div>
     </div>
   )
 }
