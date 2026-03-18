@@ -4,6 +4,10 @@ import { ArrowLeft, Plus, Trash2, Camera, Search } from 'lucide-react'
 import { searchFoods } from '../services/foodSearchService'
 import { getRecipe, getRecipeItems, saveRecipe, saveRecipeItem, uploadRecipeImage } from '../services/nutritionService'
 import { calculateNutrition, calculateRecipeTotals } from '../utils/calculationEngine'
+import Button from '../components/core/Button'
+import Card from '../components/core/Card'
+import Section from '../components/core/Section'
+import Input from '../components/core/Input'
 import type { Food, RecipeItem } from '../types'
 import './RecipeDetailView.css'
 
@@ -18,7 +22,6 @@ function RecipeDetailView() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
 
-  // Inline ingredient search state
   const [ingredientQuery, setIngredientQuery] = useState('')
   const [ingredientResults, setIngredientResults] = useState<Food[]>([])
   const [selectedFood, setSelectedFood] = useState<Food | null>(null)
@@ -28,7 +31,6 @@ function RecipeDetailView() {
 
   const recipeId = useRef(isNew ? crypto.randomUUID() : id!).current
 
-  // Load existing recipe in edit mode
   useEffect(() => {
     if (isNew) return
     async function load() {
@@ -45,14 +47,12 @@ function RecipeDetailView() {
     load()
   }, [id, isNew])
 
-  // Cleanup debounce timer
   useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
   }, [])
 
-  // Debounced ingredient search
   const handleIngredientSearch = (value: string) => {
     setIngredientQuery(value)
     setSelectedFood(null)
@@ -133,7 +133,6 @@ function RecipeDetailView() {
       }
       await saveRecipe(recipe)
 
-      // Save each recipe item
       for (const item of items) {
         await saveRecipeItem(item)
       }
@@ -148,27 +147,20 @@ function RecipeDetailView() {
     <div className="recipe-detail-view">
       {/* Header */}
       <div className="recipe-detail-header">
-        <button
-          className="adaptive"
-          data-interactive
-          data-size="lg"
-          onClick={() => navigate(-1)}
-          aria-label="Zurück"
-        >
+        <Button onClick={() => navigate(-1)} aria-label="Zurück">
           <ArrowLeft size={20} />
-        </button>
+        </Button>
         <h1>{isNew ? 'Neues Rezept' : 'Rezept bearbeiten'}</h1>
       </div>
 
       {/* Recipe name */}
-      <input
-        className="recipe-detail-name-input adaptive"
-        data-material="semi-transparent"
+      <Input
+        className="recipe-detail-name-input"
         type="text"
         placeholder="Rezeptname"
         value={recipeName}
         onChange={e => setRecipeName(e.target.value)}
-        aria-label="Rezeptname"
+        label="Rezeptname"
       />
 
       {/* Image upload */}
@@ -176,10 +168,10 @@ function RecipeDetailView() {
         {imageUrl ? (
           <img src={imageUrl} alt={recipeName || 'Rezeptbild'} className="recipe-detail-image-preview" />
         ) : (
-          <div className="recipe-detail-image-placeholder adaptive" data-material="semi-transparent">
+          <Card className="recipe-detail-image-placeholder">
             <Camera size={32} />
             <span data-emphasis="weak">Bild hinzufügen</span>
-          </div>
+          </Card>
         )}
         <input
           ref={fileInputRef}
@@ -190,52 +182,47 @@ function RecipeDetailView() {
           className="recipe-detail-file-input"
           aria-label="Rezeptbild auswählen"
         />
-        <button
-          className="recipe-detail-image-btn adaptive"
-          data-interactive
-          data-material="semi-transparent"
+        <Button
+          className="recipe-detail-image-btn"
           onClick={() => fileInputRef.current?.click()}
         >
           <Camera size={16} />
           {imageUrl ? 'Bild ändern' : 'Foto aufnehmen'}
-        </button>
+        </Button>
       </div>
 
       {/* Ingredient list */}
-      <div className="recipe-detail-items">
-        <h2>Zutaten</h2>
+      <Section title="Zutaten">
         {items.length === 0 ? (
           <div className="recipe-detail-items-empty" data-emphasis="weak">
             Noch keine Zutaten hinzugefügt
           </div>
         ) : (
           items.map(item => (
-            <div key={item.id} className="recipe-detail-item adaptive" data-material="semi-transparent">
+            <Card key={item.id} className="recipe-detail-item">
               <div className="recipe-detail-item-info">
                 <span className="recipe-detail-item-name">{item.name}</span>
                 <span className="recipe-detail-item-detail" data-emphasis="weak">
                   {item.amount_grams} g · {item.kcal} kcal
                 </span>
               </div>
-              <button
-                className="recipe-detail-item-delete adaptive"
-                data-interactive
+              <Button
+                className="recipe-detail-item-delete"
                 onClick={() => handleRemoveItem(item.id)}
                 aria-label={`${item.name} entfernen`}
               >
                 <Trash2 size={16} />
-              </button>
-            </div>
+              </Button>
+            </Card>
           ))
         )}
-      </div>
+      </Section>
 
       {/* Add ingredient section */}
-      <div className="recipe-detail-add-ingredient">
-        <h2>Zutat hinzufügen</h2>
-        <div className="recipe-detail-search adaptive" data-material="semi-transparent">
+      <Section title="Zutat hinzufügen">
+        <div className="recipe-detail-search">
           <Search size={18} data-emphasis="weak" />
-          <input
+          <Input
             type="text"
             placeholder="Lebensmittel suchen..."
             value={ingredientQuery}
@@ -244,31 +231,27 @@ function RecipeDetailView() {
           />
         </div>
 
-        {/* Search results dropdown */}
         {ingredientResults.length > 0 && !selectedFood && (
           <div className="recipe-detail-search-results">
             {ingredientResults.map(food => (
-              <button
+              <Card
                 key={food.id}
-                className="recipe-detail-search-item adaptive"
-                data-material="semi-transparent"
-                data-interactive
+                className="recipe-detail-search-item"
                 onClick={() => handleSelectFood(food)}
+                role="button"
+                tabIndex={0}
               >
                 <span>{food.name}</span>
                 <span data-emphasis="weak">{food.kcal_per_100g} kcal/100g</span>
-              </button>
+              </Card>
             ))}
           </div>
         )}
 
-        {/* Amount input when food is selected */}
         {selectedFood && (
           <div className="recipe-detail-add-row">
-            <input
+            <Input
               type="number"
-              className="recipe-detail-amount-input adaptive"
-              data-material="semi-transparent"
               placeholder="Gramm"
               value={ingredientAmount}
               onChange={e => setIngredientAmount(e.target.value)}
@@ -276,56 +259,50 @@ function RecipeDetailView() {
               step="any"
               aria-label="Menge in Gramm"
             />
-            <button
-              className="recipe-detail-add-btn adaptive"
-              data-interactive
-              data-material="filled"
-              data-emphasis="strong"
+            <Button
+              className="recipe-detail-add-btn"
               onClick={handleAddIngredient}
             >
               <Plus size={16} />
               Hinzufügen
-            </button>
+            </Button>
           </div>
         )}
-      </div>
+      </Section>
 
       {/* Totals */}
-      <div className="recipe-detail-totals adaptive" data-material="semi-transparent">
-        <h2>Gesamtnährwerte</h2>
-        <div className="recipe-detail-totals-grid">
-          <div className="recipe-detail-total">
-            <span className="recipe-detail-total-value">{totals.kcal}</span>
-            <span className="recipe-detail-total-label" data-emphasis="weak">kcal</span>
+      <Section title="Gesamtnährwerte">
+        <Card className="recipe-detail-totals">
+          <div className="recipe-detail-totals-grid">
+            <div className="recipe-detail-total">
+              <span className="recipe-detail-total-value">{totals.kcal}</span>
+              <span className="recipe-detail-total-label" data-emphasis="weak">kcal</span>
+            </div>
+            <div className="recipe-detail-total">
+              <span className="recipe-detail-total-value">{totals.protein} g</span>
+              <span className="recipe-detail-total-label" data-emphasis="weak">Protein</span>
+            </div>
+            <div className="recipe-detail-total">
+              <span className="recipe-detail-total-value">{totals.carbs} g</span>
+              <span className="recipe-detail-total-label" data-emphasis="weak">Kohlenhydrate</span>
+            </div>
+            <div className="recipe-detail-total">
+              <span className="recipe-detail-total-value">{totals.fat} g</span>
+              <span className="recipe-detail-total-label" data-emphasis="weak">Fett</span>
+            </div>
           </div>
-          <div className="recipe-detail-total">
-            <span className="recipe-detail-total-value">{totals.protein} g</span>
-            <span className="recipe-detail-total-label" data-emphasis="weak">Protein</span>
-          </div>
-          <div className="recipe-detail-total">
-            <span className="recipe-detail-total-value">{totals.carbs} g</span>
-            <span className="recipe-detail-total-label" data-emphasis="weak">Kohlenhydrate</span>
-          </div>
-          <div className="recipe-detail-total">
-            <span className="recipe-detail-total-value">{totals.fat} g</span>
-            <span className="recipe-detail-total-label" data-emphasis="weak">Fett</span>
-          </div>
-        </div>
-      </div>
+        </Card>
+      </Section>
 
       {/* Save button */}
       <div className="recipe-detail-actions">
-        <button
-          className="recipe-detail-save-btn adaptive"
-          data-interactive
-          data-material="filled"
-          data-emphasis="strong"
-          data-size="lg"
+        <Button
+          className="recipe-detail-save-btn"
           disabled={!recipeName.trim() || saving}
           onClick={handleSave}
         >
           {saving ? 'Speichern…' : 'Rezept speichern'}
-        </button>
+        </Button>
       </div>
     </div>
   )

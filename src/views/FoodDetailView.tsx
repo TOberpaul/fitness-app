@@ -3,6 +3,10 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Star } from 'lucide-react'
 import { getCachedFood, saveFoodEntry, isFavorite, addFavorite, removeFavorite } from '../services/nutritionService'
 import { calculateNutrition, portionToGrams } from '../utils/calculationEngine'
+import Button from '../components/core/Button'
+import Card from '../components/core/Card'
+import Section from '../components/core/Section'
+import Input from '../components/core/Input'
 import type { Food } from '../types'
 import './FoodDetailView.css'
 
@@ -87,15 +91,9 @@ function FoodDetailView() {
     return (
       <div className="food-detail-view">
         <div className="food-detail-header">
-          <button
-            className="adaptive"
-            data-interactive
-            data-size="lg"
-            onClick={() => navigate(-1)}
-            aria-label="Zurück"
-          >
+          <Button onClick={() => navigate(-1)} aria-label="Zurück">
             <ArrowLeft size={20} />
-          </button>
+          </Button>
           <h1>Nicht gefunden</h1>
         </div>
         <div className="food-detail-not-found" data-emphasis="weak">
@@ -109,15 +107,9 @@ function FoodDetailView() {
     <div className="food-detail-view">
       {/* Header */}
       <div className="food-detail-header">
-        <button
-          className="adaptive"
-          data-interactive
-          data-size="lg"
-          onClick={() => navigate(-1)}
-          aria-label="Zurück"
-        >
+        <Button onClick={() => navigate(-1)} aria-label="Zurück">
           <ArrowLeft size={20} />
-        </button>
+        </Button>
         <div className="food-detail-title">
           <h1>{food.name}</h1>
           {food.brand && <span className="food-detail-brand" data-emphasis="weak">{food.brand}</span>}
@@ -125,106 +117,92 @@ function FoodDetailView() {
       </div>
 
       {/* Nutrition per 100g */}
-      <div className="food-detail-nutrition adaptive" data-material="semi-transparent">
-        <h2>Nährwerte pro 100 {food.default_unit}</h2>
-        <div className="food-detail-nutrition-grid">
-          <div className="food-detail-nutrient">
-            <span className="food-detail-nutrient-value">{food.kcal_per_100g}</span>
-            <span className="food-detail-nutrient-label" data-emphasis="weak">kcal</span>
+      <Section title={`Nährwerte pro 100 ${food.default_unit}`}>
+        <Card className="food-detail-nutrition">
+          <div className="food-detail-nutrition-grid">
+            <div className="food-detail-nutrient">
+              <span className="food-detail-nutrient-value">{food.kcal_per_100g}</span>
+              <span className="food-detail-nutrient-label" data-emphasis="weak">kcal</span>
+            </div>
+            <div className="food-detail-nutrient">
+              <span className="food-detail-nutrient-value">{food.protein_per_100g} g</span>
+              <span className="food-detail-nutrient-label" data-emphasis="weak">Protein</span>
+            </div>
+            <div className="food-detail-nutrient">
+              <span className="food-detail-nutrient-value">{food.carbs_per_100g} g</span>
+              <span className="food-detail-nutrient-label" data-emphasis="weak">Kohlenhydrate</span>
+            </div>
+            <div className="food-detail-nutrient">
+              <span className="food-detail-nutrient-value">{food.fat_per_100g} g</span>
+              <span className="food-detail-nutrient-label" data-emphasis="weak">Fett</span>
+            </div>
           </div>
-          <div className="food-detail-nutrient">
-            <span className="food-detail-nutrient-value">{food.protein_per_100g} g</span>
-            <span className="food-detail-nutrient-label" data-emphasis="weak">Protein</span>
-          </div>
-          <div className="food-detail-nutrient">
-            <span className="food-detail-nutrient-value">{food.carbs_per_100g} g</span>
-            <span className="food-detail-nutrient-label" data-emphasis="weak">Kohlenhydrate</span>
-          </div>
-          <div className="food-detail-nutrient">
-            <span className="food-detail-nutrient-value">{food.fat_per_100g} g</span>
-            <span className="food-detail-nutrient-label" data-emphasis="weak">Fett</span>
-          </div>
-        </div>
-      </div>
+        </Card>
+      </Section>
 
       {/* Amount input */}
-      <div className="food-detail-amount">
-        <label htmlFor="amount-input">
-          Menge {usePortion && food.portion_label ? `(${food.portion_label})` : `(${food.default_unit})`}
-        </label>
+      <Section title={`Menge ${usePortion && food.portion_label ? `(${food.portion_label})` : `(${food.default_unit})`}`}>
         <div className="food-detail-amount-row">
-          <input
+          <Input
             id="amount-input"
             type="number"
-            className="adaptive"
-            data-material="semi-transparent"
             value={amount}
             onChange={e => setAmount(e.target.value)}
             min="0"
             step="any"
-            aria-invalid={!isValid}
+            error={!isValid && amount !== '' ? 'Bitte eine gültige Menge eingeben' : undefined}
           />
           {food.portion_size_g && (
-            <button
-              className="food-detail-portion-toggle adaptive"
-              data-interactive
-              data-active={usePortion}
+            <Button
+              className={`food-detail-portion-toggle${usePortion ? ' food-detail-portion-toggle--active' : ''}`}
               onClick={() => setUsePortion(p => !p)}
             >
               {food.portion_label || 'Portion'}
-            </button>
+            </Button>
           )}
         </div>
-        {!isValid && amount !== '' && (
-          <span className="food-detail-error">Bitte eine gültige Menge eingeben</span>
-        )}
-      </div>
+      </Section>
 
       {/* Calculated values */}
-      <div className="food-detail-calculated adaptive" data-material="semi-transparent">
-        <h2>Berechnete Nährwerte</h2>
-        <div className="food-detail-nutrition-grid">
-          <div className="food-detail-nutrient">
-            <span className="food-detail-nutrient-value">{calculated.kcal}</span>
-            <span className="food-detail-nutrient-label" data-emphasis="weak">kcal</span>
+      <Section title="Berechnete Nährwerte">
+        <Card className="food-detail-calculated">
+          <div className="food-detail-nutrition-grid">
+            <div className="food-detail-nutrient">
+              <span className="food-detail-nutrient-value">{calculated.kcal}</span>
+              <span className="food-detail-nutrient-label" data-emphasis="weak">kcal</span>
+            </div>
+            <div className="food-detail-nutrient">
+              <span className="food-detail-nutrient-value">{calculated.protein} g</span>
+              <span className="food-detail-nutrient-label" data-emphasis="weak">Protein</span>
+            </div>
+            <div className="food-detail-nutrient">
+              <span className="food-detail-nutrient-value">{calculated.carbs} g</span>
+              <span className="food-detail-nutrient-label" data-emphasis="weak">Kohlenhydrate</span>
+            </div>
+            <div className="food-detail-nutrient">
+              <span className="food-detail-nutrient-value">{calculated.fat} g</span>
+              <span className="food-detail-nutrient-label" data-emphasis="weak">Fett</span>
+            </div>
           </div>
-          <div className="food-detail-nutrient">
-            <span className="food-detail-nutrient-value">{calculated.protein} g</span>
-            <span className="food-detail-nutrient-label" data-emphasis="weak">Protein</span>
-          </div>
-          <div className="food-detail-nutrient">
-            <span className="food-detail-nutrient-value">{calculated.carbs} g</span>
-            <span className="food-detail-nutrient-label" data-emphasis="weak">Kohlenhydrate</span>
-          </div>
-          <div className="food-detail-nutrient">
-            <span className="food-detail-nutrient-value">{calculated.fat} g</span>
-            <span className="food-detail-nutrient-label" data-emphasis="weak">Fett</span>
-          </div>
-        </div>
-      </div>
+        </Card>
+      </Section>
 
       {/* Actions */}
       <div className="food-detail-actions">
-        <button
-          className="food-detail-fav-btn adaptive"
-          data-interactive
-          data-active={isFav}
+        <Button
+          className="food-detail-fav-btn"
           onClick={handleToggleFavorite}
           aria-label={isFav ? 'Favorit entfernen' : 'Als Favorit markieren'}
         >
           <Star size={20} fill={isFav ? 'currentColor' : 'none'} />
-        </button>
-        <button
-          className="food-detail-save-btn adaptive"
-          data-interactive
-          data-material="filled"
-          data-emphasis="strong"
-          data-size="lg"
+        </Button>
+        <Button
+          className="food-detail-save-btn"
           disabled={!isValid}
           onClick={handleSave}
         >
           Speichern
-        </button>
+        </Button>
       </div>
     </div>
   )

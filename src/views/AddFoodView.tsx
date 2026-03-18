@@ -3,6 +3,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Search, Star } from 'lucide-react'
 import { searchFoods } from '../services/foodSearchService'
 import { getRecentFoods, getAllFavorites, getAllRecipes, saveFoodEntry, cacheFood } from '../services/nutritionService'
+import Button from '../components/core/Button'
+import Card from '../components/core/Card'
+import Section from '../components/core/Section'
+import Input from '../components/core/Input'
 import type { Food, Recipe } from '../types'
 import './AddFoodView.css'
 
@@ -21,7 +25,6 @@ function AddFoodView() {
   const [activeTab, setActiveTab] = useState<Tab>('recent')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Load recent, favorites, recipes on mount
   useEffect(() => {
     async function load() {
       const [r, f, rec] = await Promise.all([
@@ -36,7 +39,6 @@ function AddFoodView() {
     load()
   }, [])
 
-  // Debounced search
   const handleSearch = useCallback((value: string) => {
     setQuery(value)
     if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -50,7 +52,6 @@ function AddFoodView() {
     }, 300)
   }, [])
 
-  // Cleanup debounce timer
   useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -83,13 +84,7 @@ function AddFoodView() {
   const isSearching = query.trim().length > 0
 
   const renderFoodItem = (food: Food) => (
-    <button
-      key={food.id}
-      className="add-food-item adaptive"
-      data-material="semi-transparent"
-      data-interactive
-      onClick={() => selectFood(food)}
-    >
+    <Card key={food.id} className="add-food-item" onClick={() => selectFood(food)} role="button" tabIndex={0}>
       <div className="add-food-item-info">
         <span className="add-food-item-name">{food.name}</span>
         {food.brand && (
@@ -97,29 +92,23 @@ function AddFoodView() {
         )}
       </div>
       <span className="add-food-item-kcal">{food.kcal_per_100g} kcal</span>
-    </button>
+    </Card>
   )
 
   return (
     <div className="add-food-view">
       {/* Header */}
       <div className="add-food-header">
-        <button
-          className="adaptive"
-          data-interactive
-          data-size="lg"
-          onClick={() => navigate(-1)}
-          aria-label="Zurück"
-        >
+        <Button onClick={() => navigate(-1)} aria-label="Zurück">
           <ArrowLeft size={20} />
-        </button>
+        </Button>
         <h1>Lebensmittel hinzufügen</h1>
       </div>
 
       {/* Search */}
-      <div className="add-food-search adaptive" data-material="semi-transparent">
+      <div className="add-food-search">
         <Search size={18} className="add-food-search-icon" data-emphasis="weak" />
-        <input
+        <Input
           type="text"
           placeholder="Lebensmittel suchen..."
           value={query}
@@ -129,8 +118,7 @@ function AddFoodView() {
       </div>
 
       {isSearching ? (
-        /* Search results */
-        <div className="add-food-section">
+        <Section title="Suchergebnisse">
           <div className="add-food-list">
             {searchResults.length > 0 ? (
               searchResults.map(renderFoodItem)
@@ -140,38 +128,31 @@ function AddFoodView() {
               </div>
             )}
           </div>
-        </div>
+        </Section>
       ) : (
-        /* Tabs: Letzte / Rezepte / Favoriten */
         <>
           <div className="add-food-tabs">
-            <button
-              className="add-food-tab adaptive"
-              data-active={activeTab === 'recent'}
-              data-interactive
+            <Button
+              className={`add-food-tab${activeTab === 'recent' ? ' add-food-tab--active' : ''}`}
               onClick={() => setActiveTab('recent')}
             >
               Letzte
-            </button>
-            <button
-              className="add-food-tab adaptive"
-              data-active={activeTab === 'recipes'}
-              data-interactive
+            </Button>
+            <Button
+              className={`add-food-tab${activeTab === 'recipes' ? ' add-food-tab--active' : ''}`}
               onClick={() => setActiveTab('recipes')}
             >
               Rezepte
-            </button>
-            <button
-              className="add-food-tab adaptive"
-              data-active={activeTab === 'favorites'}
-              data-interactive
+            </Button>
+            <Button
+              className={`add-food-tab${activeTab === 'favorites' ? ' add-food-tab--active' : ''}`}
               onClick={() => setActiveTab('favorites')}
             >
               <Star size={14} /> Favoriten
-            </button>
+            </Button>
           </div>
 
-          <div className="add-food-section">
+          <Section>
             {activeTab === 'recent' && (
               <div className="add-food-list">
                 {recentFoods.length > 0 ? (
@@ -188,18 +169,12 @@ function AddFoodView() {
               <div className="add-food-list">
                 {recipes.length > 0 ? (
                   recipes.map(recipe => (
-                    <button
-                      key={recipe.id}
-                      className="add-food-item adaptive"
-                      data-material="semi-transparent"
-                      data-interactive
-                      onClick={() => selectRecipe(recipe)}
-                    >
+                    <Card key={recipe.id} className="add-food-item" onClick={() => selectRecipe(recipe)} role="button" tabIndex={0}>
                       <div className="add-food-item-info">
                         <span className="add-food-item-name">{recipe.name}</span>
                       </div>
                       <span className="add-food-item-kcal">{recipe.total_kcal} kcal</span>
-                    </button>
+                    </Card>
                   ))
                 ) : (
                   <div className="add-food-empty" data-emphasis="weak">
@@ -220,7 +195,7 @@ function AddFoodView() {
                 )}
               </div>
             )}
-          </div>
+          </Section>
         </>
       )}
     </div>

@@ -33,11 +33,7 @@
   padding: var(--spacing-padding);
 }
 
-.food-detail-nutrition h2 {
-  font-size: var(--size-text-small, 0.85rem);
-  font-weight: 600;
-  margin: 0 0 var(--size-gap) 0;
-}
+
 
 .food-detail-nutrition-grid {
   display: grid;
@@ -61,16 +57,7 @@
   font-size: var(--size-text-small, 0.85rem);
 }
 
-.food-detail-amount {
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-gap);
-}
 
-.food-detail-amount label {
-  font-weight: 600;
-  font-size: var(--size-text-small, 0.85rem);
-}
 
 .food-detail-amount-row {
   display: flex;
@@ -111,11 +98,7 @@
   padding: var(--spacing-padding);
 }
 
-.food-detail-calculated h2 {
-  font-size: var(--size-text-small, 0.85rem);
-  font-weight: 600;
-  margin: 0 0 var(--size-gap) 0;
-}
+
 
 .food-detail-actions {
   display: flex;

@@ -1,6 +1,6 @@
 import { getDB } from './db';
-import type { Food, FoodEntry, Recipe, RecipeItem, Favorite, DailySummary } from '../types';
-import { calculateNutrition, calculateDailyTotals } from '../utils/calculationEngine';
+import type { Food, FoodEntry, Recipe, RecipeItem, DailySummary } from '../types';
+import { calculateDailyTotals } from '../utils/calculationEngine';
 import { supabase } from './supabase';
 
 // ─── Food Entries ────────────────────────────────────────────────────

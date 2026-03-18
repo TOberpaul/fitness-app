@@ -75,13 +75,7 @@
 }
 
 /* Ingredient list */
-.recipe-detail-items h2,
-.recipe-detail-add-ingredient h2,
-.recipe-detail-totals h2 {
-  font-size: var(--size-text-small, 0.85rem);
-  font-weight: 600;
-  margin: 0 0 var(--size-gap) 0;
-}
+
 
 .recipe-detail-items-empty {
   text-align: center;

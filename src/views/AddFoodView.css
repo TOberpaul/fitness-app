@@ -59,7 +59,7 @@
   border-right: none;
 }
 
-.add-food-tab[data-active="true"] {
+.add-food-tab--active {
   border-bottom-color: currentColor;
 }
 

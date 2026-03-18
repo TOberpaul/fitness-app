@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react'
 import { getDailySummary, deleteFoodEntry } from '../services/nutritionService'
+import Button from '../components/core/Button'
+import Card from '../components/core/Card'
+import Section from '../components/core/Section'
 import type { DailySummary } from '../types'
 import './NutritionView.css'
 
@@ -48,30 +51,24 @@ function NutritionView() {
   return (
     <div className="nutrition-view">
       {/* Date navigation */}
-      <div className="nutrition-date-nav adaptive" data-material="semi-transparent">
-        <button
-          className="adaptive"
-          data-interactive
-          data-size="lg"
+      <Card className="nutrition-date-nav">
+        <Button
           onClick={() => setSelectedDate(prev => shiftDate(prev, -1))}
           aria-label="Vorheriger Tag"
         >
           <ChevronLeft size={20} />
-        </button>
+        </Button>
         <span className="nutrition-date-label">{formatDateDE(selectedDate)}</span>
-        <button
-          className="adaptive"
-          data-interactive
-          data-size="lg"
+        <Button
           onClick={() => setSelectedDate(prev => shiftDate(prev, 1))}
           aria-label="Nächster Tag"
         >
           <ChevronRight size={20} />
-        </button>
-      </div>
+        </Button>
+      </Card>
 
       {/* Calorie + Macro summary */}
-      <div className="nutrition-summary">
+      <Card className="nutrition-summary">
         <div className="nutrition-kcal">
           {summary?.total_kcal.toFixed(0) ?? '0'}
           <span className="nutrition-kcal-unit"> kcal</span>
@@ -90,49 +87,43 @@ function NutritionView() {
             <span className="nutrition-macro-label" data-emphasis="weak">Fett</span>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Food entries list */}
-      <div className="nutrition-entries">
+      <Section title="Einträge">
         {summary && summary.entries.length > 0 ? (
           summary.entries.map(entry => (
-            <div key={entry.id} className="nutrition-entry adaptive" data-material="semi-transparent">
+            <Card key={entry.id} className="nutrition-entry">
               <div className="nutrition-entry-info">
                 <span className="nutrition-entry-name">{entry.name}</span>
                 <span className="nutrition-entry-detail" data-emphasis="weak">
                   {entry.amount_grams} g · {entry.kcal.toFixed(0)} kcal
                 </span>
               </div>
-              <button
-                className="nutrition-entry-delete adaptive"
-                data-interactive
-                data-color="red"
+              <Button
+                className="nutrition-entry-delete"
                 onClick={() => handleDelete(entry.id)}
                 aria-label={`${entry.name} löschen`}
               >
                 <Trash2 size={18} />
-              </button>
-            </div>
+              </Button>
+            </Card>
           ))
         ) : (
           <div className="nutrition-empty" data-emphasis="weak">
             Noch keine Einträge für diesen Tag
           </div>
         )}
-      </div>
+      </Section>
 
       {/* Add button */}
-      <button
-        className="nutrition-add-btn adaptive"
-        data-interactive
-        data-material="filled"
-        data-emphasis="strong"
-        data-size="lg"
+      <Button
+        className="nutrition-add-btn"
         onClick={() => navigate(`/nutrition/add?date=${selectedDate}`)}
       >
         <Plus size={20} />
         Hinzufügen
-      </button>
+      </Button>
     </div>
   )
 }
