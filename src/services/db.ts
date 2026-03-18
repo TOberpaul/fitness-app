@@ -1,4 +1,4 @@
-import { openDB } from 'idb';
+import { openDB, deleteDB } from 'idb';
 import type { DBSchema, IDBPDatabase } from 'idb';
 import type {
   DailyMeasurement,
@@ -130,10 +130,94 @@ export function resetDB(): void {
   }
 }
 
+/** Required v4 stores — used to verify migration ran */
+const REQUIRED_V4_STORES = ['meals', 'savedMeals', 'savedMealItems'] as const;
+
+/** Check whether the DB instance has all v4 stores */
+export function hasMealsSupport(db: IDBPDatabase<FitnessTrackerDB>): boolean {
+  return REQUIRED_V4_STORES.every(s => db.objectStoreNames.contains(s));
+}
+
+function createUpgradeCallback() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (db: IDBPDatabase<FitnessTrackerDB>, oldVersion: number, _newVersion: number | null, transaction: any) => {
+    const existing = db.objectStoreNames;
+    if (oldVersion < 1) {
+      if (!existing.contains('dailyMeasurements')) {
+        const s = db.createObjectStore('dailyMeasurements', { keyPath: 'date' });
+        s.createIndex('by-date', 'date');
+      }
+      if (!existing.contains('weeklyMeasurements')) {
+        const s = db.createObjectStore('weeklyMeasurements', { keyPath: 'date' });
+        s.createIndex('by-date', 'date');
+      }
+      if (!existing.contains('fitbitAuth')) db.createObjectStore('fitbitAuth');
+    }
+    if (oldVersion < 2) {
+      if (!existing.contains('goals')) {
+        const s = db.createObjectStore('goals', { keyPath: 'id' });
+        s.createIndex('by-status', 'status');
+        s.createIndex('by-createdAt', 'createdAt');
+      }
+      if (!existing.contains('streaks')) db.createObjectStore('streaks');
+      if (!existing.contains('milestones')) {
+        const s = db.createObjectStore('milestones', { keyPath: 'id' });
+        s.createIndex('by-type', 'type');
+        s.createIndex('by-earnedAt', 'earnedAt');
+      }
+    }
+    if (oldVersion < 3) {
+      if (!existing.contains('foods')) {
+        const s = db.createObjectStore('foods', { keyPath: 'id' });
+        s.createIndex('by-source', 'source');
+        s.createIndex('by-name', 'name');
+      }
+      if (!existing.contains('foodEntries')) {
+        const s = db.createObjectStore('foodEntries', { keyPath: 'id' });
+        s.createIndex('by-date', 'date');
+        s.createIndex('by-food-id', 'food_id');
+        s.createIndex('by-meal-id', 'meal_id');
+      }
+      if (!existing.contains('recipes')) {
+        const s = db.createObjectStore('recipes', { keyPath: 'id' });
+        s.createIndex('by-name', 'name');
+        s.createIndex('by-created', 'created_at');
+      }
+      if (!existing.contains('recipeItems')) {
+        const s = db.createObjectStore('recipeItems', { keyPath: 'id' });
+        s.createIndex('by-recipe-id', 'recipe_id');
+      }
+      if (!existing.contains('favorites')) {
+        const s = db.createObjectStore('favorites', { keyPath: 'food_id' });
+        s.createIndex('by-added', 'added_at');
+      }
+    }
+    if (oldVersion < 4) {
+      if (!existing.contains('meals')) {
+        const s = db.createObjectStore('meals', { keyPath: 'id' });
+        s.createIndex('by-date', 'date');
+      }
+      if (!existing.contains('savedMeals')) {
+        const s = db.createObjectStore('savedMeals', { keyPath: 'id' });
+        s.createIndex('by-name', 'name');
+      }
+      if (!existing.contains('savedMealItems')) {
+        const s = db.createObjectStore('savedMealItems', { keyPath: 'id' });
+        s.createIndex('by-saved-meal-id', 'saved_meal_id');
+      }
+      if (existing.contains('foodEntries')) {
+        const feStore = transaction.objectStore('foodEntries');
+        if (!feStore.indexNames.contains('by-meal-id')) {
+          feStore.createIndex('by-meal-id', 'meal_id');
+        }
+      }
+    }
+  };
+}
+
 export async function getDB(): Promise<IDBPDatabase<FitnessTrackerDB>> {
   if (dbInstance) {
-    // Ensure cached instance has the correct version
-    if (dbInstance.version < 4) {
+    if (dbInstance.version < 4 || !hasMealsSupport(dbInstance)) {
       dbInstance.close();
       dbInstance = null;
     } else {
@@ -142,90 +226,9 @@ export async function getDB(): Promise<IDBPDatabase<FitnessTrackerDB>> {
   }
 
   dbInstance = await openDB<FitnessTrackerDB>('fitness-tracker', 4, {
-    upgrade(db, oldVersion, _newVersion, transaction) {
-      // Safety: check which stores already exist to avoid re-creating
-      const existing = db.objectStoreNames;
-      if (oldVersion < 1) {
-        if (!existing.contains('dailyMeasurements')) {
-          const dailyStore = db.createObjectStore('dailyMeasurements', { keyPath: 'date' });
-          dailyStore.createIndex('by-date', 'date');
-        }
-        if (!existing.contains('weeklyMeasurements')) {
-          const weeklyStore = db.createObjectStore('weeklyMeasurements', { keyPath: 'date' });
-          weeklyStore.createIndex('by-date', 'date');
-        }
-        if (!existing.contains('fitbitAuth')) {
-          db.createObjectStore('fitbitAuth');
-        }
-      }
-
-      if (oldVersion < 2) {
-        if (!existing.contains('goals')) {
-          const goalStore = db.createObjectStore('goals', { keyPath: 'id' });
-          goalStore.createIndex('by-status', 'status');
-          goalStore.createIndex('by-createdAt', 'createdAt');
-        }
-        if (!existing.contains('streaks')) {
-          db.createObjectStore('streaks');
-        }
-        if (!existing.contains('milestones')) {
-          const milestoneStore = db.createObjectStore('milestones', { keyPath: 'id' });
-          milestoneStore.createIndex('by-type', 'type');
-          milestoneStore.createIndex('by-earnedAt', 'earnedAt');
-        }
-      }
-
-      if (oldVersion < 3) {
-        if (!existing.contains('foods')) {
-          const foodStore = db.createObjectStore('foods', { keyPath: 'id' });
-          foodStore.createIndex('by-source', 'source');
-          foodStore.createIndex('by-name', 'name');
-        }
-        if (!existing.contains('foodEntries')) {
-          const foodEntryStore = db.createObjectStore('foodEntries', { keyPath: 'id' });
-          foodEntryStore.createIndex('by-date', 'date');
-          foodEntryStore.createIndex('by-food-id', 'food_id');
-          foodEntryStore.createIndex('by-meal-id', 'meal_id');
-        }
-        if (!existing.contains('recipes')) {
-          const recipeStore = db.createObjectStore('recipes', { keyPath: 'id' });
-          recipeStore.createIndex('by-name', 'name');
-          recipeStore.createIndex('by-created', 'created_at');
-        }
-        if (!existing.contains('recipeItems')) {
-          const recipeItemStore = db.createObjectStore('recipeItems', { keyPath: 'id' });
-          recipeItemStore.createIndex('by-recipe-id', 'recipe_id');
-        }
-        if (!existing.contains('favorites')) {
-          const favoriteStore = db.createObjectStore('favorites', { keyPath: 'food_id' });
-          favoriteStore.createIndex('by-added', 'added_at');
-        }
-      }
-
-      if (oldVersion < 4) {
-        if (!existing.contains('meals')) {
-          const mealStore = db.createObjectStore('meals', { keyPath: 'id' });
-          mealStore.createIndex('by-date', 'date');
-        }
-        if (!existing.contains('savedMeals')) {
-          const savedMealStore = db.createObjectStore('savedMeals', { keyPath: 'id' });
-          savedMealStore.createIndex('by-name', 'name');
-        }
-        if (!existing.contains('savedMealItems')) {
-          const savedMealItemStore = db.createObjectStore('savedMealItems', { keyPath: 'id' });
-          savedMealItemStore.createIndex('by-saved-meal-id', 'saved_meal_id');
-        }
-        // Add by-meal-id index to existing foodEntries store
-        if (existing.contains('foodEntries')) {
-          const feStore = transaction.objectStore('foodEntries');
-          if (!feStore.indexNames.contains('by-meal-id')) {
-            feStore.createIndex('by-meal-id', 'meal_id');
-          }
-        }
-      }
-    },
-    blocked(_currentVersion, _blockedVersion, _event) {
-      // Another tab/SW holds an old connection — close our cached one and let the user know
+    upgrade: createUpgradeCallback(),
+    blocked() {
+      // Old connection in another tab/SW is blocking the upgrade
       if (dbInstance) {
         dbInstance.close();
         dbInstance = null;
@@ -233,33 +236,14 @@ export async function getDB(): Promise<IDBPDatabase<FitnessTrackerDB>> {
     },
   });
 
-  // Verify the migration actually ran — if meals store is missing, the upgrade was blocked
-  if (!dbInstance.objectStoreNames.contains('meals')) {
+  // If the upgrade was blocked, the DB may still lack v4 stores.
+  // Delete the entire DB and recreate from scratch as a last resort.
+  if (!hasMealsSupport(dbInstance)) {
     dbInstance.close();
     dbInstance = null;
-    // Retry once — the blocking connection should have been closed by now
+    await deleteDB('fitness-tracker');
     dbInstance = await openDB<FitnessTrackerDB>('fitness-tracker', 4, {
-      upgrade(db, oldVersion, _newVersion, transaction) {
-        const existing = db.objectStoreNames;
-        if (!existing.contains('meals')) {
-          const mealStore = db.createObjectStore('meals', { keyPath: 'id' });
-          mealStore.createIndex('by-date', 'date');
-        }
-        if (!existing.contains('savedMeals')) {
-          const savedMealStore = db.createObjectStore('savedMeals', { keyPath: 'id' });
-          savedMealStore.createIndex('by-name', 'name');
-        }
-        if (!existing.contains('savedMealItems')) {
-          const savedMealItemStore = db.createObjectStore('savedMealItems', { keyPath: 'id' });
-          savedMealItemStore.createIndex('by-saved-meal-id', 'saved_meal_id');
-        }
-        if (existing.contains('foodEntries')) {
-          const feStore = transaction.objectStore('foodEntries');
-          if (!feStore.indexNames.contains('by-meal-id')) {
-            feStore.createIndex('by-meal-id', 'meal_id');
-          }
-        }
-      },
+      upgrade: createUpgradeCallback(),
     });
   }
 
