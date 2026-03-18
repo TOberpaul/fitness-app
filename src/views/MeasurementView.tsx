@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { Scale, RulerDimensionLine } from 'lucide-react'
+import { Scale, Percent, RulerDimensionLine } from 'lucide-react'
 import Card from '../components/core/Card'
 import DailyInputView from './DailyInputView'
 import WeeklyInputView from './WeeklyInputView'
 import './MeasurementView.css'
 
 function MeasurementView() {
-  const [showDaily, setShowDaily] = useState(false)
+  const [showWeight, setShowWeight] = useState(false)
+  const [showBodyFat, setShowBodyFat] = useState(false)
   const [showWeekly, setShowWeekly] = useState(false)
 
   return (
@@ -16,15 +17,29 @@ function MeasurementView() {
       <div className="measurement-cards">
         <Card
           className="measurement-card"
-          onClick={() => setShowDaily(true)}
+          onClick={() => setShowWeight(true)}
           role="button"
           tabIndex={0}
           data-interactive
         >
           <Scale className="measurement-card-icon" />
           <div className="measurement-card-text">
-            <span data-emphasis="strong">Gewicht & Körperfett</span>
+            <span data-emphasis="strong">Gewicht</span>
             <span data-emphasis="weak">Tägliche Eingabe</span>
+          </div>
+        </Card>
+
+        <Card
+          className="measurement-card"
+          onClick={() => setShowBodyFat(true)}
+          role="button"
+          tabIndex={0}
+          data-interactive
+        >
+          <Percent className="measurement-card-icon" />
+          <div className="measurement-card-text">
+            <span data-emphasis="strong">Körperfett</span>
+            <span data-emphasis="weak">Optionale Messung</span>
           </div>
         </Card>
 
@@ -43,7 +58,8 @@ function MeasurementView() {
         </Card>
       </div>
 
-      <DailyInputView open={showDaily} onClose={() => setShowDaily(false)} />
+      <DailyInputView open={showWeight} onClose={() => setShowWeight(false)} mode="weight" />
+      <DailyInputView open={showBodyFat} onClose={() => setShowBodyFat(false)} mode="bodyFat" />
       <WeeklyInputView open={showWeekly} onClose={() => setShowWeekly(false)} />
     </div>
   )

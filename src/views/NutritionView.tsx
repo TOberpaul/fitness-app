@@ -127,6 +127,8 @@ function NutritionView() {
 
   return (
     <div className="nutrition-view">
+      <h1>Ernährung</h1>
+
       {/* Date navigation */}
       <Card className="nutrition-date-nav" data-material="semi-transparent">
         <Button iconOnly data-size="lg" data-material="semi-transparent" onClick={() => setSelectedDate(prev => shiftDate(prev, -1))} aria-label="Vorheriger Tag">
@@ -229,9 +231,9 @@ function NutritionView() {
                 onChange={e => setNewMealName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleCreateMeal()}
               />
-              <Button onClick={handleCreateMeal}>OK</Button>
+              <Button variant="primary" onClick={handleCreateMeal}>OK</Button>
             </div>
-            <Button width="full" data-material="transparent" onClick={() => { setShowNewMealInput(false); setNewMealName('') }}>Abbrechen</Button>
+            <Button width="full" onClick={() => { setShowNewMealInput(false); setNewMealName('') }}>Abbrechen</Button>
           </>
         ) : (
           <>
