@@ -5,7 +5,7 @@ type MascotState = 'sleeping' | 'awake' | 'falling-asleep' | 'purring' | 'drifti
 
 function SleepyMascot() {
   const [state, setState] = useState<MascotState>('sleeping')
-  const [showHint, setShowHint] = useState(true)
+  const [hintPhase, setHintPhase] = useState(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const scheduleReturn = useCallback(() => {
@@ -17,11 +17,12 @@ function SleepyMascot() {
   }, [])
 
   const handleTap = useCallback(() => {
-    setShowHint(false)
     if (state === 'sleeping') {
+      if (hintPhase === 0) setHintPhase(1)
       setState('awake')
       scheduleReturn()
     } else if (state === 'awake') {
+      setHintPhase(2)
       setState('purring')
       if (timerRef.current) clearTimeout(timerRef.current)
       timerRef.current = setTimeout(() => {
@@ -29,7 +30,7 @@ function SleepyMascot() {
         setTimeout(() => setState('sleeping'), 1500)
       }, 2000)
     }
-  }, [state, scheduleReturn])
+  }, [state, hintPhase, scheduleReturn])
 
   return (
     <>
@@ -72,7 +73,11 @@ function SleepyMascot() {
         <div className="mascot-grr">Grr!</div>
         <div className="mascot-purr-text">Prrr~</div>
       </div>
-      {showHint && <span className="mascot-hint" data-emphasis="weak">Antippen 👆</span>}
+      {hintPhase < 2 && (
+        <span className="mascot-hint" data-emphasis="weak">
+          {hintPhase === 0 ? 'Antippen 👆' : 'Nochmal wenn er wach ist'}
+        </span>
+      )}
     </>
   )
 }
