@@ -122,6 +122,7 @@
 
 .mascot--falling-asleep .mascot-eye-open {
   opacity: 1;
+  transform: scaleY(1);
   animation: eye-sleep 0.8s ease forwards;
 }
 

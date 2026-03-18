@@ -75,7 +75,7 @@ function SleepyMascot() {
       </div>
       {hintPhase < 2 && (
         <span className="mascot-hint" data-emphasis="weak">
-          {hintPhase === 0 ? 'Antippen 👆' : 'Nochmal wenn er wach ist'}
+          {hintPhase === 0 ? 'Antippen' : 'Nochmal wenn er wach ist'}
         </span>
       )}
     </>
