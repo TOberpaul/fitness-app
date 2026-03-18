@@ -6,14 +6,12 @@ import EmptyState from '../components/EmptyState'
 import GoalCard from '../components/GoalCard'
 import CoachingSummary from '../components/CoachingSummary'
 import BodyCompass from '../components/BodyCompass'
-import LiveStatus from '../components/LiveStatus'
 import ProgressJourney from '../components/ProgressJourney'
 import AchievementSection from '../components/AchievementSection'
 import { getAllData } from '../services/dataService'
 import { getActiveGoals, getAllGoals, calculateProjection } from '../services/goalService'
-import { calculateConsistencyScore, detectMicroWins, getAllAchievements, evaluateMilestones, getStreaks, getEarnedMilestones } from '../services/gamificationService'
-import { getWeekStart } from '../utils/date'
-import type { DailyMeasurement, WeeklyMeasurement, Goal, GoalProjection, ConsistencyScore, CircumferenceZone, TrendDirection, MicroWin, Achievement, Streaks } from '../types'
+import { getAllAchievements, evaluateMilestones, getStreaks, getEarnedMilestones } from '../services/gamificationService'
+import type { DailyMeasurement, WeeklyMeasurement, Goal, GoalProjection, CircumferenceZone, TrendDirection, Achievement, Streaks } from '../types'
 import GoalCreateView from './GoalCreateView'
 import GoalDetailView from './GoalDetailView'
 import Button from '../components/core/Button'
@@ -45,13 +43,11 @@ function GoalsView() {
   const [hasGoals, setHasGoals] = useState<boolean | null>(null)
   const [activeGoals, setActiveGoals] = useState<Goal[]>([])
   const [projections, setProjections] = useState<Map<string, GoalProjection>>(new Map())
-  const [consistencyScore, setConsistencyScore] = useState<ConsistencyScore | null>(null)
   const [currentWeight, setCurrentWeight] = useState<number | null>(null)
   const [weeklyWeightChange, setWeeklyWeightChange] = useState<number | null>(null)
   const [bodyCompassTrends, setBodyCompassTrends] = useState<Record<CircumferenceZone, TrendDirection | null>>({
     chest: null, waist: null, belly: null, hip: null, upperArm: null, thigh: null
   })
-  const [microWins, setMicroWins] = useState<MicroWin[]>([])
   const [achievements, setAchievements] = useState<Achievement[]>([])
   const [streaks, setStreaks] = useState<Streaks | null>(null)
   const [dailyMeasurements, setDailyMeasurements] = useState<DailyMeasurement[]>([])
@@ -91,10 +87,6 @@ function GoalsView() {
       }
 
       setBodyCompassTrends(calculateTrends(weeklyMeas))
-      setMicroWins(detectMicroWins(dailyMeas, weeklyMeas))
-
-      const weekStart = getWeekStart(new Date())
-      setConsistencyScore(calculateConsistencyScore(weekStart, dailyMeas, weeklyMeas.length > 0))
 
       // Retroactively evaluate milestones for newly added types
       const allGoals = await getAllGoals()
@@ -154,18 +146,18 @@ function GoalsView() {
             )
           })()}
 
-          {(() => {
-            const weightGoal = activeGoals.find(g => g.metricType === 'weight') || activeGoals[0]
-            const primaryProjection = projections.get(weightGoal.id) || null
-            return (
-              <LiveStatus
-                projection={primaryProjection}
-                consistencyScore={consistencyScore}
-                microWins={microWins}
-                streaks={streaks}
+          {streaks && streaks.dailyStreak > 0 && (
+            <div className="goals-view-streak-card core-card adaptive">
+              <img
+                className="goals-view-streak-img"
+                src={`${import.meta.env.BASE_URL}Flame.png`}
+                alt=""
               />
-            )
-          })()}
+              <span className="goals-view-streak-text">
+                <strong>{streaks.dailyStreak}</strong> <span className="goals-view-streak-weak">{streaks.dailyStreak === 1 ? 'Tag' : 'Tage'} in Folge</span>
+              </span>
+            </div>
+          )}
 
           <Section title="Aktive Ziele">
             <motion.div className="goals-view-list" variants={staggerContainer} initial="initial" animate="animate">
