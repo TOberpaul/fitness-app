@@ -23,15 +23,6 @@
   padding: var(--size-padding-min);
 }
 
-.bottom-nav-active-indicator {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--db-visual, currentColor);
-  z-index: 0;
-  pointer-events: none;
-}
-
 .bottom-nav-link.active {
   color: var(--db-visual);
 }
