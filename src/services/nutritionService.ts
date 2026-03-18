@@ -1,4 +1,5 @@
 import { getDB, resetDB } from './db';
+import { deleteDB } from 'idb';
 import type { Food, FoodEntry, Meal, SavedMeal, SavedMealItem, Recipe, RecipeItem, DailySummary, MealWithEntries } from '../types';
 import { calculateDailyTotals } from '../utils/calculationEngine';
 import { supabase } from './supabase';
@@ -151,7 +152,6 @@ export async function getCachedFood(id: string): Promise<Food | undefined> {
 
 /** Create a new meal for a date */
 export async function createMeal(date: string, name: string): Promise<Meal> {
-  const db = await getDB();
   const meal: Meal = {
     id: crypto.randomUUID(),
     date,
@@ -159,10 +159,12 @@ export async function createMeal(date: string, name: string): Promise<Meal> {
     created_at: new Date().toISOString(),
   };
   try {
+    const db = await getDB();
     await db.put('meals', meal);
   } catch {
-    // If meals store doesn't exist, force DB reconnect and retry
+    // meals store missing — nuke DB and recreate
     resetDB();
+    await deleteDB('fitness-tracker');
     const db2 = await getDB();
     await db2.put('meals', meal);
   }

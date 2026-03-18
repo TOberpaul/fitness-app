@@ -225,23 +225,38 @@ export async function getDB(): Promise<IDBPDatabase<FitnessTrackerDB>> {
     }
   }
 
-  dbInstance = await openDB<FitnessTrackerDB>('fitness-tracker', 4, {
-    upgrade: createUpgradeCallback(),
-    blocked() {
-      // Old connection in another tab/SW is blocking the upgrade
-      if (dbInstance) {
-        dbInstance.close();
-        dbInstance = null;
-      }
-    },
-  });
+  try {
+    dbInstance = await openDB<FitnessTrackerDB>('fitness-tracker', 4, {
+      upgrade: createUpgradeCallback(),
+      blocked() {
+        // Old connection in another tab/SW is blocking the upgrade
+        if (dbInstance) {
+          dbInstance.close();
+          dbInstance = null;
+        }
+      },
+      blocking() {
+        // This connection is blocking a newer version — close it
+        if (dbInstance) {
+          dbInstance.close();
+          dbInstance = null;
+        }
+      },
+    });
+  } catch {
+    // openDB itself failed (e.g. blocked indefinitely) — delete and retry
+    try { await deleteDB('fitness-tracker'); } catch { /* ignore */ }
+    dbInstance = await openDB<FitnessTrackerDB>('fitness-tracker', 4, {
+      upgrade: createUpgradeCallback(),
+    });
+  }
 
   // If the upgrade was blocked, the DB may still lack v4 stores.
   // Delete the entire DB and recreate from scratch as a last resort.
   if (!hasMealsSupport(dbInstance)) {
     dbInstance.close();
     dbInstance = null;
-    await deleteDB('fitness-tracker');
+    try { await deleteDB('fitness-tracker'); } catch { /* ignore */ }
     dbInstance = await openDB<FitnessTrackerDB>('fitness-tracker', 4, {
       upgrade: createUpgradeCallback(),
     });
