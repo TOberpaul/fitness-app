@@ -1,4 +1,4 @@
-import { getDB } from './db';
+import { getDB, resetDB } from './db';
 import type { Food, FoodEntry, Meal, SavedMeal, SavedMealItem, Recipe, RecipeItem, DailySummary, MealWithEntries } from '../types';
 import { calculateDailyTotals } from '../utils/calculationEngine';
 import { supabase } from './supabase';
@@ -158,14 +158,26 @@ export async function createMeal(date: string, name: string): Promise<Meal> {
     name,
     created_at: new Date().toISOString(),
   };
-  await db.put('meals', meal);
+  try {
+    await db.put('meals', meal);
+  } catch {
+    // If meals store doesn't exist, force DB reconnect and retry
+    resetDB();
+    const db2 = await getDB();
+    await db2.put('meals', meal);
+  }
   return meal;
 }
 
 /** Get all meals for a date */
 export async function getMealsByDate(date: string): Promise<Meal[]> {
-  const db = await getDB();
-  return db.getAllFromIndex('meals', 'by-date', date);
+  try {
+    const db = await getDB();
+    return db.getAllFromIndex('meals', 'by-date', date);
+  } catch {
+    // meals store may not exist yet if migration hasn't completed
+    return [];
+  }
 }
 
 /** Get a single meal by id */
@@ -198,8 +210,12 @@ export async function deleteMeal(id: string): Promise<void> {
 
 /** Get food entries for a specific meal */
 export async function getFoodEntriesByMeal(mealId: string): Promise<FoodEntry[]> {
-  const db = await getDB();
-  return db.getAllFromIndex('foodEntries', 'by-meal-id', mealId);
+  try {
+    const db = await getDB();
+    return db.getAllFromIndex('foodEntries', 'by-meal-id', mealId);
+  } catch {
+    return [];
+  }
 }
 
 // ─── Saved Meals (Vorlagen) ──────────────────────────────────────────
@@ -242,8 +258,12 @@ export async function saveMealAsTemplate(mealId: string, name: string): Promise<
 
 /** Get all saved meal templates */
 export async function getAllSavedMeals(): Promise<SavedMeal[]> {
-  const db = await getDB();
-  return db.getAll('savedMeals');
+  try {
+    const db = await getDB();
+    return db.getAll('savedMeals');
+  } catch {
+    return [];
+  }
 }
 
 /** Delete a saved meal template and its items */
