@@ -16,8 +16,8 @@ const TABS: TabDef[] = [
   { type: 'snap', index: 1, label: 'Täglich', icon: Scale },
   { type: 'snap', index: 2, label: 'Wöchentlich', icon: RulerDimensionLine },
   { type: 'snap', index: 3, label: 'Ziele', icon: Target },
-  { type: 'route', path: '/nutrition', label: 'Ernährung', icon: Apple },
   { type: 'snap', index: 4, label: 'Mehr', icon: Settings },
+  { type: 'route', path: '/nutrition', label: 'Ernährung', icon: Apple },
 ]
 
 function BottomNavigation() {
