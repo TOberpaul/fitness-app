@@ -29,8 +29,8 @@
 /* ── Eyes container ── */
 .mascot-eyes {
   position: absolute;
-  top: 23%;
-  left: 22%;
+  top: 21%;
+  left: 21%;
   width: 38%;
   transform: rotate(-20deg);
   display: flex;
