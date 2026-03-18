@@ -182,6 +182,31 @@ export async function getCustomFoods(): Promise<Food[]> {
   return all;
 }
 
+/** Update an existing custom food */
+export async function updateCustomFood(id: string, data: {
+  name: string;
+  kcal_per_100g: number;
+  protein_per_100g: number;
+  carbs_per_100g: number;
+  fat_per_100g: number;
+  brand?: string;
+}): Promise<Food> {
+  const db = await getDB();
+  const existing = await db.get('foods', id);
+  if (!existing || existing.source !== 'custom') throw new Error('Food not found or not custom');
+  const updated: Food = {
+    ...existing,
+    name: data.name,
+    kcal_per_100g: data.kcal_per_100g,
+    protein_per_100g: data.protein_per_100g,
+    carbs_per_100g: data.carbs_per_100g,
+    fat_per_100g: data.fat_per_100g,
+    brand: data.brand || undefined,
+  };
+  await db.put('foods', updated);
+  return updated;
+}
+
 // ─── Meals (Gerichte) ────────────────────────────────────────────────
 
 /** Create a new meal for a date */

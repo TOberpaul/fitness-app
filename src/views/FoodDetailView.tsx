@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Star } from 'lucide-react'
-import { getCachedFood, saveFoodEntry, isFavorite, addFavorite, removeFavorite } from '../services/nutritionService'
+import { Star, Pencil } from 'lucide-react'
+import { getCachedFood, saveFoodEntry, isFavorite, addFavorite, removeFavorite, updateCustomFood } from '../services/nutritionService'
 import { calculateNutrition, portionToGrams } from '../utils/calculationEngine'
 import Dialog from '../components/core/Dialog'
 import Button from '../components/core/Button'
@@ -24,6 +24,50 @@ function FoodDetailView({ open, onClose, foodId, date, mealId }: FoodDetailViewP
   const [amount, setAmount] = useState('100')
   const [usePortion, setUsePortion] = useState(false)
   const [isFav, setIsFav] = useState(false)
+
+  // Edit custom food state
+  const [showEdit, setShowEdit] = useState(false)
+  const [editName, setEditName] = useState('')
+  const [editKcal, setEditKcal] = useState('')
+  const [editProtein, setEditProtein] = useState('')
+  const [editCarbs, setEditCarbs] = useState('')
+  const [editFat, setEditFat] = useState('')
+  const [editError, setEditError] = useState('')
+
+  const openEditDialog = () => {
+    if (!food) return
+    setEditName(food.name)
+    setEditKcal(String(food.kcal_per_100g))
+    setEditProtein(String(food.protein_per_100g))
+    setEditCarbs(String(food.carbs_per_100g))
+    setEditFat(String(food.fat_per_100g))
+    setEditError('')
+    setShowEdit(true)
+  }
+
+  const handleSaveEdit = async () => {
+    if (!food) return
+    setEditError('')
+    const name = editName.trim()
+    if (!name) { setEditError('Name ist erforderlich'); return }
+    const kcal = Number(editKcal.replace(',', '.'))
+    const protein = Number(editProtein.replace(',', '.') || '0')
+    const carbs = Number(editCarbs.replace(',', '.') || '0')
+    const fat = Number(editFat.replace(',', '.') || '0')
+    if (isNaN(kcal) || kcal < 0) { setEditError('Kalorien müssen eine gültige Zahl sein'); return }
+    if (isNaN(protein) || protein < 0 || isNaN(carbs) || carbs < 0 || isNaN(fat) || fat < 0) {
+      setEditError('Nährwerte müssen gültige Zahlen sein'); return
+    }
+    try {
+      const updated = await updateCustomFood(food.id, { name, kcal_per_100g: kcal, protein_per_100g: protein, carbs_per_100g: carbs, fat_per_100g: fat })
+      setFood(updated)
+      setShowEdit(false)
+    } catch {
+      setEditError('Speichern fehlgeschlagen')
+    }
+  }
+
+  const isCustom = food?.source === 'custom'
 
   useEffect(() => {
     if (!open || !foodId) {
@@ -169,16 +213,23 @@ function FoodDetailView({ open, onClose, foodId, date, mealId }: FoodDetailViewP
             </Section>
 
             <div className="food-detail-actions">
+              {isCustom && (
+                <Button
+                  iconOnly
+                  onClick={openEditDialog}
+                  aria-label="Lebensmittel bearbeiten"
+                >
+                  <Pencil size={20} />
+                </Button>
+              )}
               <Button
                 iconOnly
-                className="food-detail-fav-btn"
                 onClick={handleToggleFavorite}
                 aria-label={isFav ? 'Favorit entfernen' : 'Als Favorit markieren'}
               >
                 <Star size={20} fill={isFav ? 'currentColor' : 'none'} />
               </Button>
               <Button
-                className="food-detail-save-btn"
                 width="full"
                 disabled={!isValid}
                 onClick={handleSave}
@@ -186,6 +237,55 @@ function FoodDetailView({ open, onClose, foodId, date, mealId }: FoodDetailViewP
                 Speichern
               </Button>
             </div>
+
+            {/* Edit custom food dialog */}
+            <Dialog title="Lebensmittel bearbeiten" open={showEdit} onClose={() => setShowEdit(false)}>
+              <div className="food-detail-edit-form">
+                <Input
+                  id="edit-name"
+                  label="Name"
+                  value={editName}
+                  onChange={e => { setEditName(e.target.value); setEditError('') }}
+                />
+                <Input
+                  id="edit-kcal"
+                  label="Kalorien pro 100g"
+                  type="text"
+                  inputMode="decimal"
+                  value={editKcal}
+                  onChange={e => { setEditKcal(e.target.value); setEditError('') }}
+                />
+                <Input
+                  id="edit-protein"
+                  label="Protein pro 100g (g)"
+                  type="text"
+                  inputMode="decimal"
+                  value={editProtein}
+                  onChange={e => { setEditProtein(e.target.value); setEditError('') }}
+                />
+                <Input
+                  id="edit-carbs"
+                  label="Kohlenhydrate pro 100g (g)"
+                  type="text"
+                  inputMode="decimal"
+                  value={editCarbs}
+                  onChange={e => { setEditCarbs(e.target.value); setEditError('') }}
+                />
+                <Input
+                  id="edit-fat"
+                  label="Fett pro 100g (g)"
+                  type="text"
+                  inputMode="decimal"
+                  value={editFat}
+                  onChange={e => { setEditFat(e.target.value); setEditError('') }}
+                />
+                {editError && <p className="food-detail-edit-error">{editError}</p>}
+                <div className="core-dialog-actions">
+                  <Button variant="primary" onClick={handleSaveEdit}>Speichern</Button>
+                  <Button data-material="transparent" onClick={() => setShowEdit(false)}>Abbrechen</Button>
+                </div>
+              </div>
+            </Dialog>
           </>
         )}
       </div>

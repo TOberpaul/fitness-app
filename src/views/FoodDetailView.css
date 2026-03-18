@@ -47,12 +47,19 @@
   padding-top: var(--spacing-gap);
 }
 
-.food-detail-save-btn {
-  flex: 1;
-}
-
 .food-detail-loading,
 .food-detail-not-found {
   text-align: center;
   padding: var(--spacing-padding);
+}
+
+.food-detail-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.food-detail-edit-error {
+  color: var(--db-visual);
+  font-size: var(--size-text-small, 0.85rem);
 }
