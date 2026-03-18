@@ -352,33 +352,41 @@
 
 /* Purring: eyes stay closed (default state — arcs visible, open eyes hidden) */
 
-/* Settling: eyes stay closed, hearts/prrr fade out */
-.mascot--settling .mascot-purr-text {
-  opacity: 0;
+/* Settling: hearts/prrr fade out near end */
+.mascot--purring .mascot-purr-text {
+  animation: fade-out 0.5s ease 2.5s forwards;
 }
 
-.mascot--settling .mascot-hearts {
-  opacity: 0;
-}
-
-/* Purring: gentle sway */
+/* Purring: dampened sway over 3s (100→0) */
 .mascot--purring {
-  animation: mascot-purr 0.6s ease-in-out infinite alternate;
+  animation: mascot-purr 3s ease-out forwards;
 }
 
 @keyframes mascot-purr {
-  0% { transform: rotate(-3deg); }
-  100% { transform: rotate(3deg); }
-}
-
-/* Settling: sway dampens to zero */
-.mascot--settling {
-  animation: mascot-settle 0.6s ease-out forwards;
-}
-
-@keyframes mascot-settle {
-  0% { transform: rotate(2deg); }
-  30% { transform: rotate(-1deg); }
-  60% { transform: rotate(0.5deg); }
+  0%   { transform: rotate(0deg); }
+  5%   { transform: rotate(3deg); }
+  10%  { transform: rotate(-3deg); }
+  15%  { transform: rotate(2.8deg); }
+  20%  { transform: rotate(-2.8deg); }
+  25%  { transform: rotate(2.4deg); }
+  30%  { transform: rotate(-2.4deg); }
+  35%  { transform: rotate(2deg); }
+  40%  { transform: rotate(-2deg); }
+  45%  { transform: rotate(1.6deg); }
+  50%  { transform: rotate(-1.6deg); }
+  55%  { transform: rotate(1.2deg); }
+  60%  { transform: rotate(-1.2deg); }
+  65%  { transform: rotate(0.8deg); }
+  70%  { transform: rotate(-0.8deg); }
+  75%  { transform: rotate(0.5deg); }
+  80%  { transform: rotate(-0.5deg); }
+  85%  { transform: rotate(0.3deg); }
+  90%  { transform: rotate(-0.2deg); }
+  95%  { transform: rotate(0.1deg); }
   100% { transform: rotate(0deg); }
+}
+
+@keyframes fade-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
 }
