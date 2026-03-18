@@ -41,7 +41,8 @@ export async function searchOpenFoodFacts(query: string): Promise<Food[]> {
           fat_per_100g: nutriments['fat_100g'] ?? 0,
           default_unit: unit,
         };
-      });
+      })
+      .filter((f: Food) => f.kcal_per_100g > 0 || f.protein_per_100g > 0 || f.carbs_per_100g > 0 || f.fat_per_100g > 0);
   } catch {
     return [];
   }

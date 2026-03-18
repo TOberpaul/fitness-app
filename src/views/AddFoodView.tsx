@@ -152,11 +152,13 @@ function AddFoodView({ open, onClose, date, onFoodSelect }: AddFoodViewProps) {
                 Rezepte
               </Button>
               <Button
+                iconOnly
                 data-material={activeTab === 'favorites' ? 'inverted' : undefined}
                 data-container-contrast={activeTab === 'favorites' ? 'max' : undefined}
                 onClick={() => setActiveTab('favorites')}
+                aria-label="Favoriten"
               >
-                <Star size={14} /> Favoriten
+                <Star size={18} />
               </Button>
             </div>
 

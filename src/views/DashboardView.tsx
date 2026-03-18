@@ -8,7 +8,7 @@ import Button from '../components/core/Button'
 import { getDailyMeasurements, getWeeklyMeasurements, getAllData } from '../services/dataService'
 import { getDateRange, calculatePercentChange } from '../utils/date'
 import { getActiveGoals, calculateProjection } from '../services/goalService'
-import { getStreaks } from '../services/gamificationService'
+import { getStreaks, updateDailyStreak } from '../services/gamificationService'
 import type { DataPoint, TimeRange, DailyMeasurement, WeeklyMeasurement, Streaks } from '../types'
 import { useAnimatedNumber } from '../animations/hooks'
 import './DashboardView.css'
@@ -71,6 +71,10 @@ function DashboardView() {
       setHasDailyData(allData.dailyMeasurements.length > 0)
       setHasWeeklyData(allData.weeklyMeasurements.length > 0)
 
+      // Recalculate streak from actual DB data, then read the updated value
+      const today = new Date()
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+      await updateDailyStreak(todayStr)
       const s = await getStreaks()
       setStreaks(s)
 
