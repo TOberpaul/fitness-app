@@ -69,12 +69,10 @@ function AchievementCard({ achievement, icon, color, onClick }: AchievementCardP
   const isEarned = isNewAchievement(achievement) && achievement.status === 'earned'
   const isDisabled = isLocked || isNext
 
-  // Resolve the icon for new Achievement type
   const resolvedIcon = isNewAchievement(achievement)
     ? resolveIcon(achievement.definition.icon)
     : null
 
-  // Determine color: earned = violet, locked = no data-color
   const cardColor = isNewAchievement(achievement)
     ? (isEarned ? 'violet' : undefined)
     : color
@@ -126,6 +124,7 @@ function AchievementCard({ achievement, icon, color, onClick }: AchievementCardP
         <span className="achievement-card-label">{label}</span>
         {detail && <span className="achievement-card-detail">{detail}</span>}
       </div>
+      {isEarned && <span className="achievement-card-check" aria-label="Erreicht">✓</span>}
     </motion.div>
   )
 }
