@@ -26,8 +26,8 @@ function SleepyMascot() {
       if (timerRef.current) clearTimeout(timerRef.current)
       timerRef.current = setTimeout(() => {
         setState('drifting-off')
-        setTimeout(() => setState('sleeping'), 1000)
-      }, 2200)
+        setTimeout(() => setState('sleeping'), 1500)
+      }, 2000)
     }
   }, [state, scheduleReturn])
 

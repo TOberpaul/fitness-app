@@ -354,7 +354,7 @@
 
 /* Drifting off: crossfade hearts→zzz */
 .mascot--drifting-off .mascot-hearts {
-  animation: drift-fade-out 1s ease forwards;
+  animation: drift-fade-out 1.4s ease forwards;
 }
 
 .mascot--drifting-off .mascot-heart {
@@ -364,11 +364,11 @@
 .mascot--drifting-off .mascot-purr-text {
   opacity: 1;
   transform: scale(1);
-  animation: drift-fade-out 0.6s ease forwards;
+  animation: drift-fade-out 0.8s ease forwards;
 }
 
 .mascot--drifting-off .mascot-zzz {
-  animation: drift-fade-in 1s ease 0.3s forwards;
+  animation: drift-fade-in 1s ease forwards;
   opacity: 0;
 }
 
