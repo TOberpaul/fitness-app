@@ -148,6 +148,40 @@ export async function getCachedFood(id: string): Promise<Food | undefined> {
   return db.get('foods', id);
 }
 
+// ─── Custom Foods ────────────────────────────────────────────────────
+
+/** Create a user-defined custom food and cache it */
+export async function createCustomFood(data: {
+  name: string;
+  kcal_per_100g: number;
+  protein_per_100g: number;
+  carbs_per_100g: number;
+  fat_per_100g: number;
+  brand?: string;
+  default_unit?: 'g' | 'ml';
+}): Promise<Food> {
+  const food: Food = {
+    id: `custom_${crypto.randomUUID()}`,
+    source: 'custom',
+    name: data.name,
+    brand: data.brand || undefined,
+    kcal_per_100g: data.kcal_per_100g,
+    protein_per_100g: data.protein_per_100g,
+    carbs_per_100g: data.carbs_per_100g,
+    fat_per_100g: data.fat_per_100g,
+    default_unit: data.default_unit || 'g',
+  };
+  await cacheFood(food);
+  return food;
+}
+
+/** Get all custom foods from the foods store */
+export async function getCustomFoods(): Promise<Food[]> {
+  const db = await getDB();
+  const all = await db.getAllFromIndex('foods', 'by-source', 'custom');
+  return all;
+}
+
 // ─── Meals (Gerichte) ────────────────────────────────────────────────
 
 /** Create a new meal for a date */

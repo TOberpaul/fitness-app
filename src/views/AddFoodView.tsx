@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Star } from 'lucide-react'
+import { Plus, Star } from 'lucide-react'
 import { searchFoods } from '../services/foodSearchService'
-import { getRecentFoods, getAllFavorites, getAllRecipes, saveFoodEntry, cacheFood } from '../services/nutritionService'
+import { getRecentFoods, getAllFavorites, getAllRecipes, saveFoodEntry, cacheFood, createCustomFood } from '../services/nutritionService'
 import Dialog from '../components/core/Dialog'
 import Button from '../components/core/Button'
 import Card from '../components/core/Card'
@@ -28,6 +28,46 @@ function AddFoodView({ open, onClose, date, mealId, onFoodSelect }: AddFoodViewP
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [activeTab, setActiveTab] = useState<Tab>('recent')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Custom food dialog state
+  const [showCustomForm, setShowCustomForm] = useState(false)
+  const [customName, setCustomName] = useState('')
+  const [customKcal, setCustomKcal] = useState('')
+  const [customProtein, setCustomProtein] = useState('')
+  const [customCarbs, setCustomCarbs] = useState('')
+  const [customFat, setCustomFat] = useState('')
+  const [customError, setCustomError] = useState('')
+
+  const resetCustomForm = () => {
+    setCustomName('')
+    setCustomKcal('')
+    setCustomProtein('')
+    setCustomCarbs('')
+    setCustomFat('')
+    setCustomError('')
+  }
+
+  const handleCreateCustomFood = async () => {
+    setCustomError('')
+    const name = customName.trim()
+    if (!name) { setCustomError('Name ist erforderlich'); return }
+    const kcal = Number(customKcal.replace(',', '.'))
+    const protein = Number(customProtein.replace(',', '.') || '0')
+    const carbs = Number(customCarbs.replace(',', '.') || '0')
+    const fat = Number(customFat.replace(',', '.') || '0')
+    if (isNaN(kcal) || kcal < 0) { setCustomError('Kalorien müssen eine gültige Zahl sein'); return }
+    if (isNaN(protein) || protein < 0 || isNaN(carbs) || carbs < 0 || isNaN(fat) || fat < 0) {
+      setCustomError('Nährwerte müssen gültige Zahlen sein'); return
+    }
+    try {
+      const food = await createCustomFood({ name, kcal_per_100g: kcal, protein_per_100g: protein, carbs_per_100g: carbs, fat_per_100g: fat })
+      setShowCustomForm(false)
+      resetCustomForm()
+      onFoodSelect(food.id)
+    } catch {
+      setCustomError('Speichern fehlgeschlagen')
+    }
+  }
 
   useEffect(() => {
     if (!open) return
@@ -131,7 +171,10 @@ function AddFoodView({ open, onClose, date, mealId, onFoodSelect }: AddFoodViewP
                 searchResults.map(renderFoodItem)
               ) : (
                 <div className="add-food-empty" data-emphasis="weak">
-                  Keine Ergebnisse
+                  <p>Keine Ergebnisse</p>
+                  <Button variant="primary" onClick={() => { setShowCustomForm(true); setCustomName(query.trim()) }}>
+                    <Plus size={16} /> Eigenes Lebensmittel erstellen
+                  </Button>
                 </div>
               )}
             </div>
@@ -210,7 +253,65 @@ function AddFoodView({ open, onClose, date, mealId, onFoodSelect }: AddFoodViewP
             </Section>
           </>
         )}
+
+        <Button width="full" onClick={() => setShowCustomForm(true)}>
+          <Plus size={16} /> Eigenes Lebensmittel
+        </Button>
       </div>
+
+      {/* Custom food creation dialog */}
+      <Dialog title="Eigenes Lebensmittel" open={showCustomForm} onClose={() => { setShowCustomForm(false); resetCustomForm() }}>
+        <div className="add-food-custom-form">
+          <Input
+            id="custom-name"
+            label="Name"
+            value={customName}
+            onChange={e => { setCustomName(e.target.value); setCustomError('') }}
+            placeholder="z.B. Haferflocken"
+          />
+          <Input
+            id="custom-kcal"
+            label="Kalorien pro 100g"
+            type="text"
+            inputMode="decimal"
+            value={customKcal}
+            onChange={e => { setCustomKcal(e.target.value); setCustomError('') }}
+            placeholder="0"
+          />
+          <Input
+            id="custom-protein"
+            label="Protein pro 100g (g)"
+            type="text"
+            inputMode="decimal"
+            value={customProtein}
+            onChange={e => { setCustomProtein(e.target.value); setCustomError('') }}
+            placeholder="0"
+          />
+          <Input
+            id="custom-carbs"
+            label="Kohlenhydrate pro 100g (g)"
+            type="text"
+            inputMode="decimal"
+            value={customCarbs}
+            onChange={e => { setCustomCarbs(e.target.value); setCustomError('') }}
+            placeholder="0"
+          />
+          <Input
+            id="custom-fat"
+            label="Fett pro 100g (g)"
+            type="text"
+            inputMode="decimal"
+            value={customFat}
+            onChange={e => { setCustomFat(e.target.value); setCustomError('') }}
+            placeholder="0"
+          />
+          {customError && <p className="add-food-custom-error">{customError}</p>}
+          <div className="core-dialog-actions">
+            <Button variant="primary" onClick={handleCreateCustomFood}>Speichern</Button>
+            <Button data-material="transparent" onClick={() => { setShowCustomForm(false); resetCustomForm() }}>Abbrechen</Button>
+          </div>
+        </div>
+      </Dialog>
     </Dialog>
   )
 }

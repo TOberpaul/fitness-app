@@ -17,8 +17,3 @@
   font-size: var(--size-text);
   color: var(--db-text);
 }
-
-.empty-state-cta {
-  height: var(--size-container);
-  font-weight: bold;
-}

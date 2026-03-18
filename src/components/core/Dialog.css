@@ -72,7 +72,7 @@
 }
 
 .core-dialog-actions button {
-  height: var(--size-container);
+  min-height: var(--size-container);
   font-weight: bold;
   width: 100%;
 }

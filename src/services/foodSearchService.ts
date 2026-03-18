@@ -1,5 +1,6 @@
 import type { Food } from '../types';
 import { searchBasicFoods } from './basicFoods';
+import { getCustomFoods } from './nutritionService';
 
 /**
  * Queries Open Food Facts API with DACH focus (cc=de, lc=de).
@@ -138,6 +139,20 @@ export function mergeAndRank(
 }
 
 /**
+ * Search user-created custom foods by name (case-insensitive substring match).
+ * Returns empty array on error — never throws.
+ */
+async function searchCustomFoods(query: string): Promise<Food[]> {
+  try {
+    const all = await getCustomFoods();
+    const q = query.toLowerCase();
+    return all.filter(f => f.name.toLowerCase().includes(q));
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Main search function.
  * Queries Open Food Facts and BLS in parallel.
  * If both return empty, queries USDA as fallback.
@@ -147,15 +162,16 @@ export async function searchFoods(query: string): Promise<Food[]> {
   // Lokale Grundnahrungsmittel zuerst (sofort, kein Netzwerk)
   const localResults = searchBasicFoods(query);
 
-  const [offResults, blsResults] = await Promise.all([
+  const [offResults, blsResults, customResults] = await Promise.all([
     searchOpenFoodFacts(query),
     searchBLS(query),
+    searchCustomFoods(query),
   ]);
 
   let usdaResults: Food[] = [];
-  if (offResults.length === 0 && blsResults.length === 0 && localResults.length === 0) {
+  if (offResults.length === 0 && blsResults.length === 0 && localResults.length === 0 && customResults.length === 0) {
     usdaResults = await searchUSDA(query);
   }
 
-  return mergeAndRank(offResults, blsResults, usdaResults, localResults);
+  return mergeAndRank(offResults, blsResults, usdaResults, [...customResults, ...localResults]);
 }

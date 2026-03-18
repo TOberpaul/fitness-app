@@ -111,4 +111,19 @@
 .add-food-empty {
   text-align: center;
   padding: var(--spacing-padding);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--size-gap);
+}
+
+.add-food-custom-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-gap);
+}
+
+.add-food-custom-error {
+  color: var(--db-visual);
+  font-size: var(--size-text-small, 0.85rem);
 }

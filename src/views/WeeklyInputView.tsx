@@ -224,9 +224,8 @@ function WeeklyInputView() {
       </div>
 
       <Button
-        className="weekly-input-cta"
-        data-material="inverted"
-        data-container-contrast="max"
+        variant="primary"
+        width="full"
         onClick={openDialog}
       >
         Messung starten
