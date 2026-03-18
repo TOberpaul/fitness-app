@@ -3,12 +3,13 @@ import './Button.css'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode
+  iconOnly?: boolean
 }
 
-function Button({ children, className, ...rest }: ButtonProps) {
+function Button({ children, className, iconOnly, ...rest }: ButtonProps) {
   return (
     <button
-      className={`button adaptive${className ? ` ${className}` : ''}`}
+      className={`button adaptive${iconOnly ? ' button--icon-only' : ''}${className ? ` ${className}` : ''}`}
       data-interactive
       {...rest}
     >

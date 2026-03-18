@@ -267,10 +267,10 @@ function GoalDetailView({ goalId, open, onClose, onChanged }: GoalDetailViewProp
             )}
 
             <div className="goal-detail-actions">
-              <Button className="goal-detail-icon-button" onClick={startEditing} aria-label="Bearbeiten">
+              <Button iconOnly className="goal-detail-icon-button" onClick={startEditing} aria-label="Bearbeiten">
                 <Pencil />
               </Button>
-              <Button className="goal-detail-icon-button" onClick={() => setConfirmDelete(true)} aria-label="Löschen">
+              <Button iconOnly className="goal-detail-icon-button" onClick={() => setConfirmDelete(true)} aria-label="Löschen">
                 <Trash2 />
               </Button>
             </div>

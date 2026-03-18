@@ -72,6 +72,7 @@ function NutritionView() {
       {/* Date navigation */}
       <Card className="nutrition-date-nav">
         <Button
+          iconOnly
           onClick={() => setSelectedDate(prev => shiftDate(prev, -1))}
           aria-label="Vorheriger Tag"
         >
@@ -79,6 +80,7 @@ function NutritionView() {
         </Button>
         <span className="nutrition-date-label">{formatDateDE(selectedDate)}</span>
         <Button
+          iconOnly
           onClick={() => setSelectedDate(prev => shiftDate(prev, 1))}
           aria-label="Nächster Tag"
         >
@@ -120,6 +122,7 @@ function NutritionView() {
                 </span>
               </div>
               <Button
+                iconOnly
                 className="nutrition-entry-delete"
                 onClick={() => handleDelete(entry.id)}
                 aria-label={`${entry.name} löschen`}

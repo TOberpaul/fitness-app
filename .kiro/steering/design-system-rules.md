@@ -18,14 +18,17 @@ Keine rohen `<button>`, `<input>`, `<section>` Elemente in Views verwenden.
 ## Button-Regeln
 
 - Buttons haben `width: auto` als Default — sie sind nur so breit wie ihr Inhalt.
+- Text-Buttons: `padding-left/right: var(--size-padding)` (größeres horizontales Padding).
+- Icon-only Buttons: `iconOnly` Prop setzen → `padding: var(--size-padding-min)` rundrum.
+- Alle Buttons haben `min-width: var(--size-container)` und `min-height: var(--size-container)`.
 - Wenn ein Button full-width sein soll (z.B. "Speichern", "Hinzufügen" als CTA), setze `width: 100%` in der eigenen CSS-Klasse.
 - Schreibe keine Custom-Styles für Buttons (kein eigenes `background`, `border`, `cursor`, `font` etc.) — das DS übernimmt das.
 
 ## Active/Selected State
 
-- Für aktive/selektierte Elemente (Tabs, Toggle-Buttons) verwende `data-container-contrast="inverted"` auf dem aktiven Element.
+- Für aktive/selektierte Elemente (Tabs, Toggle-Buttons) verwende `data-material="inverted"` zusammen mit `data-container-contrast="max"` auf dem aktiven Element.
 - Keine Custom-CSS-Klassen wie `--active` mit eigenen Border/Background-Styles.
-- Beispiel: `<Button data-container-contrast={isActive ? 'inverted' : undefined}>Tab</Button>`
+- Beispiel: `<Button data-material={isActive ? 'inverted' : undefined} data-container-contrast={isActive ? 'max' : undefined}>Tab</Button>`
 
 ## Level-2-Seiten (Detail-Views)
 

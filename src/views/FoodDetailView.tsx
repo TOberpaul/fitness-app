@@ -133,7 +133,8 @@ function FoodDetailView({ open, onClose, foodId, date }: FoodDetailViewProps) {
                 />
                 {food.portion_size_g && (
                   <Button
-                    className={`food-detail-portion-toggle${usePortion ? ' food-detail-portion-toggle--active' : ''}`}
+                    data-material={usePortion ? 'inverted' : undefined}
+                    data-container-contrast={usePortion ? 'max' : undefined}
                     onClick={() => setUsePortion(p => !p)}
                   >
                     {food.portion_label || 'Portion'}
@@ -167,6 +168,7 @@ function FoodDetailView({ open, onClose, foodId, date }: FoodDetailViewProps) {
 
             <div className="food-detail-actions">
               <Button
+                iconOnly
                 className="food-detail-fav-btn"
                 onClick={handleToggleFavorite}
                 aria-label={isFav ? 'Favorit entfernen' : 'Als Favorit markieren'}

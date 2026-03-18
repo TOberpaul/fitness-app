@@ -131,16 +131,15 @@ function SettingsView() {
       <Section title="Erscheinungsbild">
         <div className="dashboard-tabs adaptive" data-material="semi-transparent">
           {(['system', 'light', 'dark'] as ThemeMode[]).map((mode) => (
-            <button
+            <Button
               key={mode}
-              className={`dashboard-tab adaptive${themeMode === mode ? ' active' : ''}`}
-              data-interactive
               data-size="lg"
-              {...(themeMode === mode ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
+              data-material={themeMode === mode ? 'inverted' : undefined}
+              data-container-contrast={themeMode === mode ? 'max' : undefined}
               onClick={() => handleThemeChange(mode)}
             >
               {mode === 'system' ? 'System' : mode === 'light' ? 'Hell' : 'Dunkel'}
-            </button>
+            </Button>
           ))}
         </div>
       </Section>
@@ -148,19 +147,21 @@ function SettingsView() {
       <Section title="Benachrichtigungen">
         <label className="settings-toggle-row">
           <span>Erinnerungen</span>
-          <button
+          <Button
+            iconOnly
             className={`toggle-switch${pushSubscribed ? ' toggle-on' : ''}`}
             role="switch"
             aria-checked={pushSubscribed}
             onClick={handleTogglePush}
-            {...(pushSubscribed ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
+            data-material={pushSubscribed ? 'inverted' : undefined}
+            data-container-contrast={pushSubscribed ? 'max' : undefined}
           >
             <span
               className="toggle-knob"
               data-material={pushSubscribed ? 'filled' : 'inverted'}
               data-container-contrast="max"
             />
-          </button>
+          </Button>
         </label>
         <label className="settings-toggle-row">
           <span>Uhrzeit</span>

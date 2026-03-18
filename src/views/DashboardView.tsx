@@ -4,6 +4,7 @@ import { usePanelContext } from '../App'
 import GraphComponent from '../components/GraphComponent'
 import EmptyState from '../components/EmptyState'
 import Badge from '../components/core/Badge'
+import Button from '../components/core/Button'
 import { getDailyMeasurements, getWeeklyMeasurements, getAllData } from '../services/dataService'
 import { getDateRange, calculatePercentChange } from '../utils/date'
 import { getActiveGoals, calculateProjection } from '../services/goalService'
@@ -138,48 +139,45 @@ function DashboardView() {
     <div className="dashboard">
       {/* Tab bar */}
       <div className="dashboard-tabs adaptive" data-material="semi-transparent">
-        <button
-          className={`dashboard-tab adaptive${activeTab === 'weight' ? ' active' : ''}`}
-          data-interactive
+        <Button
           data-size="lg"
-          {...(activeTab === 'weight' ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
+          data-material={activeTab === 'weight' ? 'inverted' : undefined}
+          data-container-contrast={activeTab === 'weight' ? 'max' : undefined}
           onClick={() => setActiveTab('weight')}
         >
           Gewicht
-        </button>
-        <button
-          className={`dashboard-tab adaptive${activeTab === 'bodyFat' ? ' active' : ''}`}
-          data-interactive
+        </Button>
+        <Button
           data-size="lg"
-          {...(activeTab === 'bodyFat' ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
+          data-material={activeTab === 'bodyFat' ? 'inverted' : undefined}
+          data-container-contrast={activeTab === 'bodyFat' ? 'max' : undefined}
           onClick={() => setActiveTab('bodyFat')}
         >
           Körperfett
-        </button>
-        <button
-          className={`dashboard-tab adaptive${activeTab === 'circumference' ? ' active' : ''}`}
-          data-interactive
+        </Button>
+        <Button
           data-size="lg"
-          {...(activeTab === 'circumference' ? { 'data-material': 'inverted', 'data-container-contrast': 'max' } : {})}
+          data-material={activeTab === 'circumference' ? 'inverted' : undefined}
+          data-container-contrast={activeTab === 'circumference' ? 'max' : undefined}
           onClick={() => setActiveTab('circumference')}
         >
           Umfänge
-        </button>
+        </Button>
       </div>
 
       {/* Circumference sub-selector */}
       {activeTab === 'circumference' && (
         <div className="dashboard-circumference-selector" data-size="lg" data-material="transparent">
           {(Object.keys(CIRCUMFERENCE_LABELS) as CircumferenceField[]).map((field) => (
-            <button
+            <Button
               key={field}
-              className={`dashboard-circumference-btn adaptive${circumferenceField === field ? ' active' : ''}`}
-              data-interactive
-              {...(circumferenceField === field ? { 'data-material': 'filled', 'data-emphasis': 'strong' } : {})}
+              data-material={circumferenceField === field ? 'inverted' : undefined}
+              data-container-contrast={circumferenceField === field ? 'max' : undefined}
+              data-emphasis={circumferenceField === field ? 'strong' : undefined}
               onClick={() => setCircumferenceField(field)}
             >
               {CIRCUMFERENCE_LABELS[field]}
-            </button>
+            </Button>
           ))}
         </div>
       )}
@@ -206,18 +204,18 @@ function DashboardView() {
                 </span>
               )}
               {goalPercent != null && (
-                <button className="dashboard-badge-button" onClick={() => scrollTo(3)} aria-label="Zu Zielen">
+                <Button iconOnly className="dashboard-badge-button" onClick={() => scrollTo(3)} aria-label="Zu Zielen">
                   <Badge count={`${goalPercent}%`} color="blue">
                     <img className="dashboard-badge-icon" src={`${import.meta.env.BASE_URL}Goal.png`} alt="Ziel" />
                   </Badge>
-                </button>
+                </Button>
               )}
               {streaks && streaks.dailyStreak > 0 && (
-                <button className="dashboard-badge-button" onClick={() => scrollTo(3)} aria-label="Zu Zielen">
+                <Button iconOnly className="dashboard-badge-button" onClick={() => scrollTo(3)} aria-label="Zu Zielen">
                   <Badge count={streaks.dailyStreak} color="red">
                     <img className="dashboard-badge-icon" src={`${import.meta.env.BASE_URL}Flame.png`} alt="Streak" />
                   </Badge>
-                </button>
+                </Button>
               )}
             </div>
           </>
@@ -237,15 +235,15 @@ function DashboardView() {
       {/* Time range selector */}
       <div className="dashboard-time-range" data-size="lg" data-material="transparent">
         {TIME_RANGES.map((range) => (
-          <button
+          <Button
             key={range}
-            className={`adaptive${timeRange === range ? ' active' : ''}`}
-            data-interactive
-            {...(timeRange === range ? { 'data-material': 'filled', 'data-emphasis': 'strong' } : {})}
+            data-material={timeRange === range ? 'inverted' : undefined}
+            data-container-contrast={timeRange === range ? 'max' : undefined}
+            data-emphasis={timeRange === range ? 'strong' : undefined}
             onClick={() => setTimeRange(range)}
           >
             {range}
-          </button>
+          </Button>
         ))}
       </div>
     </div>

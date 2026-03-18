@@ -199,6 +199,7 @@ function RecipeDetailView({ open, onClose, recipeId }: RecipeDetailViewProps) {
                   </span>
                 </div>
                 <Button
+                  iconOnly
                   className="recipe-detail-item-delete"
                   onClick={() => handleRemoveItem(item.id)}
                   aria-label={`${item.name} entfernen`}
