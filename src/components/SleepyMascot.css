@@ -5,6 +5,7 @@
   cursor: pointer;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  transition: transform 0.5s ease-out;
 }
 
 .mascot-img {
@@ -220,7 +221,7 @@
   font-weight: 900;
   font-size: 1.1em;
   color: var(--db-text, #1a1a1a);
-  -webkit-text-stroke: 3px var(--db-background, #fff);
+  -webkit-text-stroke: 10px var(--db-background, #fff);
   paint-order: stroke fill;
   opacity: 0;
   transform: scale(0.5);
@@ -279,47 +280,79 @@
 
 .mascot-heart {
   color: #e74c6f;
-  font-size: 0.8em;
   opacity: 0;
+  -webkit-text-stroke: 2px var(--db-background, #fff);
+  paint-order: stroke fill;
 }
 
 .mascot--purring .mascot-heart {
-  animation: heart-float 2s ease-in-out infinite;
+  animation: var(--heart-anim) ease-in-out infinite;
 }
 
 .mascot-heart--1 {
-  font-size: 0.6em;
-  animation-delay: 0s;
+  font-size: 0.7em;
+  --heart-anim: heart-float-1 1.8s;
 }
 
 .mascot-heart--2 {
-  font-size: 0.9em;
-  animation-delay: 0.6s;
-  --hx: 0.5em;
+  font-size: 1em;
+  animation-delay: 0.7s;
+  --heart-anim: heart-float-2 2.2s;
+  --hx: 0.6em;
 }
 
 .mascot-heart--3 {
-  font-size: 1.2em;
-  animation-delay: 1.2s;
-  --hx: 1em;
+  font-size: 0.5em;
+  animation-delay: 1.3s;
+  --heart-anim: heart-float-3 2.6s;
+  --hx: 0.3em;
 }
 
-@keyframes heart-float {
-  0% {
-    opacity: 0;
-    transform: translateY(0) translateX(var(--hx, 0)) scale(0.5);
-  }
-  20% {
-    opacity: 1;
-    transform: translateY(-0.3em) translateX(var(--hx, 0)) scale(1);
-  }
-  80% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-1.8em) translateX(var(--hx, 0)) scale(0.8);
-  }
+@keyframes heart-float-1 {
+  0% { opacity: 0; transform: translateY(0) translateX(-0.2em) scale(0.3); }
+  15% { opacity: 1; transform: translateY(-0.4em) translateX(0.3em) scale(1); }
+  85% { opacity: 0.4; }
+  100% { opacity: 0; transform: translateY(-2em) translateX(0.1em) scale(0.6); }
+}
+
+@keyframes heart-float-2 {
+  0% { opacity: 0; transform: translateY(0) translateX(0.4em) scale(0.4); }
+  20% { opacity: 1; transform: translateY(-0.5em) translateX(0.8em) scale(1.1); }
+  80% { opacity: 0.3; }
+  100% { opacity: 0; transform: translateY(-2.2em) translateX(0.5em) scale(0.7); }
+}
+
+@keyframes heart-float-3 {
+  0% { opacity: 0; transform: translateY(-0.2em) translateX(0.1em) scale(0.3); }
+  18% { opacity: 1; transform: translateY(-0.6em) translateX(0.6em) scale(0.9); }
+  75% { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(-1.6em) translateX(0.9em) scale(0.5); }
+}
+
+/* ── Prrr~ text on purring ── */
+.mascot-purr-text {
+  position: absolute;
+  top: 5%;
+  right: -10%;
+  font-weight: 900;
+  font-size: 1em;
+  color: #e74c6f;
+  -webkit-text-stroke: 6px var(--db-background, #fff);
+  paint-order: stroke fill;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.mascot--purring .mascot-purr-text {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Purring: eyes close contentedly */
+.mascot--purring .mascot-eye-open {
+  animation: eye-sleep 0.6s ease forwards;
 }
 
 /* Purring: gentle sway */
@@ -328,6 +361,6 @@
 }
 
 @keyframes mascot-purr {
-  0% { transform: rotate(-1deg); }
-  100% { transform: rotate(1deg); }
+  0% { transform: rotate(-3deg); }
+  100% { transform: rotate(3deg); }
 }

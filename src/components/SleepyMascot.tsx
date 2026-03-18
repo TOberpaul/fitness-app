@@ -24,7 +24,10 @@ function SleepyMascot() {
     } else if (state === 'awake') {
       setState('purring')
       if (timerRef.current) clearTimeout(timerRef.current)
-      timerRef.current = setTimeout(() => setState('sleeping'), 3000)
+      timerRef.current = setTimeout(() => {
+        setState('falling-asleep')
+        setTimeout(() => setState('sleeping'), 800)
+      }, 3000)
     }
   }, [state, scheduleReturn])
 
@@ -35,6 +38,7 @@ function SleepyMascot() {
         onClick={handleTap}
         role="img"
         aria-label="Schlafendes Maskottchen"
+        data-material="filled"
       >
         <img
           src={`${import.meta.env.BASE_URL}Sleepy.png`}
@@ -66,6 +70,7 @@ function SleepyMascot() {
           <span className="mascot-heart mascot-heart--3">♥</span>
         </div>
         <div className="mascot-grr">Grr!</div>
+        <div className="mascot-purr-text">Prrr~</div>
       </div>
       {showHint && <span className="mascot-hint" data-emphasis="weak">Antippen 👆</span>}
     </>
