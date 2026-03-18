@@ -85,6 +85,19 @@
   opacity: 0;
 }
 
+/* Falling asleep — eyes stay open during close animation */
+.mascot--falling-asleep .mascot-eye--left {
+  transform: rotate(0deg);
+}
+
+.mascot--falling-asleep .mascot-eye--right {
+  transform: rotate(0deg);
+}
+
+.mascot--falling-asleep .mascot-eye-closed {
+  opacity: 0;
+}
+
 /* ── Open eyes ── */
 .mascot-eye-open {
   position: absolute;
@@ -106,12 +119,25 @@
   animation: eye-wake 0.8s ease forwards;
 }
 
+.mascot--falling-asleep .mascot-eye-open {
+  opacity: 1;
+  animation: eye-sleep 0.8s ease forwards;
+}
+
 @keyframes eye-wake {
   0%   { transform: scaleY(0); inset: 28%; }
   20%  { transform: scaleY(0.5); inset: 22%; }
   40%  { transform: scaleY(0.05); inset: 25%; }
   70%  { transform: scaleY(1); inset: 10%; }
   100% { transform: scaleY(1); inset: 10%; }
+}
+
+@keyframes eye-sleep {
+  0%   { transform: scaleY(1); inset: 10%; }
+  30%  { transform: scaleY(0.5); inset: 18%; }
+  50%  { transform: scaleY(0.8); inset: 14%; }
+  70%  { transform: scaleY(0.1); inset: 25%; }
+  100% { transform: scaleY(0); inset: 28%; }
 }
 
 .mascot-pupil {
@@ -135,6 +161,10 @@
 }
 
 .mascot--awake .mascot-zzz {
+  opacity: 0;
+}
+
+.mascot--falling-asleep .mascot-zzz {
   opacity: 0;
 }
 

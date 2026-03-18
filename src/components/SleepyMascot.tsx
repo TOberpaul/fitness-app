@@ -1,60 +1,60 @@
 import { useState, useCallback, useRef } from 'react'
 import './SleepyMascot.css'
 
+type MascotState = 'sleeping' | 'awake' | 'falling-asleep'
+
 function SleepyMascot() {
-  const [awake, setAwake] = useState(false)
+  const [state, setState] = useState<MascotState>('sleeping')
   const [showHint, setShowHint] = useState(true)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handleTap = useCallback(() => {
-    if (awake) return
+    if (state !== 'sleeping') return
     setShowHint(false)
-    setAwake(true)
+    setState('awake')
     if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => setAwake(false), 3000)
-  }, [awake])
+    timerRef.current = setTimeout(() => {
+      setState('falling-asleep')
+      // After close animation finishes, go back to sleeping
+      setTimeout(() => setState('sleeping'), 800)
+    }, 3000)
+  }, [state])
 
   return (
     <>
       <div
-        className={`mascot${awake ? ' mascot--awake' : ''}`}
+        className={`mascot mascot--${state}`}
         onClick={handleTap}
         role="img"
         aria-label="Schlafendes Maskottchen"
       >
-      <img
-        src={`${import.meta.env.BASE_URL}Sleepy.png`}
-        alt=""
-        className="mascot-img"
-      />
-
-      {/* CSS eyes overlay */}
-      <div className="mascot-eyes">
-        <div className="mascot-eye mascot-eye--left">
-          <div className="mascot-eye-closed" />
-          <div className="mascot-eye-open">
-            <div className="mascot-pupil" />
+        <img
+          src={`${import.meta.env.BASE_URL}Sleepy.png`}
+          alt=""
+          className="mascot-img"
+        />
+        <div className="mascot-eyes">
+          <div className="mascot-eye mascot-eye--left">
+            <div className="mascot-eye-closed" />
+            <div className="mascot-eye-open">
+              <div className="mascot-pupil" />
+            </div>
+          </div>
+          <div className="mascot-eye mascot-eye--right">
+            <div className="mascot-eye-closed" />
+            <div className="mascot-eye-open">
+              <div className="mascot-pupil" />
+            </div>
           </div>
         </div>
-        <div className="mascot-eye mascot-eye--right">
-          <div className="mascot-eye-closed" />
-          <div className="mascot-eye-open">
-            <div className="mascot-pupil" />
-          </div>
+        <div className="mascot-zzz">
+          <span className="mascot-z mascot-z--1">z</span>
+          <span className="mascot-z mascot-z--2">z</span>
+          <span className="mascot-z mascot-z--3">z</span>
         </div>
+        <div className="mascot-grr">Grr!</div>
       </div>
-
-      {/* Zzz animation */}
-      <div className="mascot-zzz">
-        <span className="mascot-z mascot-z--1">z</span>
-        <span className="mascot-z mascot-z--2">z</span>
-        <span className="mascot-z mascot-z--3">z</span>
-      </div>
-
-      {/* Grr on wake */}
-      <div className="mascot-grr">Grr!</div>
-    </div>
-    {showHint && <span className="mascot-hint" data-emphasis="weak">Antippen 👆</span>}
+      {showHint && <span className="mascot-hint" data-emphasis="weak">Antippen 👆</span>}
     </>
   )
 }
