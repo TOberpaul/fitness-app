@@ -9,17 +9,13 @@ export async function searchOpenFoodFacts(query: string): Promise<Food[]> {
   try {
     const params = new URLSearchParams({
       search_terms: query,
-      search_simple: '1',
-      action: 'process',
-      json: '1',
       page_size: '20',
-      cc: 'de',
-      lc: 'de',
+      countries_tags_en: 'germany',
       fields: 'code,product_name,brands,nutriments',
     });
 
     const response = await fetch(
-      `https://world.openfoodfacts.org/cgi/search.pl?${params}`
+      `https://world.openfoodfacts.net/api/v2/search?${params}`
     );
     const data = await response.json();
 

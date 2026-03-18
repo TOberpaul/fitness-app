@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react'
 import { getDailySummary, deleteFoodEntry } from '../services/nutritionService'
 import Button from '../components/core/Button'
 import Card from '../components/core/Card'
 import Section from '../components/core/Section'
+import AddFoodView from './AddFoodView'
+import FoodDetailView from './FoodDetailView'
+import RecipeListView from './RecipeListView'
+import RecipeDetailView from './RecipeDetailView'
 import type { DailySummary } from '../types'
 import './NutritionView.css'
 
@@ -30,9 +33,14 @@ function formatDateDE(date: string): string {
 }
 
 function NutritionView() {
-  const navigate = useNavigate()
   const [selectedDate, setSelectedDate] = useState(todayString)
   const [summary, setSummary] = useState<DailySummary | null>(null)
+
+  // Dialog states
+  const [showAddFood, setShowAddFood] = useState(false)
+  const [selectedFoodId, setSelectedFoodId] = useState<string | null>(null)
+  const [showRecipeList, setShowRecipeList] = useState(false)
+  const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null)
 
   const loadSummary = useCallback(async () => {
     const data = await getDailySummary(selectedDate)
@@ -42,6 +50,17 @@ function NutritionView() {
   useEffect(() => {
     loadSummary()
   }, [loadSummary])
+
+  // Reload summary when any dialog closes (data may have changed)
+  const handleAddFoodClose = () => {
+    setShowAddFood(false)
+    loadSummary()
+  }
+
+  const handleFoodDetailClose = () => {
+    setSelectedFoodId(null)
+    loadSummary()
+  }
 
   const handleDelete = async (id: string) => {
     await deleteFoodEntry(id)
@@ -117,13 +136,51 @@ function NutritionView() {
       </Section>
 
       {/* Add button */}
-      <Button
-        className="nutrition-add-btn"
-        onClick={() => navigate(`/nutrition/add?date=${selectedDate}`)}
-      >
+      <Button className="nutrition-add-btn" onClick={() => setShowAddFood(true)}>
         <Plus size={20} />
         Hinzufügen
       </Button>
+
+      {/* Dialogs */}
+      <AddFoodView
+        open={showAddFood}
+        onClose={handleAddFoodClose}
+        date={selectedDate}
+        onFoodSelect={(foodId) => {
+          setShowAddFood(false)
+          setSelectedFoodId(foodId)
+        }}
+      />
+
+      {selectedFoodId && (
+        <FoodDetailView
+          open={!!selectedFoodId}
+          onClose={handleFoodDetailClose}
+          foodId={selectedFoodId}
+          date={selectedDate}
+        />
+      )}
+
+      <RecipeListView
+        open={showRecipeList}
+        onClose={() => { setShowRecipeList(false); loadSummary() }}
+        onRecipeSelect={(id) => {
+          setShowRecipeList(false)
+          setSelectedRecipeId(id)
+        }}
+        onNewRecipe={() => {
+          setShowRecipeList(false)
+          setSelectedRecipeId('new')
+        }}
+      />
+
+      {selectedRecipeId && (
+        <RecipeDetailView
+          open={!!selectedRecipeId}
+          onClose={() => { setSelectedRecipeId(null); loadSummary() }}
+          recipeId={selectedRecipeId}
+        />
+      )}
     </div>
   )
 }
