@@ -352,6 +352,15 @@
 
 /* Purring: eyes stay closed (default state — arcs visible, open eyes hidden) */
 
+/* Settling: eyes stay closed, hearts/prrr fade out */
+.mascot--settling .mascot-purr-text {
+  opacity: 0;
+}
+
+.mascot--settling .mascot-hearts {
+  opacity: 0;
+}
+
 /* Purring: gentle sway */
 .mascot--purring {
   animation: mascot-purr 0.6s ease-in-out infinite alternate;
@@ -360,4 +369,16 @@
 @keyframes mascot-purr {
   0% { transform: rotate(-3deg); }
   100% { transform: rotate(3deg); }
+}
+
+/* Settling: sway dampens to zero */
+.mascot--settling {
+  animation: mascot-settle 0.6s ease-out forwards;
+}
+
+@keyframes mascot-settle {
+  0% { transform: rotate(2deg); }
+  30% { transform: rotate(-1deg); }
+  60% { transform: rotate(0.5deg); }
+  100% { transform: rotate(0deg); }
 }
