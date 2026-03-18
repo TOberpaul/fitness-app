@@ -5,6 +5,13 @@
   padding: var(--spacing-padding);
 }
 
+.measurement-hero {
+  width: 40%;
+  max-width: 10rem;
+  height: auto;
+  align-self: center;
+}
+
 .measurement-cards {
   display: flex;
   flex-direction: column;
