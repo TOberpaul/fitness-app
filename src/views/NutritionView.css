@@ -1,7 +1,7 @@
 .nutrition-view {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-gap);
+  gap: var(--spacing-padding);
   padding: var(--spacing-padding);
   box-sizing: border-box;
   flex: 1;

@@ -8,7 +8,7 @@
 .measurement-cards {
   display: flex;
   flex-direction: column;
-  gap: var(--size-gap);
+  gap: var(--spacing-gap);
 }
 
 .measurement-card {
