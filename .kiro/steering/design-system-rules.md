@@ -18,11 +18,14 @@ Keine rohen `<button>`, `<input>`, `<section>` Elemente in Views verwenden.
 ## Button-Regeln
 
 - Buttons haben `width: auto` als Default — sie sind nur so breit wie ihr Inhalt.
+- Full-width Buttons (CTAs): `width="full"` Prop setzen.
+- Primary/CTA Buttons (inverted + contrast): `variant="primary"` Prop setzen.
 - Text-Buttons: `padding-left/right: var(--size-padding)` (größeres horizontales Padding).
 - Icon-only Buttons: `iconOnly` Prop setzen → `padding: var(--size-padding-min)` rundrum.
 - Alle Buttons haben `min-width: var(--size-container)` und `min-height: var(--size-container)`.
-- Wenn ein Button full-width sein soll (z.B. "Speichern", "Hinzufügen" als CTA), setze `width: 100%` in der eigenen CSS-Klasse.
 - Schreibe keine Custom-Styles für Buttons (kein eigenes `background`, `border`, `cursor`, `font` etc.) — das DS übernimmt das.
+- Keine CSS-Klassen für `width: 100%` — nutze `width="full"` Prop.
+- Beispiel CTA: `<Button variant="primary" width="full">Speichern</Button>`
 
 ## Active/Selected State
 

@@ -179,6 +179,7 @@ function FoodDetailView({ open, onClose, foodId, date, mealId }: FoodDetailViewP
               </Button>
               <Button
                 className="food-detail-save-btn"
+                width="full"
                 disabled={!isValid}
                 onClick={handleSave}
               >

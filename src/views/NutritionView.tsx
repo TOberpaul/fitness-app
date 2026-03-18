@@ -193,7 +193,7 @@ function NutritionView() {
                     <div className="nutrition-meal-actions">
                       {!isUngrouped && (
                         <>
-                          <Button onClick={() => handleAddFoodToMeal(mealGroup.meal.id)}>
+                          <Button width="full" onClick={() => handleAddFoodToMeal(mealGroup.meal.id)}>
                             <Plus size={16} /> Hinzufügen
                           </Button>
                           <Button iconOnly onClick={() => handleSaveMealTemplate(mealGroup)} aria-label="Gericht speichern">
@@ -232,10 +232,10 @@ function NutritionView() {
           </div>
         ) : (
           <>
-            <Button className="nutrition-add-btn" onClick={() => setShowNewMealInput(true)}>
+            <Button variant="primary" width="full" onClick={() => setShowNewMealInput(true)}>
               <Plus size={20} /> Neues Gericht
             </Button>
-            <Button className="nutrition-saved-btn" onClick={handleShowSavedMeals}>
+            <Button width="full" onClick={handleShowSavedMeals}>
               Gespeicherte Gerichte
             </Button>
           </>

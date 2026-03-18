@@ -13,3 +13,7 @@
 .button--icon-only {
   padding: var(--size-padding-min);
 }
+
+.button--full {
+  width: 100%;
+}
