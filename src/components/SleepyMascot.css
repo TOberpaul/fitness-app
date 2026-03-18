@@ -354,18 +354,32 @@
 
 /* Drifting off: crossfade hearts→zzz */
 .mascot--drifting-off .mascot-hearts {
-  opacity: 0;
-  transition: opacity 0.8s ease;
+  animation: drift-fade-out 1s ease forwards;
+}
+
+.mascot--drifting-off .mascot-heart {
+  animation: var(--heart-anim) ease-in-out infinite;
 }
 
 .mascot--drifting-off .mascot-purr-text {
-  opacity: 0;
-  transition: opacity 0.5s ease;
+  opacity: 1;
+  transform: scale(1);
+  animation: drift-fade-out 0.6s ease forwards;
 }
 
 .mascot--drifting-off .mascot-zzz {
-  opacity: 1;
-  transition: opacity 0.8s ease 0.2s;
+  animation: drift-fade-in 1s ease 0.3s forwards;
+  opacity: 0;
+}
+
+@keyframes drift-fade-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes drift-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 /* Purring: dampened sway over 3s (100→0) */
