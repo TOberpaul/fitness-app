@@ -49,20 +49,29 @@
 .add-food-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--size-gap);
   padding: var(--size-padding-min) var(--spacing-padding);
   cursor: pointer;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  font: inherit;
+}
+
+.add-food-item-image {
+  width: var(--size-container);
+  height: var(--size-container);
+  border-radius: var(--size-gap);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.add-food-item-image--empty {
+  background: var(--db-adaptive-bg, rgba(128,128,128,0.15));
 }
 
 .add-food-item-info {
   display: flex;
   flex-direction: column;
   gap: var(--size-4);
+  flex: 1;
+  min-width: 0;
 }
 
 .add-food-item-name {
@@ -76,6 +85,8 @@
 .add-food-item-kcal {
   font-weight: 600;
   white-space: nowrap;
+  text-align: right;
+  flex-shrink: 0;
 }
 
 .add-food-empty {

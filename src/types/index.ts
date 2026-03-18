@@ -331,6 +331,7 @@ export interface Food {
   source: FoodSource;
   name: string;
   brand?: string;
+  image_url?: string;
   kcal_per_100g: number;
   protein_per_100g: number;
   carbs_per_100g: number;

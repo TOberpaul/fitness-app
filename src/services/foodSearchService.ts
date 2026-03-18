@@ -11,7 +11,7 @@ export async function searchOpenFoodFacts(query: string): Promise<Food[]> {
       search_terms: query,
       page_size: '20',
       json: '1',
-      fields: 'code,product_name,brands,nutriments',
+      fields: 'code,product_name,brands,nutriments,image_small_url,nutrition_data_per',
     });
 
     const response = await fetch(
@@ -27,16 +27,18 @@ export async function searchOpenFoodFacts(query: string): Promise<Food[]> {
       .filter((p: Record<string, unknown>) => p.product_name)
       .map((product: Record<string, unknown>): Food => {
         const nutriments = (product.nutriments ?? {}) as Record<string, number>;
+        const unit = product.nutrition_data_per === '100ml' ? 'ml' : 'g';
         return {
           id: `off_${product.code}`,
           source: 'openfoodfacts',
           name: product.product_name as string,
           brand: (product.brands as string) || undefined,
+          image_url: (product.image_small_url as string) || undefined,
           kcal_per_100g: nutriments['energy-kcal_100g'] ?? 0,
           protein_per_100g: nutriments['proteins_100g'] ?? 0,
           carbs_per_100g: nutriments['carbohydrates_100g'] ?? 0,
           fat_per_100g: nutriments['fat_100g'] ?? 0,
-          default_unit: 'g',
+          default_unit: unit,
         };
       });
   } catch {
