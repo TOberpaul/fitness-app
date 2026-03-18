@@ -139,12 +139,16 @@ function NutritionView() {
   const handleAddFoodClose = () => {
     setShowAddFood(false)
     setActiveMealId(null)
+    setShowEntryDialog(false)
+    setEntryStep('choose')
     loadSummary()
   }
 
   const handleFoodDetailClose = () => {
     setSelectedFoodId(null)
     setActiveMealId(null)
+    setShowEntryDialog(false)
+    setEntryStep('choose')
     loadSummary()
   }
 
@@ -291,7 +295,7 @@ function NutritionView() {
               <span data-emphasis="strong">Gericht</span>
               <span data-emphasis="weak">Mehrere Zutaten gruppiert</span>
             </Card>
-            <Card className="nutrition-entry-type-card" role="button" tabIndex={0} onClick={() => { setShowEntryDialog(false); setActiveMealId(null); setShowAddFood(true) }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowEntryDialog(false); setActiveMealId(null); setShowAddFood(true) } }}>
+            <Card className="nutrition-entry-type-card" role="button" tabIndex={0} onClick={() => { setActiveMealId(null); setShowAddFood(true) }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveMealId(null); setShowAddFood(true) } }}>
               <span className="nutrition-entry-type-emoji">🥤</span>
               <span data-emphasis="strong">Einzelnes Lebensmittel</span>
               <span data-emphasis="weak">z.B. Getränk, Snack</span>
