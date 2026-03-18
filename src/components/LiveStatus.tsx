@@ -1,4 +1,4 @@
-import type { GoalProjection, ConsistencyScore, MicroWin, Streaks } from '../types'
+import type { GoalProjection, ConsistencyScore, MicroWin } from '../types'
 import Notification from './core/Notification'
 import './LiveStatus.css'
 import './core/Card.css'
@@ -7,7 +7,6 @@ interface LiveStatusProps {
   projection: GoalProjection | null
   consistencyScore: ConsistencyScore | null
   microWins: MicroWin[]
-  streaks: Streaks | null
 }
 
 const TREND_TEXT: Record<string, string> = {
@@ -34,7 +33,7 @@ function getConsistencyColor(score: number): string {
   return 'red'
 }
 
-function LiveStatus({ projection, consistencyScore, microWins, streaks }: LiveStatusProps) {
+function LiveStatus({ projection, consistencyScore, microWins }: LiveStatusProps) {
   const { text: trendText, trend } = getTrendFeedback(projection)
 
   return (
@@ -42,21 +41,6 @@ function LiveStatus({ projection, consistencyScore, microWins, streaks }: LiveSt
       <span className="live-status-trend" data-trend={trend}>
         {trendText}
       </span>
-
-      {streaks && (streaks.dailyStreak > 0 || streaks.weeklyStreak > 0) && (
-        <div className="live-status-streaks">
-          {streaks.dailyStreak > 0 && (
-            <span className="live-status-streak" data-type="daily">
-              🔥 {streaks.dailyStreak} {streaks.dailyStreak === 1 ? 'Tag' : 'Tage'} in Folge
-            </span>
-          )}
-          {streaks.weeklyStreak > 0 && (
-            <span className="live-status-streak" data-type="weekly">
-              🔥 {streaks.weeklyStreak} {streaks.weeklyStreak === 1 ? 'Woche' : 'Wochen'} in Folge
-            </span>
-          )}
-        </div>
-      )}
 
       {consistencyScore && (
         <Notification data-color={getConsistencyColor(consistencyScore.score)}>

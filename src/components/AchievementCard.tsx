@@ -48,6 +48,16 @@ function getLabel(achievement: Achievement | Milestone | StreakAchievement): str
   return achievement.label
 }
 
+/** Resolve icon string to an image src. If it matches a known asset name, use the PNG. */
+function resolveIcon(iconStr: string): { type: 'img'; src: string } | { type: 'emoji'; value: string } {
+  const base = import.meta.env.BASE_URL
+  const knownAssets = ['Trophy-Bronze', 'Trophy-Silver', 'Trophy-Gold', 'Streak-3', 'Streak-7', 'Streak-14', 'Streak-30']
+  if (knownAssets.includes(iconStr)) {
+    return { type: 'img', src: `${base}${iconStr}.png` }
+  }
+  return { type: 'emoji', value: iconStr }
+}
+
 function AchievementCard({ achievement, icon, color, onClick }: AchievementCardProps) {
   const detail = getDetail(achievement)
   const label = getLabel(achievement)
@@ -57,16 +67,17 @@ function AchievementCard({ achievement, icon, color, onClick }: AchievementCardP
   const isLocked = isNewAchievement(achievement) && achievement.status === 'locked'
   const isEarned = isNewAchievement(achievement) && achievement.status === 'earned'
 
-  // Determine icon: for new Achievement type, use status-based icons
-  const statusIcon = isNewAchievement(achievement)
-    ? (isEarned ? '✓' : '🔒')
+  // Resolve the icon for new Achievement type
+  const resolvedIcon = isNewAchievement(achievement)
+    ? resolveIcon(achievement.definition.icon)
     : null
-  const iconSrc = icon || `${import.meta.env.BASE_URL}Party.png`
 
   // Determine color: earned = violet, locked = no data-color
   const cardColor = isNewAchievement(achievement)
     ? (isEarned ? 'violet' : undefined)
     : color
+
+  const iconSrc = icon || `${import.meta.env.BASE_URL}Party.png`
 
   return (
     <motion.div
@@ -87,10 +98,19 @@ function AchievementCard({ achievement, icon, color, onClick }: AchievementCardP
         data-material="filled-2"
         {...(cardColor ? { 'data-color': cardColor } : {})}
       >
-        {statusIcon ? (
-          <span className="achievement-card-status-icon" data-testid={isEarned ? 'achievement-icon-earned' : 'achievement-icon-locked'}>
-            {statusIcon}
-          </span>
+        {isNewAchievement(achievement) ? (
+          isLocked ? (
+            <span className="achievement-card-status-icon" data-testid="achievement-icon-locked">🔒</span>
+          ) : resolvedIcon && resolvedIcon.type === 'img' ? (
+            <img
+              className="achievement-card-icon-img"
+              src={resolvedIcon.src}
+              alt=""
+              data-testid="achievement-icon-earned"
+            />
+          ) : (
+            <span className="achievement-card-status-icon" data-testid="achievement-icon-earned">✓</span>
+          )
         ) : (
           <img src={iconSrc} alt="" />
         )}

@@ -283,15 +283,15 @@ const MILESTONE_LABELS: Record<MilestoneType, string> = {
  */
 export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
   // Progress-Achievements
-  { id: 'weight-loss-2kg',    label: '2 kg verloren',           category: 'progress', icon: '🏋️' },
-  { id: 'weight-loss-5kg',    label: '5 kg verloren',           category: 'progress', icon: '💪' },
-  { id: 'weight-loss-10kg',   label: '10 kg verloren',          category: 'progress', icon: '🏆' },
-  { id: 'first-goal-reached', label: 'Erstes Ziel erreicht',    category: 'progress', icon: '🎯' },
+  { id: 'weight-loss-2kg',    label: '2 kg verloren',           category: 'progress', icon: 'Trophy-Bronze' },
+  { id: 'weight-loss-5kg',    label: '5 kg verloren',           category: 'progress', icon: 'Trophy-Silver' },
+  { id: 'weight-loss-10kg',   label: '10 kg verloren',          category: 'progress', icon: 'Trophy-Gold' },
+  { id: 'first-goal-reached', label: 'Erstes Ziel erreicht',    category: 'progress', icon: 'Trophy-Bronze' },
   // Streak-Achievements
-  { id: 'daily-streak-7',     label: '7 Tage eingetragen',      category: 'streak',   icon: '🔥' },
-  { id: 'daily-streak-30',    label: '30 Tage eingetragen',     category: 'streak',   icon: '🔥' },
-  { id: 'weekly-streak-3',    label: '3 Wochen am Stück',       category: 'streak',   icon: '📏' },
-  { id: 'weekly-streak-10',   label: '10 Wochen getrackt',      category: 'streak',   icon: '📏' },
+  { id: 'daily-streak-7',     label: '7 Tage eingetragen',      category: 'streak',   icon: 'Streak-7' },
+  { id: 'daily-streak-30',    label: '30 Tage eingetragen',     category: 'streak',   icon: 'Streak-30' },
+  { id: 'weekly-streak-3',    label: '3 Wochen am Stück',       category: 'streak',   icon: 'Streak-3' },
+  { id: 'weekly-streak-10',   label: '10 Wochen getrackt',      category: 'streak',   icon: 'Streak-14' },
 ];
 
 /**

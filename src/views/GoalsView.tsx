@@ -162,7 +162,6 @@ function GoalsView() {
                 projection={primaryProjection}
                 consistencyScore={consistencyScore}
                 microWins={microWins}
-                streaks={streaks}
               />
             )
           })()}
@@ -213,7 +212,7 @@ function GoalsView() {
             weeklyMeasurements={weeklyMeasurements}
           />
 
-          <AchievementSection achievements={achievements} />
+          <AchievementSection achievements={achievements} streaks={streaks} />
         </>
       )}
 

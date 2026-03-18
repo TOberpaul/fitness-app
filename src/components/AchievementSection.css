@@ -3,3 +3,40 @@
   flex-direction: column;
   gap: var(--size-gap);
 }
+
+.achievement-section-streaks {
+  display: flex;
+  gap: var(--size-gap);
+  margin-bottom: var(--size-gap);
+}
+
+.achievement-streak-card {
+  display: flex;
+  align-items: center;
+  gap: var(--size-gap);
+  padding: var(--size-padding);
+  flex: 1;
+}
+
+.achievement-streak-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.achievement-streak-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.achievement-streak-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--db-text);
+  line-height: 1.1;
+}
+
+.achievement-streak-label {
+  font-size: var(--size-text);
+  color: var(--db-text);
+  opacity: 0.7;
+}
