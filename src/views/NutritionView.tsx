@@ -42,15 +42,15 @@ function NutritionView() {
   const [showAddFood, setShowAddFood] = useState(false)
   const [activeMealId, setActiveMealId] = useState<string | null>(null)
   const [selectedFoodId, setSelectedFoodId] = useState<string | null>(null)
-  const [showNewMealInput, setShowNewMealInput] = useState(false)
   const [newMealName, setNewMealName] = useState('')
   const [showSavedMeals, setShowSavedMeals] = useState(false)
   const [savedMeals, setSavedMeals] = useState<SavedMeal[]>([])
   const [mealImage, setMealImage] = useState<string | null>(null)
   const mealImageInputRef = useRef<HTMLInputElement>(null)
 
-  // New entry type selection dialog
-  const [showEntryTypeDialog, setShowEntryTypeDialog] = useState(false)
+  // New entry dialog with internal step
+  const [showEntryDialog, setShowEntryDialog] = useState(false)
+  const [entryStep, setEntryStep] = useState<'choose' | 'meal'>('choose')
   const [editingMeal, setEditingMeal] = useState<MealWithEntries | null>(null)
   const [editMealName, setEditMealName] = useState('')
   const [editMealImage, setEditMealImage] = useState<string | null>(null)
@@ -114,7 +114,8 @@ function NutritionView() {
     const meal = await createMeal(selectedDate, name, mealImage || undefined)
     setNewMealName('')
     setMealImage(null)
-    setShowNewMealInput(false)
+    setShowEntryDialog(false)
+    setEntryStep('choose')
     setExpandedMeals(prev => new Set(prev).add(meal.id))
     await loadSummary()
   }
@@ -273,7 +274,7 @@ function NutritionView() {
 
       {/* Action buttons */}
       <div className="nutrition-bottom-actions">
-        <Button variant="primary" width="full" onClick={() => setShowEntryTypeDialog(true)}>
+        <Button variant="primary" width="full" onClick={() => { setEntryStep('choose'); setShowEntryDialog(true) }}>
           <Plus size={20} /> Neuer Eintrag
         </Button>
         <Button width="full" onClick={handleShowSavedMeals}>
@@ -281,64 +282,63 @@ function NutritionView() {
         </Button>
       </div>
 
-      {/* Entry type selection dialog */}
-      <Dialog title="Neuer Eintrag" open={showEntryTypeDialog} onClose={() => setShowEntryTypeDialog(false)}>
-        <div className="nutrition-entry-type-grid">
-          <Card className="nutrition-entry-type-card" role="button" tabIndex={0} onClick={() => { setShowEntryTypeDialog(false); setNewMealName(''); setMealImage(null); setShowNewMealInput(true) }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowEntryTypeDialog(false); setNewMealName(''); setMealImage(null); setShowNewMealInput(true) } }}>
-            <span className="nutrition-entry-type-emoji">🍽️</span>
-            <span data-emphasis="strong">Gericht</span>
-            <span data-emphasis="weak">Mehrere Zutaten gruppiert</span>
-          </Card>
-          <Card className="nutrition-entry-type-card" role="button" tabIndex={0} onClick={() => { setShowEntryTypeDialog(false); setActiveMealId(null); setShowAddFood(true) }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowEntryTypeDialog(false); setActiveMealId(null); setShowAddFood(true) } }}>
-            <span className="nutrition-entry-type-emoji">🥤</span>
-            <span data-emphasis="strong">Einzelnes Lebensmittel</span>
-            <span data-emphasis="weak">z.B. Getränk, Snack</span>
-          </Card>
-        </div>
-      </Dialog>
-
-      {/* New meal creation dialog */}
-      <Dialog title="Neues Gericht" open={showNewMealInput} onClose={() => { setShowNewMealInput(false); setNewMealName(''); setMealImage(null) }}>
-        <div className="nutrition-edit-meal-form">
-          <Input
-            id="new-meal-name"
-            label="Name"
-            placeholder="Name des Gerichts"
-            value={newMealName}
-            onChange={e => setNewMealName(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleCreateMeal()}
-          />
-          <div className="nutrition-new-meal-photo">
-            {mealImage ? (
-              <>
-                <img src={mealImage} alt="Vorschau" className="nutrition-meal-photo-img" />
-                <div className="nutrition-photo-actions">
-                  <Button width="full" onClick={() => mealImageInputRef.current?.click()}>
-                    <Camera size={16} /> Foto ändern
-                  </Button>
-                  <Button iconOnly onClick={() => setMealImage(null)} aria-label="Foto entfernen">
-                    <X size={16} />
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <Button width="full" onClick={() => mealImageInputRef.current?.click()}>
-                <Camera size={16} /> Foto aufnehmen
-              </Button>
-            )}
-            <input
-              ref={mealImageInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handleMealImageCapture}
-              className="nutrition-photo-input"
+      {/* New entry dialog (choose type → create meal) */}
+      <Dialog title={entryStep === 'choose' ? 'Neuer Eintrag' : 'Neues Gericht'} open={showEntryDialog} onClose={() => { setShowEntryDialog(false); setEntryStep('choose'); setNewMealName(''); setMealImage(null) }}>
+        {entryStep === 'choose' ? (
+          <div className="nutrition-entry-type-grid">
+            <Card className="nutrition-entry-type-card" role="button" tabIndex={0} onClick={() => { setNewMealName(''); setMealImage(null); setEntryStep('meal') }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setNewMealName(''); setMealImage(null); setEntryStep('meal') } }}>
+              <span className="nutrition-entry-type-emoji">🍽️</span>
+              <span data-emphasis="strong">Gericht</span>
+              <span data-emphasis="weak">Mehrere Zutaten gruppiert</span>
+            </Card>
+            <Card className="nutrition-entry-type-card" role="button" tabIndex={0} onClick={() => { setShowEntryDialog(false); setActiveMealId(null); setShowAddFood(true) }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowEntryDialog(false); setActiveMealId(null); setShowAddFood(true) } }}>
+              <span className="nutrition-entry-type-emoji">🥤</span>
+              <span data-emphasis="strong">Einzelnes Lebensmittel</span>
+              <span data-emphasis="weak">z.B. Getränk, Snack</span>
+            </Card>
+          </div>
+        ) : (
+          <div className="nutrition-edit-meal-form">
+            <Input
+              id="new-meal-name"
+              label="Name"
+              placeholder="Name des Gerichts"
+              value={newMealName}
+              onChange={e => setNewMealName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleCreateMeal()}
             />
+            <div className="nutrition-new-meal-photo">
+              {mealImage ? (
+                <>
+                  <img src={mealImage} alt="Vorschau" className="nutrition-meal-photo-img" />
+                  <div className="nutrition-photo-actions">
+                    <Button width="full" onClick={() => mealImageInputRef.current?.click()}>
+                      <Camera size={16} /> Foto ändern
+                    </Button>
+                    <Button iconOnly onClick={() => setMealImage(null)} aria-label="Foto entfernen">
+                      <X size={16} />
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <Button width="full" onClick={() => mealImageInputRef.current?.click()}>
+                  <Camera size={16} /> Foto aufnehmen
+                </Button>
+              )}
+              <input
+                ref={mealImageInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleMealImageCapture}
+                className="nutrition-photo-input"
+              />
+            </div>
+            <div className="core-dialog-actions">
+              <Button variant="primary" onClick={handleCreateMeal}>OK</Button>
+            </div>
           </div>
-          <div className="core-dialog-actions">
-            <Button variant="primary" onClick={handleCreateMeal}>OK</Button>
-          </div>
-        </div>
+        )}
       </Dialog>
 
       {/* Saved meals dialog */}
