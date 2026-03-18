@@ -1,39 +1,12 @@
-.food-detail-view {
+.food-detail-content {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-padding);
-  padding: var(--spacing-padding);
-  box-sizing: border-box;
-  height: 100%;
-}
-
-.food-detail-header {
-  display: flex;
-  align-items: center;
-  gap: var(--size-gap);
-}
-
-.food-detail-title {
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-4);
-}
-
-.food-detail-header h1 {
-  font-size: var(--size-text);
-  font-weight: 600;
-  margin: 0;
 }
 
 .food-detail-brand {
   font-size: var(--size-text-small, 0.85rem);
 }
-
-.food-detail-nutrition {
-  padding: var(--spacing-padding);
-}
-
-
 
 .food-detail-nutrition-grid {
   display: grid;
@@ -57,71 +30,26 @@
   font-size: var(--size-text-small, 0.85rem);
 }
 
-
-
 .food-detail-amount-row {
   display: flex;
   gap: var(--size-gap);
+  align-items: flex-end;
 }
 
-.food-detail-amount-row input {
+.food-detail-amount-row .core-input {
   flex: 1;
-  padding: var(--size-padding-min);
-  border: none;
-  border-radius: var(--size-gap);
-  font-size: var(--size-text);
-  box-sizing: border-box;
 }
-
-.food-detail-amount-row input[aria-invalid="true"] {
-  outline: 2px solid var(--color-red, #e53e3e);
-}
-
-.food-detail-portion-toggle {
-  white-space: nowrap;
-  font-size: var(--size-text-small, 0.85rem);
-  padding: var(--size-padding-min) var(--spacing-padding);
-  border: none;
-  border-radius: var(--size-gap);
-  cursor: pointer;
-  background: none;
-  font: inherit;
-  font-weight: 600;
-}
-
-.food-detail-error {
-  color: var(--color-red, #e53e3e);
-  font-size: var(--size-text-small, 0.85rem);
-}
-
-.food-detail-calculated {
-  padding: var(--spacing-padding);
-}
-
-
 
 .food-detail-actions {
   display: flex;
   align-items: center;
   gap: var(--size-gap);
-  margin-top: auto;
-}
-
-.food-detail-fav-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: var(--size-padding-min);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding-top: var(--spacing-gap);
 }
 
 .food-detail-save-btn {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
 }
 
 .food-detail-loading,

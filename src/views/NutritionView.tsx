@@ -173,7 +173,7 @@ function NutritionView() {
                     <span className="nutrition-meal-name">{mealGroup.meal.name}</span>
                     <span className="nutrition-meal-kcal" data-emphasis="weak">{mealGroup.total_kcal.toFixed(0)} kcal</span>
                   </div>
-                  {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  {isExpanded ? <ChevronUp className="nutrition-meal-chevron" /> : <ChevronDown className="nutrition-meal-chevron" />}
                 </div>
 
                 {isExpanded && (
