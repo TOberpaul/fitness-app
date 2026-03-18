@@ -225,7 +225,7 @@
 /* Entry type selection */
 .nutrition-entry-type-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: auto 1fr;
   gap: var(--size-gap);
 }
 
@@ -236,6 +236,7 @@
   text-align: center;
   gap: var(--size-gap);
   cursor: pointer;
+  height: 100%;
 }
 
 .nutrition-entry-type-emoji {
