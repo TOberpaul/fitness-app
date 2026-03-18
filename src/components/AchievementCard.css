@@ -13,7 +13,7 @@
 }
 
 .achievement-card.achievement-card--disabled {
-  opacity: 0.5;
+  opacity: 0.5 !important;
 }
 
 .achievement-card-icon-area {
@@ -47,6 +47,7 @@
   gap: var(--size-1);
   padding: var(--size-padding);
   min-width: 0;
+  flex: 1;
 }
 
 .achievement-card-label {

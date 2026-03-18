@@ -18,28 +18,28 @@ function sortAchievements(achievements: Achievement[]): Achievement[] {
  * Show all earned + next two locked per category.
  * First locked → status 'next' (real icon, disabled look).
  * Second locked → status 'locked' (Lock icon).
+ * Order: earned → next → locked.
  */
 function filterVisible(achievements: Achievement[]): Achievement[] {
   const earned = achievements.filter((a) => a.status === 'earned')
   const locked = achievements.filter((a) => a.status === 'locked')
 
-  const extra: Achievement[] = []
+  const nextItems: Achievement[] = []
+  const lockedItems: Achievement[] = []
   const seen = new Map<string, number>()
 
   for (const a of locked) {
     const cat = a.definition.category
     const count = seen.get(cat) ?? 0
     if (count === 0) {
-      // Next up → show real icon but disabled
-      extra.push({ ...a, status: 'next' })
+      nextItems.push({ ...a, status: 'next' })
     } else if (count === 1) {
-      // After that → locked with Lock icon
-      extra.push(a)
+      lockedItems.push(a)
     }
     if (count < 2) seen.set(cat, count + 1)
   }
 
-  return [...earned, ...extra]
+  return [...earned, ...nextItems, ...lockedItems]
 }
 
 function AchievementSection({ achievements }: AchievementSectionProps) {

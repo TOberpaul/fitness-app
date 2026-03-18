@@ -7,12 +7,15 @@
 .coaching-summary-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 var(--size-gap, 0.5rem);
 }
 
 .coaching-summary-label {
   font-size: var(--size-text);
   color: var(--db-text);
+  flex-shrink: 0;
 }
 
 .coaching-summary-value {
