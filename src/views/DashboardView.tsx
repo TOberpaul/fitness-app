@@ -62,8 +62,20 @@ function DashboardView() {
   const [circumferenceField, setCircumferenceField] = useState<CircumferenceField>('waist')
   const [hasDailyData, setHasDailyData] = useState<boolean | null>(null)
   const [hasWeeklyData, setHasWeeklyData] = useState<boolean | null>(null)
-  const [streaks, setStreaks] = useState<Streaks | null>(null)
-  const [goalPercent, setGoalPercent] = useState<number | null>(null)
+  const [streaks, setStreaks] = useState<Streaks>(() => {
+    try {
+      const cached = localStorage.getItem('dashboard-streaks')
+      if (cached) return JSON.parse(cached)
+    } catch { /* ignore */ }
+    return { dailyStreak: 0, dailyLastDate: null, weeklyStreak: 0, weeklyLastDate: null, updatedAt: '' }
+  })
+  const [goalPercent, setGoalPercent] = useState<number | null>(() => {
+    try {
+      const cached = localStorage.getItem('dashboard-goalPercent')
+      if (cached) return JSON.parse(cached)
+    } catch { /* ignore */ }
+    return null
+  })
 
   const loadMeta = useCallback(async () => {
     try {
@@ -77,6 +89,7 @@ function DashboardView() {
       await updateDailyStreak(todayStr)
       const s = await getStreaks()
       setStreaks(s)
+      try { localStorage.setItem('dashboard-streaks', JSON.stringify(s)) } catch { /* ignore */ }
 
       const goals = await getActiveGoals()
       if (goals.length > 0) {
@@ -85,7 +98,9 @@ function DashboardView() {
           ? allData.weeklyMeasurements
           : allData.dailyMeasurements
         const proj = calculateProjection(g, measurements as never)
-        setGoalPercent(Math.min(100, Math.max(0, Math.round(proj.percentComplete))))
+        const pct = Math.min(100, Math.max(0, Math.round(proj.percentComplete)))
+        setGoalPercent(pct)
+        try { localStorage.setItem('dashboard-goalPercent', JSON.stringify(pct)) } catch { /* ignore */ }
       }
     } catch {
       setHasDailyData(false)
@@ -213,7 +228,7 @@ function DashboardView() {
               </Badge>
             </Button>
           )}
-          {streaks && streaks.dailyStreak > 0 && (
+          {streaks.dailyStreak > 0 && (
             <Button iconOnly className="dashboard-badge-button" onClick={() => scrollTo(3)} aria-label="Zu Zielen">
               <Badge count={streaks.dailyStreak} color="red">
                 <img className="dashboard-badge-icon" src={`${import.meta.env.BASE_URL}Flame.png`} alt="Streak" />
