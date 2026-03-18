@@ -336,7 +336,7 @@
   right: -10%;
   font-weight: 900;
   font-size: 1em;
-  color: #e74c6f;
+  color: var(--db-text, #1a1a1a);
   -webkit-text-stroke: 6px var(--db-background, #fff);
   paint-order: stroke fill;
   opacity: 0;
@@ -350,10 +350,7 @@
   transform: scale(1);
 }
 
-/* Purring: eyes close contentedly */
-.mascot--purring .mascot-eye-open {
-  animation: eye-sleep 0.6s ease forwards;
-}
+/* Purring: eyes stay closed (default state — arcs visible, open eyes hidden) */
 
 /* Purring: gentle sway */
 .mascot--purring {
