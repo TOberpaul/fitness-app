@@ -114,74 +114,60 @@ export async function getStreaks(): Promise<Streaks> {
 }
 
 /**
- * Compute the difference in calendar days between two YYYY-MM-DD date strings.
- * Returns (dateB - dateA) in days.
- */
-function daysBetween(dateA: string, dateB: string): number {
-  const a = new Date(dateA + 'T00:00:00Z');
-  const b = new Date(dateB + 'T00:00:00Z');
-  return Math.round((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
-}
-
-/**
- * Compute the difference in calendar weeks between two YYYY-MM-DD week-start date strings.
- * Returns (weekB - weekA) in weeks.
- */
-function weeksBetween(weekA: string, weekB: string): number {
-  const days = daysBetween(weekA, weekB);
-  return Math.round(days / 7);
-}
-
-/**
- * Update the daily weight logging streak.
+ * Compute the daily streak by scanning all DailyMeasurement records in IndexedDB.
  *
- * Logic:
- * - If no previous streak data or no last date: start streak at 1
- * - If the given date is the same as the last date: no change (idempotent)
- * - If the given date is exactly 1 day after the last date: increment streak
- * - If there's a gap (more than 1 day): reset streak to 1
+ * Counts consecutive calendar days backwards from today (or the most recent
+ * measurement date, whichever is later). This approach is order-independent:
+ * it doesn't matter when or in what sequence the user saved entries.
  *
  * Persists updated streaks to IndexedDB and returns StreakInfo.
  *
  * Requirements: 11.1, 11.3, 11.4, 11.5
  */
-export async function updateDailyStreak(date: string): Promise<StreakInfo> {
+export async function updateDailyStreak(_date: string): Promise<StreakInfo> {
   const db = await getDB();
   const streaks = (await db.get('streaks', STREAKS_KEY)) ?? defaultStreaks();
   const previousStreak = streaks.dailyStreak;
 
-  if (streaks.dailyLastDate === null) {
-    // First ever daily measurement
-    streaks.dailyStreak = 1;
-  } else if (streaks.dailyLastDate === date) {
-    // Same day — idempotent, no change
-    return {
-      currentStreak: streaks.dailyStreak,
-      isNewRecord: false,
-      thresholdReached: null,
-    };
-  } else {
-    const gap = daysBetween(streaks.dailyLastDate, date);
-    if (gap === 1) {
-      // Consecutive day — extend streak
-      streaks.dailyStreak += 1;
-    } else if (gap > 1) {
-      // Gap detected — reset to 1 (today counts)
-      streaks.dailyStreak = 1;
+  // Read all daily measurement dates from IndexedDB
+  const allDaily = await db.getAll('dailyMeasurements');
+  const dateSet = new Set(allDaily.map((m) => m.date));
+
+  if (dateSet.size === 0) {
+    streaks.dailyStreak = 0;
+    streaks.dailyLastDate = null;
+    streaks.updatedAt = new Date().toISOString();
+    await db.put('streaks', streaks, STREAKS_KEY);
+    return { currentStreak: 0, isNewRecord: false, thresholdReached: null };
+  }
+
+  // Find the most recent date in the dataset
+  const sortedDates = Array.from(dateSet).sort();
+  const latestDate = sortedDates[sortedDates.length - 1];
+
+  // Also consider today — streak should count from today backwards
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+  // Start counting from today if there's an entry for today, otherwise from the latest entry
+  const startDate = dateSet.has(todayStr) ? todayStr : latestDate;
+
+  // Count consecutive days backwards from startDate
+  let streak = 0;
+  const cursor = new Date(startDate + 'T00:00:00');
+  while (true) {
+    const cursorStr = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;
+    if (dateSet.has(cursorStr)) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
     } else {
-      // date is before or equal to lastDate (shouldn't normally happen)
-      // Treat as idempotent
-      return {
-        currentStreak: streaks.dailyStreak,
-        isNewRecord: false,
-        thresholdReached: null,
-      };
+      break;
     }
   }
 
-  streaks.dailyLastDate = date;
+  streaks.dailyStreak = streak;
+  streaks.dailyLastDate = startDate;
   streaks.updatedAt = new Date().toISOString();
-
   await db.put('streaks', streaks, STREAKS_KEY);
 
   const isNewRecord = streaks.dailyStreak > previousStreak;
@@ -197,55 +183,53 @@ export async function updateDailyStreak(date: string): Promise<StreakInfo> {
 }
 
 /**
- * Update the weekly circumference measurement streak.
+ * Compute the weekly circumference measurement streak by scanning all
+ * WeeklyMeasurement records in IndexedDB.
  *
- * Logic:
- * - If no previous streak data or no last week: start streak at 1
- * - If the given weekStart is the same as the last week: no change (idempotent)
- * - If the given weekStart is exactly 1 week after the last week: increment streak
- * - If there's a gap (more than 1 week): reset streak to 1
+ * Counts consecutive calendar weeks backwards from the most recent week.
+ * Order-independent — doesn't matter when entries were saved.
  *
  * Persists updated streaks to IndexedDB and returns StreakInfo.
  *
  * Requirements: 11.2, 11.3, 11.4, 11.5
  */
-export async function updateWeeklyStreak(weekStart: string): Promise<StreakInfo> {
+export async function updateWeeklyStreak(_weekStart: string): Promise<StreakInfo> {
   const db = await getDB();
   const streaks = (await db.get('streaks', STREAKS_KEY)) ?? defaultStreaks();
   const previousStreak = streaks.weeklyStreak;
 
-  if (streaks.weeklyLastDate === null) {
-    // First ever weekly measurement
-    streaks.weeklyStreak = 1;
-  } else if (streaks.weeklyLastDate === weekStart) {
-    // Same week — idempotent, no change
-    return {
-      currentStreak: streaks.weeklyStreak,
-      isNewRecord: false,
-      thresholdReached: null,
-    };
-  } else {
-    const gap = weeksBetween(streaks.weeklyLastDate, weekStart);
-    if (gap === 1) {
-      // Consecutive week — extend streak
-      streaks.weeklyStreak += 1;
-    } else if (gap > 1) {
-      // Gap detected — reset to 1 (this week counts)
-      streaks.weeklyStreak = 1;
+  // Read all weekly measurement dates from IndexedDB
+  const allWeekly = await db.getAll('weeklyMeasurements');
+  const weekSet = new Set(allWeekly.map((m) => m.date));
+
+  if (weekSet.size === 0) {
+    streaks.weeklyStreak = 0;
+    streaks.weeklyLastDate = null;
+    streaks.updatedAt = new Date().toISOString();
+    await db.put('streaks', streaks, STREAKS_KEY);
+    return { currentStreak: 0, isNewRecord: false, thresholdReached: null };
+  }
+
+  // Find the most recent week-start in the dataset
+  const sortedWeeks = Array.from(weekSet).sort();
+  const latestWeek = sortedWeeks[sortedWeeks.length - 1];
+
+  // Count consecutive weeks backwards from the latest week
+  let streak = 0;
+  const cursor = new Date(latestWeek + 'T00:00:00');
+  while (true) {
+    const cursorStr = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;
+    if (weekSet.has(cursorStr)) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 7);
     } else {
-      // weekStart is before or equal to lastWeek (shouldn't normally happen)
-      // Treat as idempotent
-      return {
-        currentStreak: streaks.weeklyStreak,
-        isNewRecord: false,
-        thresholdReached: null,
-      };
+      break;
     }
   }
 
-  streaks.weeklyLastDate = weekStart;
+  streaks.weeklyStreak = streak;
+  streaks.weeklyLastDate = latestWeek;
   streaks.updatedAt = new Date().toISOString();
-
   await db.put('streaks', streaks, STREAKS_KEY);
 
   const isNewRecord = streaks.weeklyStreak > previousStreak;

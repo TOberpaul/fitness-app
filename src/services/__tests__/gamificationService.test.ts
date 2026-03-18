@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { resetDB } from '../db';
+import { resetDB, getDB } from '../db';
 import {
   updateDailyStreak,
   updateWeeklyStreak,
@@ -15,6 +15,18 @@ import {
   detectMicroWins,
 } from '../gamificationService';
 import type { Goal, Milestone, MilestoneContext, DailyMeasurement, WeeklyMeasurement } from '../../types';
+
+/** Helper: insert a DailyMeasurement into IndexedDB */
+async function insertDaily(date: string): Promise<void> {
+  const db = await getDB();
+  await db.put('dailyMeasurements', { date, weight: 80, source: 'manual', updatedAt: new Date().toISOString() });
+}
+
+/** Helper: insert a WeeklyMeasurement into IndexedDB */
+async function insertWeekly(date: string): Promise<void> {
+  const db = await getDB();
+  await db.put('weeklyMeasurements', { date, updatedAt: new Date().toISOString() });
+}
 
 beforeEach(() => {
   resetDB();
@@ -33,6 +45,7 @@ describe('gamificationService - getStreaks', () => {
 
 describe('gamificationService - updateDailyStreak', () => {
   it('starts streak at 1 on first measurement', async () => {
+    await insertDaily('2024-01-15');
     const result = await updateDailyStreak('2024-01-15');
     expect(result.currentStreak).toBe(1);
     expect(result.isNewRecord).toBe(true);
@@ -40,21 +53,25 @@ describe('gamificationService - updateDailyStreak', () => {
   });
 
   it('increments streak on consecutive days', async () => {
-    await updateDailyStreak('2024-01-15');
+    await insertDaily('2024-01-15');
+    await insertDaily('2024-01-16');
     const result = await updateDailyStreak('2024-01-16');
     expect(result.currentStreak).toBe(2);
     expect(result.isNewRecord).toBe(true);
   });
 
   it('resets streak to 1 on gap', async () => {
-    await updateDailyStreak('2024-01-15');
-    await updateDailyStreak('2024-01-16');
-    const result = await updateDailyStreak('2024-01-19'); // 2-day gap
+    await insertDaily('2024-01-15');
+    await insertDaily('2024-01-16');
+    await updateDailyStreak('2024-01-16'); // sets previousStreak to 2
+    await insertDaily('2024-01-19');
+    const result = await updateDailyStreak('2024-01-19');
     expect(result.currentStreak).toBe(1);
     expect(result.isNewRecord).toBe(false);
   });
 
   it('is idempotent for same date', async () => {
+    await insertDaily('2024-01-15');
     await updateDailyStreak('2024-01-15');
     const result = await updateDailyStreak('2024-01-15');
     expect(result.currentStreak).toBe(1);
@@ -62,8 +79,8 @@ describe('gamificationService - updateDailyStreak', () => {
   });
 
   it('detects 7-day threshold', async () => {
-    for (let i = 1; i <= 6; i++) {
-      await updateDailyStreak(`2024-01-${String(i).padStart(2, '0')}`);
+    for (let i = 1; i <= 7; i++) {
+      await insertDaily(`2024-01-${String(i).padStart(2, '0')}`);
     }
     const result = await updateDailyStreak('2024-01-07');
     expect(result.currentStreak).toBe(7);
@@ -71,8 +88,8 @@ describe('gamificationService - updateDailyStreak', () => {
   });
 
   it('returns null threshold for non-threshold counts', async () => {
-    for (let i = 1; i <= 5; i++) {
-      await updateDailyStreak(`2024-01-${String(i).padStart(2, '0')}`);
+    for (let i = 1; i <= 6; i++) {
+      await insertDaily(`2024-01-${String(i).padStart(2, '0')}`);
     }
     const result = await updateDailyStreak('2024-01-06');
     expect(result.currentStreak).toBe(6);
@@ -80,16 +97,29 @@ describe('gamificationService - updateDailyStreak', () => {
   });
 
   it('persists streak data to IndexedDB', async () => {
-    await updateDailyStreak('2024-01-15');
+    await insertDaily('2024-01-15');
+    await insertDaily('2024-01-16');
     await updateDailyStreak('2024-01-16');
     const streaks = await getStreaks();
     expect(streaks.dailyStreak).toBe(2);
     expect(streaks.dailyLastDate).toBe('2024-01-16');
   });
+
+  it('correctly counts streak when entries are added out of order', async () => {
+    // User enters data for day 3, then day 1, then day 2
+    await insertDaily('2024-01-17');
+    await updateDailyStreak('2024-01-17');
+    await insertDaily('2024-01-15');
+    await updateDailyStreak('2024-01-15');
+    await insertDaily('2024-01-16');
+    const result = await updateDailyStreak('2024-01-16');
+    expect(result.currentStreak).toBe(3);
+  });
 });
 
 describe('gamificationService - updateWeeklyStreak', () => {
   it('starts streak at 1 on first measurement', async () => {
+    await insertWeekly('2024-01-15');
     const result = await updateWeeklyStreak('2024-01-15');
     expect(result.currentStreak).toBe(1);
     expect(result.isNewRecord).toBe(true);
@@ -97,21 +127,25 @@ describe('gamificationService - updateWeeklyStreak', () => {
   });
 
   it('increments streak on consecutive weeks', async () => {
-    await updateWeeklyStreak('2024-01-15');
-    const result = await updateWeeklyStreak('2024-01-22'); // +7 days
+    await insertWeekly('2024-01-15');
+    await insertWeekly('2024-01-22');
+    const result = await updateWeeklyStreak('2024-01-22');
     expect(result.currentStreak).toBe(2);
     expect(result.isNewRecord).toBe(true);
   });
 
   it('resets streak to 1 on gap', async () => {
-    await updateWeeklyStreak('2024-01-15');
-    await updateWeeklyStreak('2024-01-22');
-    const result = await updateWeeklyStreak('2024-02-05'); // 1-week gap
+    await insertWeekly('2024-01-15');
+    await insertWeekly('2024-01-22');
+    await updateWeeklyStreak('2024-01-22'); // sets previousStreak to 2
+    await insertWeekly('2024-02-05');
+    const result = await updateWeeklyStreak('2024-02-05');
     expect(result.currentStreak).toBe(1);
     expect(result.isNewRecord).toBe(false);
   });
 
   it('is idempotent for same week', async () => {
+    await insertWeekly('2024-01-15');
     await updateWeeklyStreak('2024-01-15');
     const result = await updateWeeklyStreak('2024-01-15');
     expect(result.currentStreak).toBe(1);
@@ -119,24 +153,27 @@ describe('gamificationService - updateWeeklyStreak', () => {
   });
 
   it('detects 4-week threshold', async () => {
-    await updateWeeklyStreak('2024-01-01');
-    await updateWeeklyStreak('2024-01-08');
-    await updateWeeklyStreak('2024-01-15');
+    await insertWeekly('2024-01-01');
+    await insertWeekly('2024-01-08');
+    await insertWeekly('2024-01-15');
+    await insertWeekly('2024-01-22');
     const result = await updateWeeklyStreak('2024-01-22');
     expect(result.currentStreak).toBe(4);
     expect(result.thresholdReached).toBe(4);
   });
 
   it('returns null threshold for non-threshold counts', async () => {
-    await updateWeeklyStreak('2024-01-01');
-    await updateWeeklyStreak('2024-01-08');
+    await insertWeekly('2024-01-01');
+    await insertWeekly('2024-01-08');
+    await insertWeekly('2024-01-15');
     const result = await updateWeeklyStreak('2024-01-15');
     expect(result.currentStreak).toBe(3);
     expect(result.thresholdReached).toBeNull();
   });
 
   it('persists streak data to IndexedDB', async () => {
-    await updateWeeklyStreak('2024-01-15');
+    await insertWeekly('2024-01-15');
+    await insertWeekly('2024-01-22');
     await updateWeeklyStreak('2024-01-22');
     const streaks = await getStreaks();
     expect(streaks.weeklyStreak).toBe(2);
