@@ -10,14 +10,18 @@ function MeasurementView() {
   const [showWeight, setShowWeight] = useState(false)
   const [showBodyFat, setShowBodyFat] = useState(false)
   const [showWeekly, setShowWeekly] = useState(false)
+  const [hintPhase, setHintPhase] = useState(0)
 
   return (
     <div className="measurement-view">
       <h1>Messung</h1>
 
       <Card className="measurement-mascot-frame" data-material="semi-transparent">
-        <SleepyMascot />
+        <SleepyMascot onHintChange={setHintPhase} />
       </Card>
+      <span className={`mascot-hint${hintPhase >= 2 ? ' mascot-hint--hidden' : ''}`} data-emphasis="weak">
+        {hintPhase === 0 ? 'Antippen' : 'Nochmal wenn er wach ist'}
+      </span>
 
       <div className="measurement-cards">
         <Card
