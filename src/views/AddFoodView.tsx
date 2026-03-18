@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Plus, Star } from 'lucide-react'
+import { Plus, Star, Camera, X } from 'lucide-react'
 import { searchFoods } from '../services/foodSearchService'
 import { getRecentFoods, getAllFavorites, getAllRecipes, saveFoodEntry, cacheFood, createCustomFood } from '../services/nutritionService'
+import { compressImage } from '../utils/imageCompression'
 import Dialog from '../components/core/Dialog'
 import Button from '../components/core/Button'
 import Card from '../components/core/Card'
@@ -37,6 +38,8 @@ function AddFoodView({ open, onClose, date, mealId, onFoodSelect }: AddFoodViewP
   const [customCarbs, setCustomCarbs] = useState('')
   const [customFat, setCustomFat] = useState('')
   const [customError, setCustomError] = useState('')
+  const [customImage, setCustomImage] = useState<string | null>(null)
+  const imageInputRef = useRef<HTMLInputElement>(null)
 
   const resetCustomForm = () => {
     setCustomName('')
@@ -45,6 +48,20 @@ function AddFoodView({ open, onClose, date, mealId, onFoodSelect }: AddFoodViewP
     setCustomCarbs('')
     setCustomFat('')
     setCustomError('')
+    setCustomImage(null)
+  }
+
+  const handleImageCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const dataUrl = await compressImage(file)
+      setCustomImage(dataUrl)
+    } catch {
+      setCustomError('Bild konnte nicht geladen werden')
+    }
+    // Reset input so same file can be re-selected
+    e.target.value = ''
   }
 
   const handleCreateCustomFood = async () => {
@@ -60,7 +77,7 @@ function AddFoodView({ open, onClose, date, mealId, onFoodSelect }: AddFoodViewP
       setCustomError('Nährwerte müssen gültige Zahlen sein'); return
     }
     try {
-      const food = await createCustomFood({ name, kcal_per_100g: kcal, protein_per_100g: protein, carbs_per_100g: carbs, fat_per_100g: fat })
+      const food = await createCustomFood({ name, kcal_per_100g: kcal, protein_per_100g: protein, carbs_per_100g: carbs, fat_per_100g: fat, image_url: customImage || undefined })
       setShowCustomForm(false)
       resetCustomForm()
       onFoodSelect(food.id)
@@ -262,6 +279,29 @@ function AddFoodView({ open, onClose, date, mealId, onFoodSelect }: AddFoodViewP
       {/* Custom food creation dialog */}
       <Dialog title="Eigenes Lebensmittel" open={showCustomForm} onClose={() => { setShowCustomForm(false); resetCustomForm() }}>
         <div className="add-food-custom-form">
+          {/* Photo capture */}
+          <div className="add-food-photo-section">
+            {customImage ? (
+              <div className="add-food-photo-preview">
+                <img src={customImage} alt="Vorschau" className="add-food-photo-img" />
+                <Button iconOnly onClick={() => setCustomImage(null)} aria-label="Foto entfernen">
+                  <X size={16} />
+                </Button>
+              </div>
+            ) : (
+              <Button width="full" onClick={() => imageInputRef.current?.click()}>
+                <Camera size={16} /> Foto aufnehmen
+              </Button>
+            )}
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleImageCapture}
+              className="add-food-photo-input"
+            />
+          </div>
           <Input
             id="custom-name"
             label="Name"

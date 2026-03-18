@@ -363,6 +363,7 @@ export interface Meal {
   id: string;
   date: string;
   name: string;
+  image_url?: string;
   created_at: string;
 }
 

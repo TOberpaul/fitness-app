@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
-import { ChevronLeft, ChevronRight, Plus, Trash2, Save, ChevronDown, ChevronUp } from 'lucide-react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { ChevronLeft, ChevronRight, Plus, Trash2, Save, ChevronDown, ChevronUp, Camera, X } from 'lucide-react'
 import { getDailySummary, deleteFoodEntry, createMeal, deleteMeal, saveMealAsTemplate, getAllSavedMeals, applySavedMeal, deleteSavedMeal } from '../services/nutritionService'
+import { compressImage } from '../utils/imageCompression'
 import Button from '../components/core/Button'
 import Card from '../components/core/Card'
 import Section from '../components/core/Section'
@@ -45,7 +46,8 @@ function NutritionView() {
   const [newMealName, setNewMealName] = useState('')
   const [showSavedMeals, setShowSavedMeals] = useState(false)
   const [savedMeals, setSavedMeals] = useState<SavedMeal[]>([])
-
+  const [mealImage, setMealImage] = useState<string | null>(null)
+  const mealImageInputRef = useRef<HTMLInputElement>(null)
   const loadSummary = useCallback(async () => {
     const data = await getDailySummary(selectedDate)
     setSummary(data)
@@ -64,10 +66,21 @@ function NutritionView() {
     })
   }
 
+  const handleMealImageCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const dataUrl = await compressImage(file)
+      setMealImage(dataUrl)
+    } catch { /* ignore */ }
+    e.target.value = ''
+  }
+
   const handleCreateMeal = async () => {
     const name = newMealName.trim() || 'Neues Gericht'
-    const meal = await createMeal(selectedDate, name)
+    const meal = await createMeal(selectedDate, name, mealImage || undefined)
     setNewMealName('')
+    setMealImage(null)
     setShowNewMealInput(false)
     setExpandedMeals(prev => new Set(prev).add(meal.id))
     await loadSummary()
@@ -171,6 +184,9 @@ function NutritionView() {
             return (
               <Card key={mealGroup.meal.id} className="nutrition-meal">
                 <div className="nutrition-meal-header" onClick={() => toggleMeal(mealGroup.meal.id)} role="button" tabIndex={0}>
+                  {mealGroup.meal.image_url && (
+                    <img src={mealGroup.meal.image_url} alt="" className="nutrition-meal-thumb" />
+                  )}
                   <div className="nutrition-meal-title">
                     <span className="nutrition-meal-name">{mealGroup.meal.name}</span>
                     <span className="nutrition-meal-kcal" data-emphasis="weak">{mealGroup.total_kcal.toFixed(0)} kcal</span>
@@ -233,7 +249,29 @@ function NutritionView() {
               />
               <Button variant="primary" onClick={handleCreateMeal}>OK</Button>
             </div>
-            <Button width="full" onClick={() => { setShowNewMealInput(false); setNewMealName('') }}>Abbrechen</Button>
+            <div className="nutrition-new-meal-photo">
+              {mealImage ? (
+                <div className="nutrition-meal-photo-preview">
+                  <img src={mealImage} alt="Vorschau" className="nutrition-meal-photo-img" />
+                  <Button iconOnly onClick={() => setMealImage(null)} aria-label="Foto entfernen">
+                    <X size={16} />
+                  </Button>
+                </div>
+              ) : (
+                <Button width="full" onClick={() => mealImageInputRef.current?.click()}>
+                  <Camera size={16} /> Foto aufnehmen
+                </Button>
+              )}
+              <input
+                ref={mealImageInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleMealImageCapture}
+                className="nutrition-photo-input"
+              />
+            </div>
+            <Button width="full" onClick={() => { setShowNewMealInput(false); setNewMealName(''); setMealImage(null) }}>Abbrechen</Button>
           </>
         ) : (
           <>

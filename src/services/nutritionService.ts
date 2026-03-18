@@ -159,12 +159,14 @@ export async function createCustomFood(data: {
   fat_per_100g: number;
   brand?: string;
   default_unit?: 'g' | 'ml';
+  image_url?: string;
 }): Promise<Food> {
   const food: Food = {
     id: `custom_${crypto.randomUUID()}`,
     source: 'custom',
     name: data.name,
     brand: data.brand || undefined,
+    image_url: data.image_url || undefined,
     kcal_per_100g: data.kcal_per_100g,
     protein_per_100g: data.protein_per_100g,
     carbs_per_100g: data.carbs_per_100g,
@@ -210,11 +212,12 @@ export async function updateCustomFood(id: string, data: {
 // ─── Meals (Gerichte) ────────────────────────────────────────────────
 
 /** Create a new meal for a date */
-export async function createMeal(date: string, name: string): Promise<Meal> {
+export async function createMeal(date: string, name: string, image_url?: string): Promise<Meal> {
   const meal: Meal = {
     id: crypto.randomUUID(),
     date,
     name,
+    image_url,
     created_at: new Date().toISOString(),
   };
   try {
