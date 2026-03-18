@@ -9,8 +9,8 @@ const TABS = [
   { index: 0, label: 'Dashboard', icon: ChartLine },
   { index: 1, label: 'Täglich', icon: Scale },
   { index: 2, label: 'Wöchentlich', icon: RulerDimensionLine },
-  { index: 3, label: 'Ziele', icon: Target },
-  { index: 4, label: 'Ernährung', icon: Apple },
+  { index: 3, label: 'Ernährung', icon: Apple },
+  { index: 4, label: 'Ziele', icon: Target },
   { index: 5, label: 'Mehr', icon: Settings },
 ]
 
