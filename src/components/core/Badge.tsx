@@ -5,11 +5,13 @@ interface BadgeProps extends HTMLAttributes<HTMLDivElement> {
   count?: ReactNode
   children: ReactNode
   color?: string
+  /** Render badge count inline instead of absolute-positioned */
+  inline?: boolean
 }
 
-function Badge({ count, children, color, className, ...rest }: BadgeProps) {
+function Badge({ count, children, color, className, inline, ...rest }: BadgeProps) {
   return (
-    <div className={`core-badge${className ? ` ${className}` : ''}`} {...rest}>
+    <div className={`core-badge${inline ? ' core-badge--inline' : ''}${className ? ` ${className}` : ''}`} {...rest}>
       {children}
       {count != null && (
         <span

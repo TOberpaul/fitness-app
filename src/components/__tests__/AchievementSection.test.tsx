@@ -111,7 +111,7 @@ describe('AchievementSection', () => {
     // Should have label but detail should be short date, not body text
     const labels = container.querySelectorAll('.achievement-card-label')
     expect(labels.length).toBe(1)
-    expect(labels[0].textContent).toBe('5 kg verloren')
+    expect(labels[0].textContent).toContain('5 kg verloren')
   })
 
   it('renders nothing when achievements list is empty', () => {

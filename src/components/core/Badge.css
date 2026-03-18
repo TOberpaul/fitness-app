@@ -11,3 +11,15 @@
   min-height: 0;
   border-radius: var(--size-border-radius-full);
 }
+
+.core-badge--inline {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--size-1, 0.25rem);
+}
+
+.core-badge--inline .core-badge-count {
+  position: static;
+  transform: none;
+}

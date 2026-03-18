@@ -122,14 +122,12 @@ function AchievementCard({ achievement, icon, color, onClick }: AchievementCardP
         )}
       </div>
       <div className="achievement-card-content">
-        <span className="achievement-card-label">{label}</span>
+        <span className="achievement-card-label">
+          {label}
+          {isEarned && <Badge count="✓" color="green" inline><span /></Badge>}
+        </span>
         {detail && <span className="achievement-card-detail">{detail}</span>}
       </div>
-      {isEarned && (
-        <Badge className="achievement-card-badge" count="✓" color="green">
-          <span />
-        </Badge>
-      )}
     </motion.div>
   )
 }
