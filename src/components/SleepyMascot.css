@@ -253,3 +253,79 @@
   0%, 100% { opacity: 0.4; }
   50% { opacity: 0.8; }
 }
+
+/* ── Hearts (purring / petting) ── */
+.mascot-hearts {
+  position: absolute;
+  top: 0;
+  right: -10%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.mascot--purring .mascot-hearts {
+  opacity: 1;
+}
+
+.mascot--purring .mascot-zzz {
+  opacity: 0;
+}
+
+.mascot-heart {
+  color: #e74c6f;
+  font-size: 0.8em;
+  opacity: 0;
+}
+
+.mascot--purring .mascot-heart {
+  animation: heart-float 2s ease-in-out infinite;
+}
+
+.mascot-heart--1 {
+  font-size: 0.6em;
+  animation-delay: 0s;
+}
+
+.mascot-heart--2 {
+  font-size: 0.9em;
+  animation-delay: 0.6s;
+  --hx: 0.5em;
+}
+
+.mascot-heart--3 {
+  font-size: 1.2em;
+  animation-delay: 1.2s;
+  --hx: 1em;
+}
+
+@keyframes heart-float {
+  0% {
+    opacity: 0;
+    transform: translateY(0) translateX(var(--hx, 0)) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-0.3em) translateX(var(--hx, 0)) scale(1);
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-1.8em) translateX(var(--hx, 0)) scale(0.8);
+  }
+}
+
+/* Purring: gentle sway */
+.mascot--purring {
+  animation: mascot-purr 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes mascot-purr {
+  0% { transform: rotate(-1deg); }
+  100% { transform: rotate(1deg); }
+}
