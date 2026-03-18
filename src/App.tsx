@@ -20,7 +20,7 @@ import { getAllGoals } from './services/goalService'
 import { getAllData } from './services/dataService'
 import './App.css'
 
-const SNAP_ROUTES = ['/', '/daily', '/weekly', '/goals', '/settings']
+const SNAP_ROUTES = ['/', '/daily', '/weekly', '/goals', '/nutrition', '/settings']
 
 // Context so BottomNavigation can read/set the active panel without re-rendering the snap container
 const PanelContext = createContext<{
@@ -104,6 +104,7 @@ function MainPanels() {
         <div className="snap-panel"><DailyInputView /></div>
         <div className="snap-panel"><WeeklyInputView /></div>
         <div className="snap-panel"><GoalsView /></div>
+        <div className="snap-panel"><NutritionView /></div>
         <div className="snap-panel"><SettingsView /></div>
       </div>
       <BottomNavigation />
@@ -157,11 +158,11 @@ function AppContent() {
           <Route path="/daily" element={<MainPanels />} />
           <Route path="/weekly" element={<MainPanels />} />
           <Route path="/goals" element={<MainPanels />} />
+          <Route path="/nutrition" element={<MainPanels />} />
           <Route path="/settings" element={<MainPanels />} />
           {/* Detail routes (no snap) */}
           <Route path="/callback" element={<FitbitCallbackView />} />
           <Route path="/achievements" element={<AchievementsView />} />
-          <Route path="/nutrition" element={<NutritionView />} />
           <Route path="/nutrition/add" element={<AddFoodView />} />
           <Route path="/nutrition/food/:id" element={<FoodDetailView />} />
           <Route path="/nutrition/recipes" element={<RecipeListView />} />

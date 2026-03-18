@@ -1,29 +1,21 @@
 import { ChartLine, Scale, RulerDimensionLine, Target, Settings, Apple } from 'lucide-react'
 import { motion } from 'motion/react'
-import { useNavigate, useLocation } from 'react-router-dom'
 import { usePanelContext } from '../App'
 import { EASINGS } from '../animations/presets'
 import { useReducedMotion } from '../animations/hooks'
 import './BottomNavigation.css'
 
-type TabDef = { label: string; icon: typeof ChartLine } & (
-  | { type: 'snap'; index: number }
-  | { type: 'route'; path: string }
-)
-
-const TABS: TabDef[] = [
-  { type: 'snap', index: 0, label: 'Dashboard', icon: ChartLine },
-  { type: 'snap', index: 1, label: 'Täglich', icon: Scale },
-  { type: 'snap', index: 2, label: 'Wöchentlich', icon: RulerDimensionLine },
-  { type: 'snap', index: 3, label: 'Ziele', icon: Target },
-  { type: 'snap', index: 4, label: 'Mehr', icon: Settings },
-  { type: 'route', path: '/nutrition', label: 'Ernährung', icon: Apple },
+const TABS = [
+  { index: 0, label: 'Dashboard', icon: ChartLine },
+  { index: 1, label: 'Täglich', icon: Scale },
+  { index: 2, label: 'Wöchentlich', icon: RulerDimensionLine },
+  { index: 3, label: 'Ziele', icon: Target },
+  { index: 4, label: 'Ernährung', icon: Apple },
+  { index: 5, label: 'Mehr', icon: Settings },
 ]
 
 function BottomNavigation() {
   const { activeIndex, scrollTo } = usePanelContext()
-  const navigate = useNavigate()
-  const location = useLocation()
   const reducedMotion = useReducedMotion()
 
   const indicatorTransition = reducedMotion
@@ -32,23 +24,18 @@ function BottomNavigation() {
 
   return (
     <nav className="bottom-nav adaptive">
-      {TABS.map((tab, i) => {
+      {TABS.map((tab) => {
         const Icon = tab.icon
-        const isActive = tab.type === 'snap'
-          ? activeIndex === tab.index && !location.pathname.startsWith('/nutrition')
-          : location.pathname.startsWith(tab.path)
-        const handleClick = tab.type === 'snap'
-          ? () => scrollTo(tab.index)
-          : () => navigate(tab.path)
+        const isActive = activeIndex === tab.index
         return (
           <button
-            key={i}
+            key={tab.index}
             className={`adaptive bottom-nav-link${isActive ? ' active' : ''}`}
             data-interactive
             {...(isActive
               ? { 'data-material': 'inverted', 'data-container-contrast': 'max' }
               : { 'data-material': 'transparent' })}
-            onClick={handleClick}
+            onClick={() => scrollTo(tab.index)}
           >
             <motion.div
               className="bottom-nav-active-indicator"
