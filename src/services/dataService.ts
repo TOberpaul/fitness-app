@@ -97,6 +97,9 @@ export async function getAllData(): Promise<ExportData> {
 }
 
 export async function importData(data: ExportData): Promise<ImportResult> {
+  // Clear all existing data (including milestones/streaks) before import
+  await clearAllData();
+
   let dailyCount = 0;
   let weeklyCount = 0;
 
@@ -117,4 +120,6 @@ export async function clearAllData(): Promise<void> {
   const db = await getDB();
   await db.clear('dailyMeasurements');
   await db.clear('weeklyMeasurements');
+  await db.clear('milestones');
+  await db.clear('streaks');
 }

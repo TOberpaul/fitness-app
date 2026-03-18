@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "exportedAt": "2026-03-18T12:00:00.000Z",
+  "dailyMeasurements": [
+    { "date": "2026-03-16", "weight": 92.3, "bodyFat": 28.5, "source": "manual", "updatedAt": "2026-03-16T08:00:00.000Z" },
+    { "date": "2026-03-17", "weight": 92.0, "bodyFat": 28.4, "source": "manual", "updatedAt": "2026-03-17T07:45:00.000Z" },
+    { "date": "2026-03-18", "weight": 91.8, "bodyFat": 28.3, "source": "manual", "updatedAt": "2026-03-18T08:10:00.000Z" }
+  ],
+  "weeklyMeasurements": []
+}
