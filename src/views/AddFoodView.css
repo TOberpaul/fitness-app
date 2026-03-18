@@ -66,6 +66,16 @@
   background: var(--db-adaptive-bg, rgba(128,128,128,0.15));
 }
 
+.add-food-item-emoji {
+  width: var(--size-container);
+  height: var(--size-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
 .add-food-item-info {
   display: flex;
   flex-direction: column;

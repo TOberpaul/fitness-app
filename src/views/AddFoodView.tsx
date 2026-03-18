@@ -91,6 +91,8 @@ function AddFoodView({ open, onClose, date, onFoodSelect }: AddFoodViewProps) {
     <Card key={food.id} className="add-food-item" onClick={() => selectFood(food)} role="button" tabIndex={0}>
       {food.image_url ? (
         <img src={food.image_url} alt="" className="add-food-item-image" />
+      ) : food.emoji ? (
+        <span className="add-food-item-emoji" role="img">{food.emoji}</span>
       ) : (
         <div className="add-food-item-image add-food-item-image--empty" />
       )}
