@@ -19,9 +19,11 @@ function MeasurementView() {
       <Card className="measurement-mascot-frame" data-material="semi-transparent">
         <SleepyMascot onHintChange={setHintPhase} />
       </Card>
-      <span className={`mascot-hint${hintPhase >= 2 ? ' mascot-hint--hidden' : ''}`} data-emphasis="weak">
-        {hintPhase === 0 ? 'Antippen' : 'Nochmal wenn er wach ist'}
-      </span>
+      {hintPhase < 2 && (
+        <span className="mascot-hint" data-emphasis="weak">
+          {hintPhase === 0 ? 'Antippen' : 'Nochmal wenn er wach ist'}
+        </span>
+      )}
 
       <div className="measurement-cards">
         <Card
