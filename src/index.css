@@ -60,7 +60,8 @@ h1, h2, p {
   [data-interactive] {
     -webkit-tap-highlight-color: transparent;
   }
-  [data-interactive]:hover {
+  [data-interactive]:hover,
+  [data-interactive][data-interactive]:hover {
     --db-background: var(--material-bg-default);
   }
 }
