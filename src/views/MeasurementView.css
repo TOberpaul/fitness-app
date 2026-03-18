@@ -5,6 +5,18 @@
   padding: var(--spacing-padding);
 }
 
+.measurement-mascot-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-padding);
+  align-self: center;
+  border-radius: var(--size-border-radius);
+  aspect-ratio: 1;
+  width: 60%;
+  max-width: 14rem;
+}
+
 .measurement-cards {
   display: flex;
   flex-direction: column;

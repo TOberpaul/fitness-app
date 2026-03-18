@@ -15,7 +15,9 @@ function MeasurementView() {
     <div className="measurement-view">
       <h1>Messung</h1>
 
-      <SleepyMascot />
+      <Card className="measurement-mascot-frame" data-material="semi-transparent">
+        <SleepyMascot />
+      </Card>
 
       <div className="measurement-cards">
         <Card
