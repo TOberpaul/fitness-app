@@ -65,32 +65,33 @@ function DashboardView() {
   const [streaks, setStreaks] = useState<Streaks | null>(null)
   const [goalPercent, setGoalPercent] = useState<number | null>(null)
 
-  useEffect(() => {
-    async function checkDataExistence() {
-      try {
-        const allData = await getAllData()
-        setHasDailyData(allData.dailyMeasurements.length > 0)
-        setHasWeeklyData(allData.weeklyMeasurements.length > 0)
+  const loadMeta = useCallback(async () => {
+    try {
+      const allData = await getAllData()
+      setHasDailyData(allData.dailyMeasurements.length > 0)
+      setHasWeeklyData(allData.weeklyMeasurements.length > 0)
 
-        const s = await getStreaks()
-        setStreaks(s)
+      const s = await getStreaks()
+      setStreaks(s)
 
-        const goals = await getActiveGoals()
-        if (goals.length > 0) {
-          const g = goals.find(gl => gl.metricType === 'weight') || goals[0]
-          const measurements = g.metricType === 'circumference'
-            ? allData.weeklyMeasurements
-            : allData.dailyMeasurements
-          const proj = calculateProjection(g, measurements as never)
-          setGoalPercent(Math.min(100, Math.max(0, Math.round(proj.percentComplete))))
-        }
-      } catch {
-        setHasDailyData(false)
-        setHasWeeklyData(false)
+      const goals = await getActiveGoals()
+      if (goals.length > 0) {
+        const g = goals.find(gl => gl.metricType === 'weight') || goals[0]
+        const measurements = g.metricType === 'circumference'
+          ? allData.weeklyMeasurements
+          : allData.dailyMeasurements
+        const proj = calculateProjection(g, measurements as never)
+        setGoalPercent(Math.min(100, Math.max(0, Math.round(proj.percentComplete))))
       }
+    } catch {
+      setHasDailyData(false)
+      setHasWeeklyData(false)
     }
-    checkDataExistence()
   }, [])
+
+  useEffect(() => {
+    loadMeta()
+  }, [loadMeta])
 
   const loadData = useCallback(async () => {
     const { from, to } = getDateRange(timeRange)
@@ -105,7 +106,7 @@ function DashboardView() {
 
   useEffect(() => {
     loadData()
-    const onDataUpdated = () => { loadData() }
+    const onDataUpdated = () => { loadData(); loadMeta() }
     window.addEventListener('data-updated', onDataUpdated)
     return () => window.removeEventListener('data-updated', onDataUpdated)
   }, [loadData])
