@@ -173,7 +173,8 @@ export async function createMeal(date: string, name: string): Promise<Meal> {
 export async function getMealsByDate(date: string): Promise<Meal[]> {
   try {
     const db = await getDB();
-    return db.getAllFromIndex('meals', 'by-date', date);
+    const result = await db.getAllFromIndex('meals', 'by-date', date);
+    return result;
   } catch {
     // meals store may not exist yet if migration hasn't completed
     return [];
@@ -212,7 +213,8 @@ export async function deleteMeal(id: string): Promise<void> {
 export async function getFoodEntriesByMeal(mealId: string): Promise<FoodEntry[]> {
   try {
     const db = await getDB();
-    return db.getAllFromIndex('foodEntries', 'by-meal-id', mealId);
+    const result = await db.getAllFromIndex('foodEntries', 'by-meal-id', mealId);
+    return result;
   } catch {
     return [];
   }
@@ -260,7 +262,8 @@ export async function saveMealAsTemplate(mealId: string, name: string): Promise<
 export async function getAllSavedMeals(): Promise<SavedMeal[]> {
   try {
     const db = await getDB();
-    return db.getAll('savedMeals');
+    const result = await db.getAll('savedMeals');
+    return result;
   } catch {
     return [];
   }
