@@ -62,19 +62,21 @@
   display: flex;
   flex-direction: column;
   gap: var(--size-gap);
+  cursor: pointer;
 }
 
 .nutrition-meal-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  cursor: pointer;
+  gap: var(--size-gap);
 }
 
 .nutrition-meal-title {
   display: flex;
   flex-direction: column;
-  gap: var(--size-4);
+  flex: 1;
+  min-width: 0;
 }
 
 .nutrition-meal-name {
@@ -82,7 +84,7 @@
 }
 
 .nutrition-meal-kcal {
-  font-size: var(--size-text-small, 0.85rem);
+  font-size: var(--size-text-);
 }
 
 .nutrition-meal-chevron {
@@ -179,8 +181,8 @@
 
 /* Meal photo */
 .nutrition-meal-thumb {
-  width: 3rem;
-  height: 3rem;
+  width: 4rem;
+  height: 4rem;
   border-radius: var(--size-border-radius);
   object-fit: cover;
   flex-shrink: 0;
@@ -205,4 +207,17 @@
 
 .nutrition-photo-input {
   display: none;
+}
+
+/* Edit meal form */
+.nutrition-edit-meal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-gap);
+}
+
+.nutrition-photo-actions {
+  display: flex;
+  gap: var(--size-gap);
+  align-items: center;
 }

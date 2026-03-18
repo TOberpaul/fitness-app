@@ -127,21 +127,19 @@ function DashboardView() {
   const animatedValue = useAnimatedNumber(currentValue ?? 0, 1)
   const animatedPercent = useAnimatedNumber(percentChange ?? 0, 1)
 
-  // Show empty state only when we know there's no data at all
-  if (hasDailyData === false && hasWeeklyData === false) {
-    return (
-      <div className="dashboard">
+  const showEmptyState = hasDailyData === false && hasWeeklyData === false
+
+  return (
+    <div className="dashboard">
+      {showEmptyState && (
         <EmptyState
           message="Noch keine Daten vorhanden"
           ctaLabel="Erste Messung eintragen"
           onCtaClick={() => navigate('/daily')}
         />
-      </div>
-    )
-  }
-
-  return (
-    <div className="dashboard">
+      )}
+      {!showEmptyState && (<>
+    
       {/* Tab bar */}
       <div className="dashboard-tabs adaptive" data-material="semi-transparent">
         <Button
@@ -176,7 +174,7 @@ function DashboardView() {
           {(Object.keys(CIRCUMFERENCE_LABELS) as CircumferenceField[]).map((field) => (
             <Button
               key={field}
-              data-material={circumferenceField === field ? 'inverted' : undefined}
+              data-material={circumferenceField === field ? 'inverted' : 'transparent'}
               data-container-contrast={circumferenceField === field ? 'max' : undefined}
               data-emphasis={circumferenceField === field ? 'strong' : undefined}
               onClick={() => setCircumferenceField(field)}
@@ -242,7 +240,7 @@ function DashboardView() {
         {TIME_RANGES.map((range) => (
           <Button
             key={range}
-            data-material={timeRange === range ? 'inverted' : undefined}
+            data-material={timeRange === range ? 'inverted' : 'transparent'}
             data-container-contrast={timeRange === range ? 'max' : undefined}
             data-emphasis={timeRange === range ? 'strong' : undefined}
             onClick={() => setTimeRange(range)}
@@ -251,6 +249,7 @@ function DashboardView() {
           </Button>
         ))}
       </div>
+      </>)}
     </div>
   )
 }

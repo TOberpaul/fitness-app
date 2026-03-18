@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { ChevronLeft, ChevronRight, Plus, Trash2, Save, ChevronDown, ChevronUp, Camera, X } from 'lucide-react'
-import { getDailySummary, deleteFoodEntry, createMeal, deleteMeal, saveMealAsTemplate, getAllSavedMeals, applySavedMeal, deleteSavedMeal } from '../services/nutritionService'
+import { ChevronLeft, ChevronRight, Plus, Trash2, Save, ChevronDown, ChevronUp, Camera, X, Pencil } from 'lucide-react'
+import { getDailySummary, deleteFoodEntry, createMeal, deleteMeal, updateMeal, saveMealAsTemplate, getAllSavedMeals, applySavedMeal, deleteSavedMeal } from '../services/nutritionService'
 import { compressImage } from '../utils/imageCompression'
 import Button from '../components/core/Button'
 import Card from '../components/core/Card'
@@ -48,6 +48,12 @@ function NutritionView() {
   const [savedMeals, setSavedMeals] = useState<SavedMeal[]>([])
   const [mealImage, setMealImage] = useState<string | null>(null)
   const mealImageInputRef = useRef<HTMLInputElement>(null)
+
+  // Edit meal dialog state
+  const [editingMeal, setEditingMeal] = useState<MealWithEntries | null>(null)
+  const [editMealName, setEditMealName] = useState('')
+  const [editMealImage, setEditMealImage] = useState<string | null>(null)
+  const editMealImageInputRef = useRef<HTMLInputElement>(null)
   const loadSummary = useCallback(async () => {
     const data = await getDailySummary(selectedDate)
     setSummary(data)
@@ -74,6 +80,32 @@ function NutritionView() {
       setMealImage(dataUrl)
     } catch { /* ignore */ }
     e.target.value = ''
+  }
+
+  const handleEditMeal = (mealGroup: MealWithEntries) => {
+    setEditingMeal(mealGroup)
+    setEditMealName(mealGroup.meal.name)
+    setEditMealImage(mealGroup.meal.image_url || null)
+  }
+
+  const handleEditMealImageCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const dataUrl = await compressImage(file)
+      setEditMealImage(dataUrl)
+    } catch { /* ignore */ }
+    e.target.value = ''
+  }
+
+  const handleSaveEditMeal = async () => {
+    if (!editingMeal) return
+    await updateMeal(editingMeal.meal.id, {
+      name: editMealName.trim() || editingMeal.meal.name,
+      image_url: editMealImage,
+    })
+    setEditingMeal(null)
+    await loadSummary()
   }
 
   const handleCreateMeal = async () => {
@@ -182,8 +214,8 @@ function NutritionView() {
             const isExpanded = expandedMeals.has(mealGroup.meal.id)
             const isUngrouped = mealGroup.meal.id === '__ungrouped__'
             return (
-              <Card key={mealGroup.meal.id} className="nutrition-meal">
-                <div className="nutrition-meal-header" onClick={() => toggleMeal(mealGroup.meal.id)} role="button" tabIndex={0}>
+              <Card key={mealGroup.meal.id} className="nutrition-meal" role="button" tabIndex={0} onClick={() => toggleMeal(mealGroup.meal.id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMeal(mealGroup.meal.id) } }}>
+                <div className="nutrition-meal-header">
                   {mealGroup.meal.image_url && (
                     <img src={mealGroup.meal.image_url} alt="" className="nutrition-meal-thumb" />
                   )}
@@ -195,14 +227,14 @@ function NutritionView() {
                 </div>
 
                 {isExpanded && (
-                  <div className="nutrition-meal-body">
+                  <div className="nutrition-meal-body" onClick={e => e.stopPropagation()}>
                     {mealGroup.entries.map(entry => (
-                      <div key={entry.id} className="nutrition-entry">
+                      <div key={entry.id} className="nutrition-entry adaptive" data-material="semi-transparent">
                         <div className="nutrition-entry-info">
                           <span className="nutrition-entry-name">{entry.name}</span>
                           <span className="nutrition-entry-detail" data-emphasis="weak">{entry.amount_grams} g · {entry.kcal.toFixed(0)} kcal</span>
                         </div>
-                        <Button iconOnly onClick={() => handleDeleteEntry(entry.id)} aria-label={`${entry.name} löschen`}>
+                        <Button iconOnly data-material="transparent" onClick={() => handleDeleteEntry(entry.id)} aria-label={`${entry.name} löschen`}>
                           <Trash2 size={16} />
                         </Button>
                       </div>
@@ -212,7 +244,10 @@ function NutritionView() {
                       {!isUngrouped && (
                         <>
                           <Button width="full" onClick={() => handleAddFoodToMeal(mealGroup.meal.id)}>
-                            <Plus size={16} /> Hinzufügen
+                            <Plus size={16} /> Zutaten
+                          </Button>
+                          <Button iconOnly onClick={() => handleEditMeal(mealGroup)} aria-label="Gericht bearbeiten">
+                            <Pencil size={16} />
                           </Button>
                           <Button iconOnly onClick={() => handleSaveMealTemplate(mealGroup)} aria-label="Gericht speichern">
                             <Save size={16} />
@@ -247,30 +282,27 @@ function NutritionView() {
                 onChange={e => setNewMealName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleCreateMeal()}
               />
-              <Button variant="primary" onClick={handleCreateMeal}>OK</Button>
+              <Button iconOnly onClick={() => mealImageInputRef.current?.click()} aria-label="Foto aufnehmen">
+                <Camera size={16} />
+              </Button>
             </div>
-            <div className="nutrition-new-meal-photo">
-              {mealImage ? (
-                <div className="nutrition-meal-photo-preview">
-                  <img src={mealImage} alt="Vorschau" className="nutrition-meal-photo-img" />
-                  <Button iconOnly onClick={() => setMealImage(null)} aria-label="Foto entfernen">
-                    <X size={16} />
-                  </Button>
-                </div>
-              ) : (
-                <Button width="full" onClick={() => mealImageInputRef.current?.click()}>
-                  <Camera size={16} /> Foto aufnehmen
+            {mealImage && (
+              <div className="nutrition-meal-photo-preview">
+                <img src={mealImage} alt="Vorschau" className="nutrition-meal-photo-img" />
+                <Button iconOnly onClick={() => setMealImage(null)} aria-label="Foto entfernen">
+                  <X size={16} />
                 </Button>
-              )}
-              <input
-                ref={mealImageInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleMealImageCapture}
-                className="nutrition-photo-input"
-              />
-            </div>
+              </div>
+            )}
+            <input
+              ref={mealImageInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleMealImageCapture}
+              className="nutrition-photo-input"
+            />
+            <Button variant="primary" width="full" onClick={handleCreateMeal}>OK</Button>
             <Button width="full" onClick={() => { setShowNewMealInput(false); setNewMealName(''); setMealImage(null) }}>Abbrechen</Button>
           </>
         ) : (
@@ -327,6 +359,50 @@ function NutritionView() {
           mealId={activeMealId ?? undefined}
         />
       )}
+
+      {/* Edit meal dialog */}
+      <Dialog title="Gericht bearbeiten" open={!!editingMeal} onClose={() => setEditingMeal(null)}>
+        {editingMeal && (
+          <div className="nutrition-edit-meal-form">
+            <Input
+              id="edit-meal-name"
+              label="Name"
+              value={editMealName}
+              onChange={e => setEditMealName(e.target.value)}
+            />
+            <div className="nutrition-new-meal-photo">
+              {editMealImage ? (
+                <>
+                  <img src={editMealImage} alt="Vorschau" className="nutrition-meal-photo-img" />
+                  <div className="nutrition-photo-actions">
+                    <Button width="full" onClick={() => editMealImageInputRef.current?.click()}>
+                      <Camera size={16} /> Foto ändern
+                    </Button>
+                    <Button iconOnly onClick={() => setEditMealImage(null)} aria-label="Foto entfernen">
+                      <X size={16} />
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <Button width="full" onClick={() => editMealImageInputRef.current?.click()}>
+                  <Camera size={16} /> Foto aufnehmen
+                </Button>
+              )}
+              <input
+                ref={editMealImageInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleEditMealImageCapture}
+                className="nutrition-photo-input"
+              />
+            </div>
+            <div className="core-dialog-actions">
+              <Button variant="primary" onClick={handleSaveEditMeal}>Speichern</Button>
+            </div>
+          </div>
+        )}
+      </Dialog>
     </div>
   )
 }

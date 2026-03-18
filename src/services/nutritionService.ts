@@ -251,12 +251,13 @@ export async function getMeal(id: string): Promise<Meal | undefined> {
   return db.get('meals', id);
 }
 
-/** Update a meal's name */
-export async function updateMealName(id: string, name: string): Promise<void> {
+/** Update a meal (name, image) */
+export async function updateMeal(id: string, data: { name?: string; image_url?: string | null }): Promise<void> {
   const db = await getDB();
   const meal = await db.get('meals', id);
   if (meal) {
-    meal.name = name;
+    if (data.name !== undefined) meal.name = data.name;
+    if (data.image_url !== undefined) meal.image_url = data.image_url || undefined;
     await db.put('meals', meal);
   }
 }
