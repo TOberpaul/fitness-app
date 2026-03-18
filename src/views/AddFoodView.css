@@ -28,6 +28,10 @@
   border-bottom-color: currentColor;
 }
 
+.add-food-content {
+  gap: var(--size-gap);
+}
+
 .add-food-section {
   display: flex;
   flex-direction: column;

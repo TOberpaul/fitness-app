@@ -8,31 +8,30 @@ import type { Food } from '../types';
 export async function searchOpenFoodFacts(query: string): Promise<Food[]> {
   try {
     const params = new URLSearchParams({
-      q: query,
+      search_terms: query,
       page_size: '20',
+      json: '1',
       fields: 'code,product_name,brands,nutriments',
-      langs: 'de',
     });
 
     const response = await fetch(
-      `https://search.openfoodfacts.org/search?${params}`
+      `https://world.openfoodfacts.net/cgi/search.pl?${params}`
     );
     const data = await response.json();
 
-    if (!data.hits || !Array.isArray(data.hits)) {
+    if (!data.products || !Array.isArray(data.products)) {
       return [];
     }
 
-    return data.hits
+    return data.products
       .filter((p: Record<string, unknown>) => p.product_name)
       .map((product: Record<string, unknown>): Food => {
         const nutriments = (product.nutriments ?? {}) as Record<string, number>;
-        const brands = product.brands as string[] | undefined;
         return {
           id: `off_${product.code}`,
           source: 'openfoodfacts',
           name: product.product_name as string,
-          brand: brands?.[0] || undefined,
+          brand: (product.brands as string) || undefined,
           kcal_per_100g: nutriments['energy-kcal_100g'] ?? 0,
           protein_per_100g: nutriments['proteins_100g'] ?? 0,
           carbs_per_100g: nutriments['carbohydrates_100g'] ?? 0,
