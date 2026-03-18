@@ -409,7 +409,7 @@ export async function getDailySummary(date: string): Promise<DailySummary> {
   const ungrouped = mealMap.get('__ungrouped__') || [];
   if (ungrouped.length > 0) {
     meals.unshift({
-      meal: { id: '__ungrouped__', date, name: 'Sonstige', created_at: '' },
+      meal: { id: '__ungrouped__', date, name: 'Einzelne Lebensmittel', created_at: '' },
       entries: ungrouped,
       total_kcal: ungrouped.reduce((s, e) => s + e.kcal, 0),
       total_protein: ungrouped.reduce((s, e) => s + e.protein, 0),

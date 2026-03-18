@@ -49,7 +49,8 @@ function NutritionView() {
   const [mealImage, setMealImage] = useState<string | null>(null)
   const mealImageInputRef = useRef<HTMLInputElement>(null)
 
-  // Edit meal dialog state
+  // New entry type selection dialog
+  const [showEntryTypeDialog, setShowEntryTypeDialog] = useState(false)
   const [editingMeal, setEditingMeal] = useState<MealWithEntries | null>(null)
   const [editMealName, setEditMealName] = useState('')
   const [editMealImage, setEditMealImage] = useState<string | null>(null)
@@ -307,14 +308,31 @@ function NutritionView() {
           </>
         ) : (
           <>
-            <Button variant="primary" width="full" onClick={() => setShowNewMealInput(true)}>
-              <Plus size={20} /> Neues Gericht
+            <Button variant="primary" width="full" onClick={() => setShowEntryTypeDialog(true)}>
+              <Plus size={20} /> Neuer Eintrag
             </Button>
             <Button width="full" onClick={handleShowSavedMeals}>
               Gespeicherte Gerichte
             </Button>
           </>
         )}
+      </div>
+
+      {/* Entry type selection dialog */}
+      <Dialog title="Neuer Eintrag" open={showEntryTypeDialog} onClose={() => setShowEntryTypeDialog(false)}>
+        <div className="nutrition-entry-type-grid">
+          <Card className="nutrition-entry-type-card" role="button" tabIndex={0} onClick={() => { setShowEntryTypeDialog(false); setShowNewMealInput(true) }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowEntryTypeDialog(false); setShowNewMealInput(true) } }}>
+            <span className="nutrition-entry-type-emoji">🍽️</span>
+            <span data-emphasis="strong">Gericht</span>
+            <span data-emphasis="weak">Mehrere Zutaten gruppiert</span>
+          </Card>
+          <Card className="nutrition-entry-type-card" role="button" tabIndex={0} onClick={() => { setShowEntryTypeDialog(false); setActiveMealId(null); setShowAddFood(true) }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowEntryTypeDialog(false); setActiveMealId(null); setShowAddFood(true) } }}>
+            <span className="nutrition-entry-type-emoji">🥤</span>
+            <span data-emphasis="strong">Einzelnes Lebensmittel</span>
+            <span data-emphasis="weak">z.B. Getränk, Snack</span>
+          </Card>
+        </div>
+      </Dialog>
       </div>
 
       {/* Saved meals dialog */}
