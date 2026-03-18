@@ -86,17 +86,13 @@
   opacity: 0;
 }
 
-/* Falling asleep — eyes stay open during close animation */
+/* Falling asleep — closed eyes stay visible underneath */
 .mascot--falling-asleep .mascot-eye--left {
   transform: rotate(0deg);
 }
 
 .mascot--falling-asleep .mascot-eye--right {
   transform: rotate(0deg);
-}
-
-.mascot--falling-asleep .mascot-eye-closed {
-  opacity: 0;
 }
 
 /* ── Open eyes ── */
@@ -123,6 +119,7 @@
 .mascot--falling-asleep .mascot-eye-open {
   opacity: 1;
   transform: scaleY(1);
+  transition: none;
   animation: eye-sleep 0.8s ease forwards;
 }
 
