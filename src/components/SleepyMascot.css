@@ -1,8 +1,7 @@
 .mascot {
   position: relative;
-  width: 80%;
-  max-width: 10rem;
-  align-self: center;
+  width: 40%;
+  max-width: 8rem;
   cursor: pointer;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
