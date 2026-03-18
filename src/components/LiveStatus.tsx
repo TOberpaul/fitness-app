@@ -1,4 +1,4 @@
-import type { GoalProjection, ConsistencyScore, MicroWin } from '../types'
+import type { GoalProjection, ConsistencyScore, MicroWin, Streaks } from '../types'
 import Notification from './core/Notification'
 import './LiveStatus.css'
 import './core/Card.css'
@@ -7,6 +7,7 @@ interface LiveStatusProps {
   projection: GoalProjection | null
   consistencyScore: ConsistencyScore | null
   microWins: MicroWin[]
+  streaks: Streaks | null
 }
 
 const TREND_TEXT: Record<string, string> = {
@@ -33,16 +34,30 @@ function getConsistencyColor(score: number): string {
   return 'red'
 }
 
-function LiveStatus({ projection, consistencyScore, microWins }: LiveStatusProps) {
+function LiveStatus({ projection, consistencyScore, microWins, streaks }: LiveStatusProps) {
   const { text: trendText, trend } = getTrendFeedback(projection)
 
   return (
-    <div className="live-status core-card adaptive" data-testid="live-status">
-      <span className="live-status-trend" data-trend={trend}>
-        {trendText}
-      </span>
+    <>
+      {streaks && streaks.dailyStreak > 0 && (
+        <div className="live-status-streak-card core-card adaptive">
+          <img
+            className="live-status-streak-img"
+            src={`${import.meta.env.BASE_URL}Flame.png`}
+            alt=""
+          />
+          <span className="live-status-streak-text">
+            <strong>{streaks.dailyStreak}</strong> <span className="live-status-streak-weak">{streaks.dailyStreak === 1 ? 'Tag' : 'Tage'} in Folge</span>
+          </span>
+        </div>
+      )}
 
-      {consistencyScore && (
+      <div className="live-status core-card adaptive" data-testid="live-status">
+        <span className="live-status-trend" data-trend={trend}>
+          {trendText}
+        </span>
+
+        {consistencyScore && (
         <Notification data-color={getConsistencyColor(consistencyScore.score)}>
           Konsistenz: {consistencyScore.score}%
         </Notification>
@@ -57,7 +72,8 @@ function LiveStatus({ projection, consistencyScore, microWins }: LiveStatusProps
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
 

@@ -13,8 +13,6 @@ const milestoneIds: MilestoneType[] = [
   'daily-entries-7',
   'daily-entries-14',
   'daily-entries-30',
-  'weekly-entries-3',
-  'weekly-entries-10',
 ]
 
 const achievementDefArb = fc.record({

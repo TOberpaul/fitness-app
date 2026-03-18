@@ -208,11 +208,7 @@ export type MilestoneType =
   | 'daily-entries-3'
   | 'daily-entries-7'
   | 'daily-entries-14'
-  | 'daily-entries-30'
-  | 'weekly-entries-3'
-  | 'weekly-entries-4'
-  | 'weekly-entries-10'
-  | 'weekly-entries-12';
+  | 'daily-entries-30';
 
 /** Context passed to milestone evaluation */
 export interface MilestoneContext {

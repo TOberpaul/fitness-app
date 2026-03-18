@@ -292,9 +292,6 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
   { id: 'daily-entries-7',    label: '7 Tage eingetragen',      category: 'streak',   icon: 'Streak-7' },
   { id: 'daily-entries-14',   label: '14 Tage eingetragen',     category: 'streak',   icon: 'Streak-14' },
   { id: 'daily-entries-30',   label: '30 Tage eingetragen',     category: 'streak',   icon: 'Streak-30' },
-  // Weekly Entry-Achievements
-  { id: 'weekly-entries-3',   label: '3 Wochen eingetragen',    category: 'streak',   icon: 'Streak-3' },
-  { id: 'weekly-entries-10',  label: '10 Wochen eingetragen',   category: 'streak',   icon: 'Streak-14' },
 ];
 
 /**
@@ -417,16 +414,6 @@ export async function evaluateMilestones(context: MilestoneContext): Promise<Mil
   }
   if (!hasEarned(earnedMilestones, 'daily-entries-30') && dailyCount >= 30) {
     newMilestones.push(createMilestone('daily-entries-30'));
-  }
-
-  // Weekly entry milestones — total number of weekly measurements (not streak)
-  const weeklyCount = weeklyMeasurements.length;
-
-  if (!hasEarned(earnedMilestones, 'weekly-entries-3') && weeklyCount >= 3) {
-    newMilestones.push(createMilestone('weekly-entries-3'));
-  }
-  if (!hasEarned(earnedMilestones, 'weekly-entries-10') && weeklyCount >= 10) {
-    newMilestones.push(createMilestone('weekly-entries-10'));
   }
 
   // Persist new milestones to IndexedDB

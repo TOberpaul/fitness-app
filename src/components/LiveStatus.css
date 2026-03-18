@@ -36,3 +36,30 @@
   font-size: var(--size-text);
   color: var(--db-successful);
 }
+
+.live-status-streak-card {
+  display: flex;
+  align-items: center;
+  gap: var(--size-gap);
+  padding: var(--size-padding);
+}
+
+.live-status-streak-img {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.live-status-streak-text {
+  font-size: var(--size-text);
+  color: var(--db-text);
+}
+
+.live-status-streak-text strong {
+  font-weight: bold;
+}
+
+.live-status-streak-weak {
+  opacity: 0.7;
+}

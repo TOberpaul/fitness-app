@@ -733,38 +733,6 @@ describe('gamificationService - evaluateMilestones', () => {
     });
   });
 
-  describe('weekly entry milestones', () => {
-    it('awards weekly-entries-3 when weeklyMeasurements.length >= 3', async () => {
-      const weekly = Array.from({ length: 3 }, (_, i) => ({
-        date: `2024-01-${String((i + 1) * 7).padStart(2, '0')}`,
-        updatedAt: new Date().toISOString(),
-      })) as WeeklyMeasurement[];
-      const ctx = makeContext({ weeklyMeasurements: weekly });
-      const result = await evaluateMilestones(ctx);
-      expect(result.some((m) => m.type === 'weekly-entries-3')).toBe(true);
-    });
-
-    it('awards weekly-entries-10 when weeklyMeasurements.length >= 10', async () => {
-      const weekly = Array.from({ length: 10 }, (_, i) => ({
-        date: `2024-${String(Math.floor(i / 4) + 1).padStart(2, '0')}-${String((i % 4 + 1) * 7).padStart(2, '0')}`,
-        updatedAt: new Date().toISOString(),
-      })) as WeeklyMeasurement[];
-      const ctx = makeContext({ weeklyMeasurements: weekly });
-      const result = await evaluateMilestones(ctx);
-      expect(result.some((m) => m.type === 'weekly-entries-10')).toBe(true);
-    });
-
-    it('does NOT award weekly-entries-3 when weeklyMeasurements.length < 3', async () => {
-      const weekly = Array.from({ length: 2 }, (_, i) => ({
-        date: `2024-01-${String((i + 1) * 7).padStart(2, '0')}`,
-        updatedAt: new Date().toISOString(),
-      })) as WeeklyMeasurement[];
-      const ctx = makeContext({ weeklyMeasurements: weekly });
-      const result = await evaluateMilestones(ctx);
-      expect(result.some((m) => m.type === 'weekly-entries-3')).toBe(false);
-    });
-  });
-
   describe('deduplication', () => {
     it('does NOT re-award already earned milestones', async () => {
       const ctx = makeContext({
@@ -814,7 +782,7 @@ describe('gamificationService - getAllAchievements', () => {
 
   it('returns correct count matching ACHIEVEMENT_DEFINITIONS', async () => {
     const achievements = await getAllAchievements();
-    expect(achievements.length).toBe(10);
+    expect(achievements.length).toBe(8);
   });
 
   it('has unique ids for all achievements', async () => {
@@ -920,30 +888,20 @@ describe('Property 7: Entry achievements at threshold', () => {
       { threshold: 14, type: 'daily-entries-14' },
       { threshold: 30, type: 'daily-entries-30' },
     ];
-    const weeklyThresholds = [
-      { threshold: 3, type: 'weekly-entries-3' },
-      { threshold: 10, type: 'weekly-entries-10' },
-    ];
 
     await fc.assert(
       fc.asyncProperty(
         fc.integer({ min: 0, max: 50 }),
-        fc.integer({ min: 0, max: 20 }),
-        async (dailyCount, weeklyCount) => {
+        async (dailyCount) => {
           resetDB();
           indexedDB.deleteDatabase('fitness-tracker');
 
           const dailyMeasurements = Array.from({ length: dailyCount }, (_, i) =>
             makeDaily(`2024-${String(Math.floor(i / 28) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`, 80)
           );
-          const weeklyMeasurements = Array.from({ length: weeklyCount }, (_, i) => ({
-            date: `2024-${String(Math.floor(i / 4) + 1).padStart(2, '0')}-${String((i % 4 + 1) * 7).padStart(2, '0')}`,
-            updatedAt: new Date().toISOString(),
-          })) as WeeklyMeasurement[];
 
           const ctx = makeContext({
             dailyMeasurements,
-            weeklyMeasurements,
             earnedMilestones: [],
           });
 
@@ -951,11 +909,6 @@ describe('Property 7: Entry achievements at threshold', () => {
 
           for (const { threshold, type } of dailyThresholds) {
             if (dailyCount >= threshold) {
-              expect(result.some((m) => m.type === type)).toBe(true);
-            }
-          }
-          for (const { threshold, type } of weeklyThresholds) {
-            if (weeklyCount >= threshold) {
               expect(result.some((m) => m.type === type)).toBe(true);
             }
           }
@@ -973,7 +926,6 @@ describe('Property 8: Achievement deduplication (idempotency)', () => {
     const allTypes = [
       'first-goal-reached', 'weight-loss-2kg', 'weight-loss-5kg', 'weight-loss-10kg',
       'daily-entries-3', 'daily-entries-7', 'daily-entries-14', 'daily-entries-30',
-      'weekly-entries-3', 'weekly-entries-10',
     ] as const;
 
     await fc.assert(
@@ -991,10 +943,6 @@ describe('Property 8: Achievement deduplication (idempotency)', () => {
             dailyMeasurements: Array.from({ length: 30 }, (_, i) =>
               makeDaily(`2024-${String(Math.floor(i / 28) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`, 100 - i * 0.5)
             ),
-            weeklyMeasurements: Array.from({ length: 10 }, (_, i) => ({
-              date: `2024-${String(Math.floor(i / 4) + 1).padStart(2, '0')}-${String((i % 4 + 1) * 7).padStart(2, '0')}`,
-              updatedAt: new Date().toISOString(),
-            })) as WeeklyMeasurement[],
             earnedMilestones,
           });
 
@@ -1017,7 +965,6 @@ describe('Property 9: Entry achievements persist', () => {
   it('earned entry achievements remain earned', async () => {
     const entryTypes = [
       'daily-entries-3', 'daily-entries-7', 'daily-entries-14', 'daily-entries-30',
-      'weekly-entries-3', 'weekly-entries-10',
     ] as const;
 
     await fc.assert(
@@ -1032,10 +979,6 @@ describe('Property 9: Entry achievements persist', () => {
             dailyMeasurements: Array.from({ length: 30 }, (_, i) =>
               makeDaily(`2024-${String(Math.floor(i / 28) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`, 80)
             ),
-            weeklyMeasurements: Array.from({ length: 10 }, (_, i) => ({
-              date: `2024-${String(Math.floor(i / 4) + 1).padStart(2, '0')}-${String((i % 4 + 1) * 7).padStart(2, '0')}`,
-              updatedAt: new Date().toISOString(),
-            })) as WeeklyMeasurement[],
             earnedMilestones: [],
           });
           await evaluateMilestones(ctx);
@@ -1061,7 +1004,6 @@ describe('Property 11: Achievement data model completeness', () => {
     const allTypes = [
       'weight-loss-2kg', 'weight-loss-5kg', 'weight-loss-10kg', 'first-goal-reached',
       'daily-entries-3', 'daily-entries-7', 'daily-entries-14', 'daily-entries-30',
-      'weekly-entries-3', 'weekly-entries-10',
     ] as const;
 
     await fc.assert(
@@ -1078,10 +1020,6 @@ describe('Property 11: Achievement data model completeness', () => {
               dailyMeasurements: Array.from({ length: 30 }, (_, i) =>
                 makeDaily(`2024-${String(Math.floor(i / 28) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`, 100 - i * 0.5)
               ),
-              weeklyMeasurements: Array.from({ length: 10 }, (_, i) => ({
-                date: `2024-${String(Math.floor(i / 4) + 1).padStart(2, '0')}-${String((i % 4 + 1) * 7).padStart(2, '0')}`,
-                updatedAt: new Date().toISOString(),
-              })) as WeeklyMeasurement[],
               earnedMilestones: [],
             });
             await evaluateMilestones(ctx);
