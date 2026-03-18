@@ -134,7 +134,7 @@ function SettingsView() {
             <Button
               key={mode}
               data-size="lg"
-              data-material={themeMode === mode ? 'inverted' : 'semi-transparent'}
+              data-material={themeMode === mode ? 'inverted' : 'transparent'}
               data-container-contrast={themeMode === mode ? 'max' : undefined}
               onClick={() => handleThemeChange(mode)}
             >

@@ -141,7 +141,7 @@ function GoalsView() {
 
       {/* Streak card — always visible when streak > 0 */}
       {streaks && streaks.dailyStreak > 0 && (
-        <div className="goals-view-streak-card core-card adaptive">
+        <div className="goals-view-streak-card core-card adaptive" data-material="filled" data-color="red">
           <img
             className="goals-view-streak-img"
             src={`${import.meta.env.BASE_URL}Flame.png`}
