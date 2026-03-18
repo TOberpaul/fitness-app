@@ -205,19 +205,21 @@ export type MilestoneType =
   | 'weight-loss-2kg'
   | 'weight-loss-5kg'
   | 'weight-loss-10kg'
-  | 'daily-streak-7'
-  | 'daily-streak-10'
-  | 'daily-streak-30'
-  | 'weekly-streak-3'
-  | 'weekly-streak-4'
-  | 'weekly-streak-10'
-  | 'weekly-streak-12';
+  | 'daily-entries-3'
+  | 'daily-entries-7'
+  | 'daily-entries-14'
+  | 'daily-entries-30'
+  | 'weekly-entries-3'
+  | 'weekly-entries-4'
+  | 'weekly-entries-10'
+  | 'weekly-entries-12';
 
 /** Context passed to milestone evaluation */
 export interface MilestoneContext {
   goals: Goal[];
   streaks: Streaks;
   dailyMeasurements: DailyMeasurement[];
+  weeklyMeasurements: WeeklyMeasurement[];
   earnedMilestones: Milestone[];
 }
 

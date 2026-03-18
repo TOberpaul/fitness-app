@@ -9,10 +9,12 @@ const milestoneIds: MilestoneType[] = [
   'weight-loss-5kg',
   'weight-loss-10kg',
   'first-goal-reached',
-  'daily-streak-7',
-  'daily-streak-30',
-  'weekly-streak-3',
-  'weekly-streak-10',
+  'daily-entries-3',
+  'daily-entries-7',
+  'daily-entries-14',
+  'daily-entries-30',
+  'weekly-entries-3',
+  'weekly-entries-10',
 ]
 
 const achievementDefArb = fc.record({

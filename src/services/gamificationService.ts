@@ -287,11 +287,14 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
   { id: 'weight-loss-5kg',    label: '5 kg verloren',           category: 'progress', icon: 'Trophy-Silver' },
   { id: 'weight-loss-10kg',   label: '10 kg verloren',          category: 'progress', icon: 'Trophy-Gold' },
   { id: 'first-goal-reached', label: 'Erstes Ziel erreicht',    category: 'progress', icon: 'Trophy-Bronze' },
-  // Streak-Achievements
-  { id: 'daily-streak-7',     label: '7 Tage eingetragen',      category: 'streak',   icon: 'Streak-7' },
-  { id: 'daily-streak-30',    label: '30 Tage eingetragen',     category: 'streak',   icon: 'Streak-30' },
-  { id: 'weekly-streak-3',    label: '3 Wochen am Stück',       category: 'streak',   icon: 'Streak-3' },
-  { id: 'weekly-streak-10',   label: '10 Wochen getrackt',      category: 'streak',   icon: 'Streak-14' },
+  // Entry-Achievements (Gesamtanzahl, nicht am Stück)
+  { id: 'daily-entries-3',    label: '3 Tage eingetragen',      category: 'streak',   icon: 'Streak-3' },
+  { id: 'daily-entries-7',    label: '7 Tage eingetragen',      category: 'streak',   icon: 'Streak-7' },
+  { id: 'daily-entries-14',   label: '14 Tage eingetragen',     category: 'streak',   icon: 'Streak-14' },
+  { id: 'daily-entries-30',   label: '30 Tage eingetragen',     category: 'streak',   icon: 'Streak-30' },
+  // Weekly Entry-Achievements
+  { id: 'weekly-entries-3',   label: '3 Wochen eingetragen',    category: 'streak',   icon: 'Streak-3' },
+  { id: 'weekly-entries-10',  label: '10 Wochen eingetragen',   category: 'streak',   icon: 'Streak-14' },
 ];
 
 /**
@@ -375,7 +378,7 @@ function formatGoalDetail(goal: Goal): string {
  * Requirements: 12.1, 12.2, 12.3, 12.4, 12.5
  */
 export async function evaluateMilestones(context: MilestoneContext): Promise<Milestone[]> {
-  const { goals, streaks, dailyMeasurements, earnedMilestones } = context;
+  const { goals, dailyMeasurements, weeklyMeasurements, earnedMilestones } = context;
   const newMilestones: Milestone[] = [];
 
   // 1. first-goal-reached: at least one goal has status === 'reached'
@@ -390,74 +393,40 @@ export async function evaluateMilestones(context: MilestoneContext): Promise<Mil
   // Weight loss milestones — calculate once, check all thresholds
   const weightLoss = calculateWeightLoss(dailyMeasurements);
 
-  // 2. weight-loss-2kg: cumulative weight loss >= 2.0 kg
-  if (!hasEarned(earnedMilestones, 'weight-loss-2kg')) {
-    if (weightLoss >= 2.0) {
-      newMilestones.push(createMilestone('weight-loss-2kg'));
-    }
+  if (!hasEarned(earnedMilestones, 'weight-loss-2kg') && weightLoss >= 2.0) {
+    newMilestones.push(createMilestone('weight-loss-2kg'));
+  }
+  if (!hasEarned(earnedMilestones, 'weight-loss-5kg') && weightLoss >= 5.0) {
+    newMilestones.push(createMilestone('weight-loss-5kg'));
+  }
+  if (!hasEarned(earnedMilestones, 'weight-loss-10kg') && weightLoss >= 10.0) {
+    newMilestones.push(createMilestone('weight-loss-10kg'));
   }
 
-  // 3. weight-loss-5kg: cumulative weight loss >= 5.0 kg
-  if (!hasEarned(earnedMilestones, 'weight-loss-5kg')) {
-    if (weightLoss >= 5.0) {
-      newMilestones.push(createMilestone('weight-loss-5kg'));
-    }
+  // Daily entry milestones — total number of daily measurements (not streak)
+  const dailyCount = dailyMeasurements.length;
+
+  if (!hasEarned(earnedMilestones, 'daily-entries-3') && dailyCount >= 3) {
+    newMilestones.push(createMilestone('daily-entries-3'));
+  }
+  if (!hasEarned(earnedMilestones, 'daily-entries-7') && dailyCount >= 7) {
+    newMilestones.push(createMilestone('daily-entries-7'));
+  }
+  if (!hasEarned(earnedMilestones, 'daily-entries-14') && dailyCount >= 14) {
+    newMilestones.push(createMilestone('daily-entries-14'));
+  }
+  if (!hasEarned(earnedMilestones, 'daily-entries-30') && dailyCount >= 30) {
+    newMilestones.push(createMilestone('daily-entries-30'));
   }
 
-  // 4. weight-loss-10kg: cumulative weight loss >= 10.0 kg
-  if (!hasEarned(earnedMilestones, 'weight-loss-10kg')) {
-    if (weightLoss >= 10.0) {
-      newMilestones.push(createMilestone('weight-loss-10kg'));
-    }
-  }
+  // Weekly entry milestones — total number of weekly measurements (not streak)
+  const weeklyCount = weeklyMeasurements.length;
 
-  // 5. daily-streak-7: dailyStreak >= 7
-  if (!hasEarned(earnedMilestones, 'daily-streak-7')) {
-    if (streaks.dailyStreak >= 7) {
-      newMilestones.push(createMilestone('daily-streak-7'));
-    }
+  if (!hasEarned(earnedMilestones, 'weekly-entries-3') && weeklyCount >= 3) {
+    newMilestones.push(createMilestone('weekly-entries-3'));
   }
-
-  // 6. daily-streak-10: dailyStreak >= 10
-  if (!hasEarned(earnedMilestones, 'daily-streak-10')) {
-    if (streaks.dailyStreak >= 10) {
-      newMilestones.push(createMilestone('daily-streak-10'));
-    }
-  }
-
-  // 7. daily-streak-30: dailyStreak >= 30
-  if (!hasEarned(earnedMilestones, 'daily-streak-30')) {
-    if (streaks.dailyStreak >= 30) {
-      newMilestones.push(createMilestone('daily-streak-30'));
-    }
-  }
-
-  // 8. weekly-streak-3: weeklyStreak >= 3
-  if (!hasEarned(earnedMilestones, 'weekly-streak-3')) {
-    if (streaks.weeklyStreak >= 3) {
-      newMilestones.push(createMilestone('weekly-streak-3'));
-    }
-  }
-
-  // 9. weekly-streak-4: weeklyStreak >= 4
-  if (!hasEarned(earnedMilestones, 'weekly-streak-4')) {
-    if (streaks.weeklyStreak >= 4) {
-      newMilestones.push(createMilestone('weekly-streak-4'));
-    }
-  }
-
-  // 10. weekly-streak-10: weeklyStreak >= 10
-  if (!hasEarned(earnedMilestones, 'weekly-streak-10')) {
-    if (streaks.weeklyStreak >= 10) {
-      newMilestones.push(createMilestone('weekly-streak-10'));
-    }
-  }
-
-  // 11. weekly-streak-12: weeklyStreak >= 12
-  if (!hasEarned(earnedMilestones, 'weekly-streak-12')) {
-    if (streaks.weeklyStreak >= 12) {
-      newMilestones.push(createMilestone('weekly-streak-12'));
-    }
+  if (!hasEarned(earnedMilestones, 'weekly-entries-10') && weeklyCount >= 10) {
+    newMilestones.push(createMilestone('weekly-entries-10'));
   }
 
   // Persist new milestones to IndexedDB

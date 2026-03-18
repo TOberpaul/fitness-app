@@ -632,6 +632,7 @@ function makeContext(overrides: Partial<MilestoneContext> = {}): MilestoneContex
       updatedAt: new Date().toISOString(),
     },
     dailyMeasurements: [],
+    weeklyMeasurements: [],
     earnedMilestones: [],
     ...overrides,
   };
@@ -706,47 +707,61 @@ describe('gamificationService - evaluateMilestones', () => {
     });
   });
 
-  describe('daily streak milestones', () => {
-    it('awards daily-streak-7 when dailyStreak >= 7', async () => {
+  describe('daily entry milestones', () => {
+    it('awards daily-entries-3 when dailyMeasurements.length >= 3', async () => {
       const ctx = makeContext({
-        streaks: { dailyStreak: 7, dailyLastDate: '2024-01-07', weeklyStreak: 0, weeklyLastDate: null, updatedAt: '' },
+        dailyMeasurements: Array.from({ length: 3 }, (_, i) => makeDaily(`2024-01-0${i + 1}`, 80)),
       });
       const result = await evaluateMilestones(ctx);
-      expect(result.some((m) => m.type === 'daily-streak-7')).toBe(true);
+      expect(result.some((m) => m.type === 'daily-entries-3')).toBe(true);
     });
 
-    it('does NOT award daily-streak-7 when dailyStreak < 7', async () => {
+    it('awards daily-entries-7 when dailyMeasurements.length >= 7', async () => {
       const ctx = makeContext({
-        streaks: { dailyStreak: 6, dailyLastDate: '2024-01-06', weeklyStreak: 0, weeklyLastDate: null, updatedAt: '' },
+        dailyMeasurements: Array.from({ length: 7 }, (_, i) => makeDaily(`2024-01-${String(i + 1).padStart(2, '0')}`, 80)),
       });
       const result = await evaluateMilestones(ctx);
-      expect(result.some((m) => m.type === 'daily-streak-7')).toBe(false);
+      expect(result.some((m) => m.type === 'daily-entries-7')).toBe(true);
+    });
+
+    it('does NOT award daily-entries-7 when dailyMeasurements.length < 7', async () => {
+      const ctx = makeContext({
+        dailyMeasurements: Array.from({ length: 6 }, (_, i) => makeDaily(`2024-01-0${i + 1}`, 80)),
+      });
+      const result = await evaluateMilestones(ctx);
+      expect(result.some((m) => m.type === 'daily-entries-7')).toBe(false);
     });
   });
 
-  describe('weekly streak milestones', () => {
-    it('awards weekly-streak-3 when weeklyStreak >= 3', async () => {
-      const ctx = makeContext({
-        streaks: { dailyStreak: 0, dailyLastDate: null, weeklyStreak: 3, weeklyLastDate: '2024-01-15', updatedAt: '' },
-      });
+  describe('weekly entry milestones', () => {
+    it('awards weekly-entries-3 when weeklyMeasurements.length >= 3', async () => {
+      const weekly = Array.from({ length: 3 }, (_, i) => ({
+        date: `2024-01-${String((i + 1) * 7).padStart(2, '0')}`,
+        updatedAt: new Date().toISOString(),
+      })) as WeeklyMeasurement[];
+      const ctx = makeContext({ weeklyMeasurements: weekly });
       const result = await evaluateMilestones(ctx);
-      expect(result.some((m) => m.type === 'weekly-streak-3')).toBe(true);
+      expect(result.some((m) => m.type === 'weekly-entries-3')).toBe(true);
     });
 
-    it('awards weekly-streak-10 when weeklyStreak >= 10', async () => {
-      const ctx = makeContext({
-        streaks: { dailyStreak: 0, dailyLastDate: null, weeklyStreak: 10, weeklyLastDate: '2024-03-15', updatedAt: '' },
-      });
+    it('awards weekly-entries-10 when weeklyMeasurements.length >= 10', async () => {
+      const weekly = Array.from({ length: 10 }, (_, i) => ({
+        date: `2024-${String(Math.floor(i / 4) + 1).padStart(2, '0')}-${String((i % 4 + 1) * 7).padStart(2, '0')}`,
+        updatedAt: new Date().toISOString(),
+      })) as WeeklyMeasurement[];
+      const ctx = makeContext({ weeklyMeasurements: weekly });
       const result = await evaluateMilestones(ctx);
-      expect(result.some((m) => m.type === 'weekly-streak-10')).toBe(true);
+      expect(result.some((m) => m.type === 'weekly-entries-10')).toBe(true);
     });
 
-    it('does NOT award weekly-streak-3 when weeklyStreak < 3', async () => {
-      const ctx = makeContext({
-        streaks: { dailyStreak: 0, dailyLastDate: null, weeklyStreak: 2, weeklyLastDate: '2024-01-15', updatedAt: '' },
-      });
+    it('does NOT award weekly-entries-3 when weeklyMeasurements.length < 3', async () => {
+      const weekly = Array.from({ length: 2 }, (_, i) => ({
+        date: `2024-01-${String((i + 1) * 7).padStart(2, '0')}`,
+        updatedAt: new Date().toISOString(),
+      })) as WeeklyMeasurement[];
+      const ctx = makeContext({ weeklyMeasurements: weekly });
       const result = await evaluateMilestones(ctx);
-      expect(result.some((m) => m.type === 'weekly-streak-3')).toBe(false);
+      expect(result.some((m) => m.type === 'weekly-entries-3')).toBe(false);
     });
   });
 
@@ -799,7 +814,7 @@ describe('gamificationService - getAllAchievements', () => {
 
   it('returns correct count matching ACHIEVEMENT_DEFINITIONS', async () => {
     const achievements = await getAllAchievements();
-    expect(achievements.length).toBe(8);
+    expect(achievements.length).toBe(10);
   });
 
   it('has unique ids for all achievements', async () => {
@@ -895,47 +910,52 @@ describe('Property 6: First-goal-reached achievement', () => {
   });
 });
 
-// Feature: gamification-restructure, Property 7: Streak-Achievements bei Schwellenwert
-describe('Property 7: Streak achievements at threshold', () => {
+// Feature: gamification-restructure, Property 7: Entry-Achievements bei Schwellenwert
+describe('Property 7: Entry achievements at threshold', () => {
   /** Validates: Requirements 6.1, 6.2, 6.3, 6.4 */
-  it('awards streak milestone when streak >= threshold', async () => {
+  it('awards entry milestone when measurement count >= threshold', async () => {
     const dailyThresholds = [
-      { threshold: 7, type: 'daily-streak-7' },
-      { threshold: 30, type: 'daily-streak-30' },
+      { threshold: 3, type: 'daily-entries-3' },
+      { threshold: 7, type: 'daily-entries-7' },
+      { threshold: 14, type: 'daily-entries-14' },
+      { threshold: 30, type: 'daily-entries-30' },
     ];
     const weeklyThresholds = [
-      { threshold: 3, type: 'weekly-streak-3' },
-      { threshold: 10, type: 'weekly-streak-10' },
+      { threshold: 3, type: 'weekly-entries-3' },
+      { threshold: 10, type: 'weekly-entries-10' },
     ];
 
     await fc.assert(
       fc.asyncProperty(
-        fc.integer({ min: 0, max: 200 }),
-        fc.integer({ min: 0, max: 100 }),
-        async (dailyStreak, weeklyStreak) => {
+        fc.integer({ min: 0, max: 50 }),
+        fc.integer({ min: 0, max: 20 }),
+        async (dailyCount, weeklyCount) => {
           resetDB();
           indexedDB.deleteDatabase('fitness-tracker');
 
+          const dailyMeasurements = Array.from({ length: dailyCount }, (_, i) =>
+            makeDaily(`2024-${String(Math.floor(i / 28) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`, 80)
+          );
+          const weeklyMeasurements = Array.from({ length: weeklyCount }, (_, i) => ({
+            date: `2024-${String(Math.floor(i / 4) + 1).padStart(2, '0')}-${String((i % 4 + 1) * 7).padStart(2, '0')}`,
+            updatedAt: new Date().toISOString(),
+          })) as WeeklyMeasurement[];
+
           const ctx = makeContext({
-            streaks: {
-              dailyStreak,
-              dailyLastDate: '2024-06-01',
-              weeklyStreak,
-              weeklyLastDate: '2024-06-01',
-              updatedAt: '',
-            },
+            dailyMeasurements,
+            weeklyMeasurements,
             earnedMilestones: [],
           });
 
           const result = await evaluateMilestones(ctx);
 
           for (const { threshold, type } of dailyThresholds) {
-            if (dailyStreak >= threshold) {
+            if (dailyCount >= threshold) {
               expect(result.some((m) => m.type === type)).toBe(true);
             }
           }
           for (const { threshold, type } of weeklyThresholds) {
-            if (weeklyStreak >= threshold) {
+            if (weeklyCount >= threshold) {
               expect(result.some((m) => m.type === type)).toBe(true);
             }
           }
@@ -952,8 +972,8 @@ describe('Property 8: Achievement deduplication (idempotency)', () => {
   it('does NOT return already earned milestones', async () => {
     const allTypes = [
       'first-goal-reached', 'weight-loss-2kg', 'weight-loss-5kg', 'weight-loss-10kg',
-      'daily-streak-7', 'daily-streak-10', 'daily-streak-30',
-      'weekly-streak-3', 'weekly-streak-4', 'weekly-streak-10', 'weekly-streak-12',
+      'daily-entries-3', 'daily-entries-7', 'daily-entries-14', 'daily-entries-30',
+      'weekly-entries-3', 'weekly-entries-10',
     ] as const;
 
     await fc.assert(
@@ -968,14 +988,13 @@ describe('Property 8: Achievement deduplication (idempotency)', () => {
           // Create a context that would trigger all milestones
           const ctx = makeContext({
             goals: [makeGoal({ status: 'reached' })],
-            streaks: {
-              dailyStreak: 100,
-              dailyLastDate: '2024-06-01',
-              weeklyStreak: 100,
-              weeklyLastDate: '2024-06-01',
-              updatedAt: '',
-            },
-            dailyMeasurements: [makeDaily('2024-01-01', 100), makeDaily('2024-06-01', 85)],
+            dailyMeasurements: Array.from({ length: 30 }, (_, i) =>
+              makeDaily(`2024-${String(Math.floor(i / 28) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`, 100 - i * 0.5)
+            ),
+            weeklyMeasurements: Array.from({ length: 10 }, (_, i) => ({
+              date: `2024-${String(Math.floor(i / 4) + 1).padStart(2, '0')}-${String((i % 4 + 1) * 7).padStart(2, '0')}`,
+              updatedAt: new Date().toISOString(),
+            })) as WeeklyMeasurement[],
             earnedMilestones,
           });
 
@@ -992,38 +1011,39 @@ describe('Property 8: Achievement deduplication (idempotency)', () => {
   });
 });
 
-// Feature: gamification-restructure, Property 9: Streak-Unterbrechung bewahrt verdiente Achievements
-describe('Property 9: Streak reset preserves earned achievements', () => {
+// Feature: gamification-restructure, Property 9: Entry-Achievements bleiben erhalten
+describe('Property 9: Entry achievements persist', () => {
   /** Validates: Requirements 6.5 */
-  it('earned streak achievements remain earned after streak reset', async () => {
-    const streakTypes = [
-      'daily-streak-7', 'daily-streak-30', 'weekly-streak-3', 'weekly-streak-10',
+  it('earned entry achievements remain earned', async () => {
+    const entryTypes = [
+      'daily-entries-3', 'daily-entries-7', 'daily-entries-14', 'daily-entries-30',
+      'weekly-entries-3', 'weekly-entries-10',
     ] as const;
 
     await fc.assert(
       fc.asyncProperty(
-        fc.subarray([...streakTypes], { minLength: 1 }),
-        async (earnedStreakTypes) => {
+        fc.subarray([...entryTypes], { minLength: 1 }),
+        async (earnedEntryTypes) => {
           resetDB();
           indexedDB.deleteDatabase('fitness-tracker');
 
-          // First, earn the milestones by persisting them
+          // First, earn the milestones by providing enough measurements
           const ctx = makeContext({
-            streaks: {
-              dailyStreak: 100,
-              dailyLastDate: '2024-06-01',
-              weeklyStreak: 100,
-              weeklyLastDate: '2024-06-01',
-              updatedAt: '',
-            },
+            dailyMeasurements: Array.from({ length: 30 }, (_, i) =>
+              makeDaily(`2024-${String(Math.floor(i / 28) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`, 80)
+            ),
+            weeklyMeasurements: Array.from({ length: 10 }, (_, i) => ({
+              date: `2024-${String(Math.floor(i / 4) + 1).padStart(2, '0')}-${String((i % 4 + 1) * 7).padStart(2, '0')}`,
+              updatedAt: new Date().toISOString(),
+            })) as WeeklyMeasurement[],
             earnedMilestones: [],
           });
           await evaluateMilestones(ctx);
 
-          // Now get all achievements — streak is reset to 0 but earned ones should stay
+          // Now get all achievements — earned ones should stay
           const achievements = await getAllAchievements();
 
-          for (const type of earnedStreakTypes) {
+          for (const type of earnedEntryTypes) {
             const achievement = achievements.find((a) => a.definition.id === type);
             expect(achievement?.status).toBe('earned');
           }
@@ -1040,7 +1060,8 @@ describe('Property 11: Achievement data model completeness', () => {
   it('all achievements have valid structure and correct count', async () => {
     const allTypes = [
       'weight-loss-2kg', 'weight-loss-5kg', 'weight-loss-10kg', 'first-goal-reached',
-      'daily-streak-7', 'daily-streak-30', 'weekly-streak-3', 'weekly-streak-10',
+      'daily-entries-3', 'daily-entries-7', 'daily-entries-14', 'daily-entries-30',
+      'weekly-entries-3', 'weekly-entries-10',
     ] as const;
 
     await fc.assert(
@@ -1054,14 +1075,13 @@ describe('Property 11: Achievement data model completeness', () => {
           if (earnedTypes.length > 0) {
             const ctx = makeContext({
               goals: earnedTypes.includes('first-goal-reached') ? [makeGoal({ status: 'reached' })] : [],
-              streaks: {
-                dailyStreak: 100,
-                dailyLastDate: '2024-06-01',
-                weeklyStreak: 100,
-                weeklyLastDate: '2024-06-01',
-                updatedAt: '',
-              },
-              dailyMeasurements: [makeDaily('2024-01-01', 100), makeDaily('2024-06-01', 85)],
+              dailyMeasurements: Array.from({ length: 30 }, (_, i) =>
+                makeDaily(`2024-${String(Math.floor(i / 28) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`, 100 - i * 0.5)
+              ),
+              weeklyMeasurements: Array.from({ length: 10 }, (_, i) => ({
+                date: `2024-${String(Math.floor(i / 4) + 1).padStart(2, '0')}-${String((i % 4 + 1) * 7).padStart(2, '0')}`,
+                updatedAt: new Date().toISOString(),
+              })) as WeeklyMeasurement[],
               earnedMilestones: [],
             });
             await evaluateMilestones(ctx);

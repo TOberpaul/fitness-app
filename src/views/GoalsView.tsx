@@ -101,7 +101,7 @@ function GoalsView() {
       const streaks = await getStreaks()
       setStreaks(streaks)
       const earnedMilestones = await getEarnedMilestones()
-      await evaluateMilestones({ goals: allGoals, streaks, dailyMeasurements: dailyMeas, earnedMilestones })
+      await evaluateMilestones({ goals: allGoals, streaks, dailyMeasurements: dailyMeas, weeklyMeasurements: weeklyMeas, earnedMilestones })
 
       setAchievements(await getAllAchievements())
     } catch {
