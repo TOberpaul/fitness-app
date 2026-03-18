@@ -89,22 +89,23 @@ function AddFoodView({ open, onClose, date, onFoodSelect }: AddFoodViewProps) {
 
   const renderFoodItem = (food: Food) => (
     <Card key={food.id} className="add-food-item" onClick={() => selectFood(food)} role="button" tabIndex={0}>
-      {food.image_url ? (
-        <img src={food.image_url} alt="" className="add-food-item-image" />
-      ) : food.emoji ? (
-        <span className="add-food-item-emoji" role="img">{food.emoji}</span>
-      ) : (
-        <div className="add-food-item-image add-food-item-image--empty" />
-      )}
-      <div className="add-food-item-info">
-        <span className="add-food-item-name">{food.name}</span>
-        {food.brand && (
-          <span className="add-food-item-brand" data-emphasis="weak">{food.brand}</span>
+      <div className="add-food-item-row">
+        {food.image_url ? (
+          <img src={food.image_url} alt="" className="add-food-item-image" />
+        ) : food.emoji ? (
+          <span className="add-food-item-emoji" role="img">{food.emoji}</span>
+        ) : (
+          <div className="add-food-item-image add-food-item-image--empty" />
         )}
+        <div className="add-food-item-info">
+          <span className="add-food-item-name">{food.name}</span>
+          {food.brand && (
+            <span className="add-food-item-brand" data-emphasis="weak">{food.brand}</span>
+          )}
+        </div>
       </div>
-      <span className="add-food-item-kcal">
-        {food.kcal_per_100g} kcal
-        <span data-emphasis="weak"> /100{food.default_unit}</span>
+      <span className="add-food-item-kcal" data-emphasis="weak">
+        {food.kcal_per_100g} kcal /100{food.default_unit}
       </span>
     </Card>
   )

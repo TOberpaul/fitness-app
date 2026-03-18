@@ -48,10 +48,16 @@
 
 .add-food-item {
   display: flex;
-  align-items: center;
-  gap: var(--size-gap);
+  flex-direction: column;
+  gap: var(--size-4, 4px);
   padding: var(--size-padding-min) var(--spacing-padding);
   cursor: pointer;
+}
+
+.add-food-item-row {
+  display: flex;
+  align-items: center;
+  gap: var(--size-gap);
 }
 
 .add-food-item-image {
@@ -86,17 +92,20 @@
 
 .add-food-item-name {
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .add-food-item-brand {
   font-size: var(--size-text-small, 0.85rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .add-food-item-kcal {
-  font-weight: 600;
-  white-space: nowrap;
-  text-align: right;
-  flex-shrink: 0;
+  font-size: var(--size-text-small, 0.85rem);
 }
 
 .add-food-empty {
