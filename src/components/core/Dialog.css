@@ -30,6 +30,10 @@
   flex: 1;
 }
 
+.core-dialog > *:not(.core-dialog-header) > *:not(.core-dialog-actions) {
+  flex-shrink: 0;
+}
+
 .core-dialog-header {
   display: flex;
   justify-content: space-between;
