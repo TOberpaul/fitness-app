@@ -29,21 +29,15 @@
   border-radius: 0;
 }
 
-.achievement-card-check {
+.achievement-card-badge {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 1.1rem;
-  height: 1.1rem;
-  border-radius: 50%;
-  background: var(--db-success, #22c55e);
-  color: #fff;
-  font-size: 0.65rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
+  top: 0;
+  right: 0;
+}
+
+.achievement-card-badge .core-badge-count {
+  position: static;
+  transform: none;
 }
 
 .achievement-card-icon-area img {

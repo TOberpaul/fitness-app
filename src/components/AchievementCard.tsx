@@ -2,6 +2,7 @@ import { motion } from 'motion/react'
 import type { Achievement, Milestone, StreakAchievement } from '../types'
 import { scaleIn, tapFeedback } from '../animations/presets'
 import { useReducedMotion, getVariants } from '../animations/hooks'
+import Badge from './core/Badge'
 import './AchievementCard.css'
 
 interface AchievementCardProps {
@@ -124,7 +125,11 @@ function AchievementCard({ achievement, icon, color, onClick }: AchievementCardP
         <span className="achievement-card-label">{label}</span>
         {detail && <span className="achievement-card-detail">{detail}</span>}
       </div>
-      {isEarned && <span className="achievement-card-check" aria-label="Erreicht">✓</span>}
+      {isEarned && (
+        <Badge className="achievement-card-badge" count="✓" color="green">
+          <span />
+        </Badge>
+      )}
     </motion.div>
   )
 }
