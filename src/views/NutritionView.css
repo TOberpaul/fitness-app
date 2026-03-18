@@ -228,11 +228,12 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-gap);
+  flex: 1;
 }
 
 .nutrition-entry-type-card.core-card {
   display: flex;
-  flex-grow: inherit;
+  flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: center;
