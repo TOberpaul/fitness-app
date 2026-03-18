@@ -130,19 +130,19 @@ function AddFoodView({ open, onClose, date, onFoodSelect }: AddFoodViewProps) {
           <>
             <div className="add-food-tabs">
               <Button
-                className={`add-food-tab${activeTab === 'recent' ? ' add-food-tab--active' : ''}`}
+                data-container-contrast={activeTab === 'recent' ? 'inverted' : undefined}
                 onClick={() => setActiveTab('recent')}
               >
                 Letzte
               </Button>
               <Button
-                className={`add-food-tab${activeTab === 'recipes' ? ' add-food-tab--active' : ''}`}
+                data-container-contrast={activeTab === 'recipes' ? 'inverted' : undefined}
                 onClick={() => setActiveTab('recipes')}
               >
                 Rezepte
               </Button>
               <Button
-                className={`add-food-tab${activeTab === 'favorites' ? ' add-food-tab--active' : ''}`}
+                data-container-contrast={activeTab === 'favorites' ? 'inverted' : undefined}
                 onClick={() => setActiveTab('favorites')}
               >
                 <Star size={14} /> Favoriten
