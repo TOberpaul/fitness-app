@@ -8,7 +8,8 @@
   bottom: 0;
   right: 0;
   transform: translate(25%, 25%);
-  min-height: 0;
+  min-height: var(--size-container);
+  min-width: var(--size-container);
   border-radius: var(--size-border-radius-full);
 }
 
