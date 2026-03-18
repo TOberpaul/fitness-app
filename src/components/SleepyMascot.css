@@ -104,16 +104,14 @@
 .mascot--awake .mascot-eye-open {
   opacity: 1;
   transform: scaleY(1);
-  animation: eye-wake 1.2s ease forwards;
+  animation: eye-wake 0.8s ease forwards;
 }
 
 @keyframes eye-wake {
-  0%   { transform: scaleY(0); inset: 30%; }
-  15%  { transform: scaleY(0.6); inset: 25%; }
-  30%  { transform: scaleY(0.1); inset: 28%; }
-  50%  { transform: scaleY(0.8); inset: 15%; }
-  65%  { transform: scaleY(0.05); inset: 28%; }
-  85%  { transform: scaleY(1); inset: 10%; }
+  0%   { transform: scaleY(0); inset: 28%; }
+  20%  { transform: scaleY(0.5); inset: 22%; }
+  40%  { transform: scaleY(0.05); inset: 25%; }
+  70%  { transform: scaleY(1); inset: 10%; }
   100% { transform: scaleY(1); inset: 10%; }
 }
 
