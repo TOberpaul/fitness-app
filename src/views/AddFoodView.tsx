@@ -19,9 +19,11 @@ interface AddFoodViewProps {
   date: string
   mealId?: string
   onFoodSelect: (foodId: string) => void
+  /** When true, renders content without its own Dialog wrapper */
+  inline?: boolean
 }
 
-function AddFoodView({ open, onClose, date, mealId, onFoodSelect }: AddFoodViewProps) {
+function AddFoodView({ open, onClose, date, mealId, onFoodSelect, inline }: AddFoodViewProps) {
   const [query, setQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Food[]>([])
   const [recentFoods, setRecentFoods] = useState<Food[]>([])
@@ -169,8 +171,8 @@ function AddFoodView({ open, onClose, date, mealId, onFoodSelect }: AddFoodViewP
     </Card>
   )
 
-  return (
-    <Dialog title="Lebensmittel hinzufügen" onClose={onClose} open={open}>
+  const content = (
+    <>
       <div className="add-food-content">
         {/* Search */}
         <Input
@@ -352,6 +354,14 @@ function AddFoodView({ open, onClose, date, mealId, onFoodSelect }: AddFoodViewP
           </div>
         </div>
       </Dialog>
+    </>
+  )
+
+  if (inline) return content
+
+  return (
+    <Dialog title="Lebensmittel hinzufügen" onClose={onClose} open={open}>
+      {content}
     </Dialog>
   )
 }

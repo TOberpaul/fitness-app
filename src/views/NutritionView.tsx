@@ -50,7 +50,7 @@ function NutritionView() {
 
   // New entry dialog with internal step
   const [showEntryDialog, setShowEntryDialog] = useState(false)
-  const [entryStep, setEntryStep] = useState<'choose' | 'meal'>('choose')
+  const [entryStep, setEntryStep] = useState<'choose' | 'meal' | 'food'>('choose')
   const [editingMeal, setEditingMeal] = useState<MealWithEntries | null>(null)
   const [editMealName, setEditMealName] = useState('')
   const [editMealImage, setEditMealImage] = useState<string | null>(null)
@@ -286,8 +286,8 @@ function NutritionView() {
         </Button>
       </div>
 
-      {/* New entry dialog (choose type → create meal) */}
-      <Dialog title={entryStep === 'choose' ? 'Neuer Eintrag' : 'Neues Gericht'} open={showEntryDialog} onClose={() => { setShowEntryDialog(false); setEntryStep('choose'); setNewMealName(''); setMealImage(null) }}>
+      {/* New entry dialog (choose type → create meal / add food) */}
+      <Dialog title={entryStep === 'choose' ? 'Neuer Eintrag' : entryStep === 'meal' ? 'Neues Gericht' : 'Lebensmittel hinzufügen'} open={showEntryDialog} onClose={() => { setShowEntryDialog(false); setEntryStep('choose'); setNewMealName(''); setMealImage(null) }}>
         {entryStep === 'choose' ? (
           <div className="nutrition-entry-type-grid">
             <Card className="nutrition-entry-type-card" role="button" tabIndex={0} onClick={() => { setNewMealName(''); setMealImage(null); setEntryStep('meal') }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setNewMealName(''); setMealImage(null); setEntryStep('meal') } }}>
@@ -295,13 +295,13 @@ function NutritionView() {
               <span data-emphasis="strong">Gericht</span>
               <span data-emphasis="weak">Mehrere Zutaten gruppiert</span>
             </Card>
-            <Card className="nutrition-entry-type-card" role="button" tabIndex={0} onClick={() => { setActiveMealId(null); setShowAddFood(true) }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveMealId(null); setShowAddFood(true) } }}>
+            <Card className="nutrition-entry-type-card" role="button" tabIndex={0} onClick={() => { setActiveMealId(null); setEntryStep('food') }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveMealId(null); setEntryStep('food') } }}>
               <span className="nutrition-entry-type-emoji">🥤</span>
               <span data-emphasis="strong">Einzelnes Lebensmittel</span>
               <span data-emphasis="weak">z.B. Getränk, Snack</span>
             </Card>
           </div>
-        ) : (
+        ) : entryStep === 'meal' ? (
           <div className="nutrition-edit-meal-form">
             <Input
               id="new-meal-name"
@@ -342,6 +342,19 @@ function NutritionView() {
               <Button variant="primary" onClick={handleCreateMeal}>OK</Button>
             </div>
           </div>
+        ) : (
+          <AddFoodView
+            open={true}
+            inline
+            onClose={() => { setShowEntryDialog(false); setEntryStep('choose'); loadSummary() }}
+            date={selectedDate}
+            mealId={activeMealId ?? undefined}
+            onFoodSelect={(foodId) => {
+              setShowEntryDialog(false)
+              setEntryStep('choose')
+              setSelectedFoodId(foodId)
+            }}
+          />
         )}
       </Dialog>
 
