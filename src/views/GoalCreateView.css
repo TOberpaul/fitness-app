@@ -4,6 +4,7 @@
   border: none;
   gap: var(--spacing-padding);
   padding: var(--spacing-padding);
+  flex: 1;
 }
 
 .goal-create-field {

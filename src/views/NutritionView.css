@@ -214,6 +214,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-gap);
+  flex: 1;
 }
 
 .nutrition-photo-actions {
@@ -226,11 +227,12 @@
 .nutrition-entry-type-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--size-gap);
+  gap: var(--spacing-gap);
 }
 
 .nutrition-entry-type-card.core-card {
   display: flex;
+  flex-grow: inherit;
   flex-direction: column;
   align-items: center;
   justify-content: center;

@@ -24,13 +24,7 @@
   overflow-y: auto;
 }
 
-.core-dialog > *:not(.core-dialog-header) {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.core-dialog > *:not(.core-dialog-header) > *:not(.core-dialog-actions) {
+.core-dialog > *:not(.core-dialog-header):not(.core-dialog-actions) {
   flex-shrink: 0;
 }
 

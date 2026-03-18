@@ -30,6 +30,7 @@
 
 .add-food-content {
   gap: var(--size-gap);
+  flex: 1;
 }
 
 .add-food-section {
@@ -121,6 +122,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--size-gap);
+  flex: 1;
 }
 
 .add-food-custom-error {
