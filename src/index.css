@@ -25,6 +25,10 @@ html, body {
   overflow: hidden;
 }
 
+h1 {
+  font-size: var(--size-20, 1.25rem);
+}
+
 h2 {  
   font-size: var(--size-16);
 }
