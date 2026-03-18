@@ -20,6 +20,7 @@
   text-decoration: none;
   color: inherit;
   width: 100%;
+  padding: var(--size-padding-min);
 }
 
 .bottom-nav-active-indicator {

@@ -1,4 +1,5 @@
 import type { Food } from '../types';
+import { searchBasicFoods } from './basicFoods';
 
 /**
  * Queries Open Food Facts API with DACH focus (cc=de, lc=de).
@@ -117,9 +118,10 @@ export async function searchUSDA(query: string): Promise<Food[]> {
 export function mergeAndRank(
   offResults: Food[],
   blsResults: Food[],
-  usdaResults: Food[]
+  usdaResults: Food[],
+  localResults: Food[] = []
 ): Food[] {
-  const combined = [...blsResults, ...offResults, ...usdaResults];
+  const combined = [...localResults, ...blsResults, ...offResults, ...usdaResults];
   const seen = new Set<string>();
   const deduped: Food[] = [];
 
@@ -141,15 +143,18 @@ export function mergeAndRank(
  * Returns merged and ranked results.
  */
 export async function searchFoods(query: string): Promise<Food[]> {
+  // Lokale Grundnahrungsmittel zuerst (sofort, kein Netzwerk)
+  const localResults = searchBasicFoods(query);
+
   const [offResults, blsResults] = await Promise.all([
     searchOpenFoodFacts(query),
     searchBLS(query),
   ]);
 
   let usdaResults: Food[] = [];
-  if (offResults.length === 0 && blsResults.length === 0) {
+  if (offResults.length === 0 && blsResults.length === 0 && localResults.length === 0) {
     usdaResults = await searchUSDA(query);
   }
 
-  return mergeAndRank(offResults, blsResults, usdaResults);
+  return mergeAndRank(offResults, blsResults, usdaResults, localResults);
 }

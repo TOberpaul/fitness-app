@@ -323,7 +323,7 @@ export interface MicroWin {
 // ─── Nutrition Tracking Types ────────────────────────────────────────
 
 /** Datenquelle eines Lebensmittels */
-export type FoodSource = 'openfoodfacts' | 'bls' | 'usda' | 'custom';
+export type FoodSource = 'openfoodfacts' | 'bls' | 'usda' | 'custom' | 'local';
 
 /** Normalisiertes Lebensmittel mit Nährwerten pro 100g/100ml */
 export interface Food {
