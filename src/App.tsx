@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import DashboardView from './views/DashboardView'
-import DailyInputView from './views/DailyInputView'
-import WeeklyInputView from './views/WeeklyInputView'
+import MeasurementView from './views/MeasurementView'
 import GoalsView from './views/GoalsView'
 import FitbitCallbackView from './views/FitbitCallbackView'
 import SettingsView from './views/SettingsView'
@@ -16,7 +15,7 @@ import { getAllGoals } from './services/goalService'
 import { getAllData } from './services/dataService'
 import './App.css'
 
-const SNAP_ROUTES = ['/', '/daily', '/weekly', '/nutrition', '/goals', '/settings']
+const SNAP_ROUTES = ['/', '/measurement', '/nutrition', '/goals', '/settings']
 
 // Context so BottomNavigation can read/set the active panel without re-rendering the snap container
 const PanelContext = createContext<{
@@ -97,8 +96,7 @@ function MainPanels() {
     <PanelContext.Provider value={{ activeIndex, scrollTo }}>
       <div className="snap-container" ref={containerRef}>
         <div className="snap-panel"><DashboardView /></div>
-        <div className="snap-panel"><DailyInputView /></div>
-        <div className="snap-panel"><WeeklyInputView /></div>
+        <div className="snap-panel"><MeasurementView /></div>
         <div className="snap-panel"><NutritionView /></div>
         <div className="snap-panel"><GoalsView /></div>
         <div className="snap-panel"><SettingsView /></div>
@@ -151,8 +149,7 @@ function AppContent() {
         <Routes>
           {/* Main snap panels — all share the same component */}
           <Route path="/" element={<MainPanels />} />
-          <Route path="/daily" element={<MainPanels />} />
-          <Route path="/weekly" element={<MainPanels />} />
+          <Route path="/measurement" element={<MainPanels />} />
           <Route path="/nutrition" element={<MainPanels />} />
           <Route path="/goals" element={<MainPanels />} />
           <Route path="/settings" element={<MainPanels />} />

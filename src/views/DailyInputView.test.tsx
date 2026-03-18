@@ -10,9 +10,11 @@ beforeEach(() => {
   indexedDB.deleteDatabase('fitness-tracker');
 });
 
+const noop = () => {}
+
 describe('DailyInputView', () => {
   it('renders all form fields', () => {
-    render(<DailyInputView />);
+    render(<DailyInputView open onClose={noop} />);
     expect(screen.getByLabelText('Datum')).toBeDefined();
     expect(screen.getByLabelText('Gewicht (kg)')).toBeDefined();
     expect(screen.getByLabelText('Körperfett (%)')).toBeDefined();
@@ -20,26 +22,26 @@ describe('DailyInputView', () => {
   });
 
   it('pre-fills date with today', () => {
-    render(<DailyInputView />);
+    render(<DailyInputView open onClose={noop} />);
     const dateInput = screen.getByLabelText('Datum') as HTMLInputElement;
     const today = new Date().toISOString().slice(0, 10);
     expect(dateInput.value).toBe(today);
   });
 
   it('weight input has inputmode decimal', () => {
-    render(<DailyInputView />);
+    render(<DailyInputView open onClose={noop} />);
     const weightInput = screen.getByLabelText('Gewicht (kg)');
     expect(weightInput.getAttribute('inputmode')).toBe('decimal');
   });
 
   it('body fat input has inputmode decimal', () => {
-    render(<DailyInputView />);
+    render(<DailyInputView open onClose={noop} />);
     const bodyFatInput = screen.getByLabelText('Körperfett (%)');
     expect(bodyFatInput.getAttribute('inputmode')).toBe('decimal');
   });
 
   it('shows validation error for weight out of range', async () => {
-    render(<DailyInputView />);
+    render(<DailyInputView open onClose={noop} />);
     const weightInput = screen.getByLabelText('Gewicht (kg)');
     fireEvent.change(weightInput, { target: { value: '5' } });
     fireEvent.click(screen.getByText('Speichern'));
@@ -49,7 +51,7 @@ describe('DailyInputView', () => {
   });
 
   it('shows validation error for body fat out of range', async () => {
-    render(<DailyInputView />);
+    render(<DailyInputView open onClose={noop} />);
     const bodyFatInput = screen.getByLabelText('Körperfett (%)');
     fireEvent.change(bodyFatInput, { target: { value: '99' } });
     fireEvent.click(screen.getByText('Speichern'));
@@ -59,7 +61,7 @@ describe('DailyInputView', () => {
   });
 
   it('does not show errors for empty optional fields', () => {
-    render(<DailyInputView />);
+    render(<DailyInputView open onClose={noop} />);
     fireEvent.click(screen.getByText('Speichern'));
     expect(screen.queryByText(/muss zwischen/)).toBeNull();
   });
@@ -67,7 +69,7 @@ describe('DailyInputView', () => {
   it('saves valid measurement via DataService', async () => {
     const saveSpy = vi.spyOn(dataService, 'saveDailyMeasurement').mockResolvedValue();
 
-    render(<DailyInputView />);
+    render(<DailyInputView open onClose={noop} />);
 
     fireEvent.change(screen.getByLabelText('Gewicht (kg)'), { target: { value: '75.3' } });
     fireEvent.change(screen.getByLabelText('Körperfett (%)'), { target: { value: '20.1' } });
@@ -101,7 +103,7 @@ describe('DailyInputView', () => {
       updatedAt: new Date().toISOString(),
     });
 
-    render(<DailyInputView />);
+    render(<DailyInputView open onClose={noop} />);
 
     await waitFor(() => {
       const weightInput = screen.getByLabelText('Gewicht (kg)') as HTMLInputElement;
@@ -115,7 +117,7 @@ describe('DailyInputView', () => {
   });
 
   it('save button has correct data attributes', () => {
-    render(<DailyInputView />);
+    render(<DailyInputView open onClose={noop} />);
     const saveBtn = screen.getByText('Speichern');
     expect(saveBtn.getAttribute('data-material')).toBe('inverted');
     expect(saveBtn.hasAttribute('data-interactive')).toBe(true);
@@ -124,7 +126,7 @@ describe('DailyInputView', () => {
   it('rounds values to one decimal on save', async () => {
     const saveSpy = vi.spyOn(dataService, 'saveDailyMeasurement').mockResolvedValue();
 
-    render(<DailyInputView />);
+    render(<DailyInputView open onClose={noop} />);
 
     fireEvent.change(screen.getByLabelText('Gewicht (kg)'), { target: { value: '75.37' } });
     fireEvent.change(screen.getByLabelText('Körperfett (%)'), { target: { value: '20.14' } });
@@ -148,7 +150,7 @@ describe('DailyInputView', () => {
   });
 
   it('clears errors when input changes', async () => {
-    render(<DailyInputView />);
+    render(<DailyInputView open onClose={noop} />);
     const weightInput = screen.getByLabelText('Gewicht (kg)');
 
     fireEvent.change(weightInput, { target: { value: '5' } });

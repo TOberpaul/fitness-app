@@ -229,6 +229,7 @@ function NutritionView() {
               onKeyDown={e => e.key === 'Enter' && handleCreateMeal()}
             />
             <Button onClick={handleCreateMeal}>OK</Button>
+            <Button data-material="transparent" onClick={() => { setShowNewMealInput(false); setNewMealName('') }}>Abbrechen</Button>
           </div>
         ) : (
           <>

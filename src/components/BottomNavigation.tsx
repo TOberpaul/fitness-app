@@ -1,4 +1,4 @@
-import { ChartLine, Scale, RulerDimensionLine, Target, Settings, Apple } from 'lucide-react'
+import { ChartLine, Scale, Target, Settings, Apple } from 'lucide-react'
 import { motion } from 'motion/react'
 import { usePanelContext } from '../App'
 import { EASINGS } from '../animations/presets'
@@ -7,11 +7,10 @@ import './BottomNavigation.css'
 
 const TABS = [
   { index: 0, label: 'Dashboard', icon: ChartLine },
-  { index: 1, label: 'Täglich', icon: Scale },
-  { index: 2, label: 'Wöchentlich', icon: RulerDimensionLine },
-  { index: 3, label: 'Ernährung', icon: Apple },
-  { index: 4, label: 'Ziele', icon: Target },
-  { index: 5, label: 'Mehr', icon: Settings },
+  { index: 1, label: 'Messung', icon: Scale },
+  { index: 2, label: 'Ernährung', icon: Apple },
+  { index: 3, label: 'Ziele', icon: Target },
+  { index: 4, label: 'Mehr', icon: Settings },
 ]
 
 function BottomNavigation() {
