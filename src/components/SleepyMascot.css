@@ -352,9 +352,20 @@
 
 /* Purring: eyes stay closed (default state — arcs visible, open eyes hidden) */
 
-/* Settling: hearts/prrr fade out near end */
-.mascot--purring .mascot-purr-text {
-  animation: fade-out 0.5s ease 2.5s forwards;
+/* Drifting off: crossfade hearts→zzz */
+.mascot--drifting-off .mascot-hearts {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.mascot--drifting-off .mascot-purr-text {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.mascot--drifting-off .mascot-zzz {
+  opacity: 1;
+  transition: opacity 0.8s ease 0.2s;
 }
 
 /* Purring: dampened sway over 3s (100→0) */
@@ -386,7 +397,3 @@
   100% { transform: rotate(0deg); }
 }
 
-@keyframes fade-out {
-  0% { opacity: 1; }
-  100% { opacity: 0; }
-}

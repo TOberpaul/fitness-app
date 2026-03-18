@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react'
 import './SleepyMascot.css'
 
-type MascotState = 'sleeping' | 'awake' | 'falling-asleep' | 'purring'
+type MascotState = 'sleeping' | 'awake' | 'falling-asleep' | 'purring' | 'drifting-off'
 
 function SleepyMascot() {
   const [state, setState] = useState<MascotState>('sleeping')
@@ -24,7 +24,10 @@ function SleepyMascot() {
     } else if (state === 'awake') {
       setState('purring')
       if (timerRef.current) clearTimeout(timerRef.current)
-      timerRef.current = setTimeout(() => setState('sleeping'), 3000)
+      timerRef.current = setTimeout(() => {
+        setState('drifting-off')
+        setTimeout(() => setState('sleeping'), 1000)
+      }, 2200)
     }
   }, [state, scheduleReturn])
 
