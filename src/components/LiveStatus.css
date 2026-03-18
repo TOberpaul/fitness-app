@@ -36,3 +36,15 @@
   font-size: var(--size-text);
   color: var(--db-successful);
 }
+
+.live-status-streaks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--size-gap);
+}
+
+.live-status-streak {
+  font-size: var(--size-text);
+  font-weight: bold;
+  color: var(--db-warning);
+}

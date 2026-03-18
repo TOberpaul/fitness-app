@@ -13,7 +13,7 @@ import { getAllData } from '../services/dataService'
 import { getActiveGoals, getAllGoals, calculateProjection } from '../services/goalService'
 import { calculateConsistencyScore, detectMicroWins, getAllAchievements, evaluateMilestones, getStreaks, getEarnedMilestones } from '../services/gamificationService'
 import { getWeekStart } from '../utils/date'
-import type { DailyMeasurement, WeeklyMeasurement, Goal, GoalProjection, ConsistencyScore, CircumferenceZone, TrendDirection, MicroWin, Achievement } from '../types'
+import type { DailyMeasurement, WeeklyMeasurement, Goal, GoalProjection, ConsistencyScore, CircumferenceZone, TrendDirection, MicroWin, Achievement, Streaks } from '../types'
 import GoalCreateView from './GoalCreateView'
 import GoalDetailView from './GoalDetailView'
 import Button from '../components/core/Button'
@@ -53,7 +53,7 @@ function GoalsView() {
   })
   const [microWins, setMicroWins] = useState<MicroWin[]>([])
   const [achievements, setAchievements] = useState<Achievement[]>([])
-  const [dailyMeasurements, setDailyMeasurements] = useState<DailyMeasurement[]>([])
+  const [streaks, setStreaks] = useState<Streaks | null>(null)  const [dailyMeasurements, setDailyMeasurements] = useState<DailyMeasurement[]>([])
   const [weeklyMeasurements, setWeeklyMeasurements] = useState<WeeklyMeasurement[]>([])
   const [showCreateGoal, setShowCreateGoal] = useState(false)
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null)
@@ -98,6 +98,7 @@ function GoalsView() {
       // Retroactively evaluate milestones for newly added types
       const allGoals = await getAllGoals()
       const streaks = await getStreaks()
+      setStreaks(streaks)
       const earnedMilestones = await getEarnedMilestones()
       await evaluateMilestones({ goals: allGoals, streaks, dailyMeasurements: dailyMeas, earnedMilestones })
 
@@ -160,6 +161,7 @@ function GoalsView() {
                 projection={primaryProjection}
                 consistencyScore={consistencyScore}
                 microWins={microWins}
+                streaks={streaks}
               />
             )
           })()}
