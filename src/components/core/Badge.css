@@ -11,6 +11,17 @@
   min-height: var(--size-container);
   min-width: var(--size-container);
   border-radius: var(--size-border-radius-full);
+  padding: 0;
+  border: none;
+  min-height: 20px;
+  min-width: 20px;
+  max-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  line-height: 1;
+  box-sizing: border-box;
 }
 
 .core-badge--inline {
