@@ -14,7 +14,7 @@ function MeasurementView() {
     <div className="measurement-view">
       <h1>Messung</h1>
 
-      <img src="/Sleepy.png" alt="" className="measurement-hero" />
+      <img src={`${import.meta.env.BASE_URL}Sleepy.png`} alt="" className="measurement-hero" />
 
       <div className="measurement-cards">
         <Card
