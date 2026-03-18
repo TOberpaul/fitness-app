@@ -266,13 +266,10 @@ const MILESTONE_LABELS: Record<MilestoneType, string> = {
   'weight-loss-2kg': '2 kg abgenommen!',
   'weight-loss-5kg': '5 kg abgenommen!',
   'weight-loss-10kg': '10 kg abgenommen!',
-  'daily-streak-7': '7 Tage am Stück gewogen!',
-  'daily-streak-10': '10 Tage am Stück gewogen!',
-  'daily-streak-30': '30 Tage am Stück gewogen!',
-  'weekly-streak-3': '3 Wochen Umfänge gemessen!',
-  'weekly-streak-4': '4 Wochen Umfänge gemessen!',
-  'weekly-streak-10': '10 Wochen Umfänge gemessen!',
-  'weekly-streak-12': '12 Wochen Umfänge gemessen!',
+  'daily-entries-3': '3 Tage eingetragen!',
+  'daily-entries-7': '7 Tage eingetragen!',
+  'daily-entries-14': '14 Tage eingetragen!',
+  'daily-entries-30': '30 Tage eingetragen!',
 };
 
 /**
@@ -375,7 +372,7 @@ function formatGoalDetail(goal: Goal): string {
  * Requirements: 12.1, 12.2, 12.3, 12.4, 12.5
  */
 export async function evaluateMilestones(context: MilestoneContext): Promise<Milestone[]> {
-  const { goals, dailyMeasurements, weeklyMeasurements, earnedMilestones } = context;
+  const { goals, dailyMeasurements, earnedMilestones } = context;
   const newMilestones: Milestone[] = [];
 
   // 1. first-goal-reached: at least one goal has status === 'reached'

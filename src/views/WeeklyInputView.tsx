@@ -189,7 +189,7 @@ function WeeklyInputView() {
           getAllGoals(), getStreaks(), getEarnedMilestones()
         ])
         await evaluateMilestones({
-          goals, streaks, dailyMeasurements: allData.dailyMeasurements, earnedMilestones: earned
+          goals, streaks, dailyMeasurements: allData.dailyMeasurements, weeklyMeasurements: allData.weeklyMeasurements, earnedMilestones: earned
         })
         detectNonScaleVictories(allData.dailyMeasurements, allData.weeklyMeasurements)
       } catch {
