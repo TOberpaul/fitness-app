@@ -47,7 +47,7 @@ function LiveStatus({ projection, consistencyScore, microWins, streaks }: LiveSt
             alt=""
           />
           <span className="live-status-streak-text">
-            <strong>{streaks.dailyStreak}</strong> <span className="live-status-streak-weak">{streaks.dailyStreak === 1 ? 'Tag' : 'Tage'} in Folge gewogen</span>
+            <strong>{streaks.dailyStreak}</strong> <span className="live-status-streak-weak">{streaks.dailyStreak === 1 ? 'Tag' : 'Tage'} in Folge</span>
           </span>
         </div>
       )}

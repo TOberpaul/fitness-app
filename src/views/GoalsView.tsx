@@ -154,7 +154,7 @@ function GoalsView() {
                 alt=""
               />
               <span className="goals-view-streak-text">
-                <strong>{streaks.dailyStreak}</strong> <span className="goals-view-streak-weak">{streaks.dailyStreak === 1 ? 'Tag' : 'Tage'} in Folge</span>
+                <strong>{streaks.dailyStreak}</strong> <span className="goals-view-streak-weak">{streaks.dailyStreak === 1 ? 'Tag' : 'Tage'} in Folge gewogen</span>
               </span>
             </div>
           )}
