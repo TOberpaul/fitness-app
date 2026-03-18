@@ -187,44 +187,40 @@ function DashboardView() {
 
       {/* Current value display */}
       <div className="dashboard-value-display">
-        {currentValue != null && currentPoint ? (
-          <>
-            <span className="dashboard-current-date" data-emphasis="weak">
-              {new Date(currentPoint.date + 'T00:00:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' })}
+        <span className="dashboard-current-date" data-emphasis="weak">
+          {currentPoint
+            ? new Date(currentPoint.date + 'T00:00:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' })
+            : '\u00A0'}
+        </span>
+        <div className="dashboard-current-value">
+          {animatedValue}
+          <span className="dashboard-unit"> {getUnit(activeTab)}</span>
+        </div>
+        <div className="dashboard-meta">
+          {percentChange != null && (
+            <span
+              className="dashboard-percent-change adaptive"
+              data-color={percentChange < 0 ? 'green' : percentChange > 0 ? 'red' : undefined}
+              data-content-contrast="min"
+            >
+              {percentChange > 0 ? '+' : ''}{animatedPercent}%
             </span>
-            <div className="dashboard-current-value">
-              {animatedValue}
-              <span className="dashboard-unit"> {getUnit(activeTab)}</span>
-            </div>
-            <div className="dashboard-meta">
-              {percentChange != null && (
-                <span
-                  className="dashboard-percent-change adaptive"
-                  data-color={percentChange < 0 ? 'green' : percentChange > 0 ? 'red' : undefined}
-                  data-content-contrast="min"
-                >
-                  {percentChange > 0 ? '+' : ''}{animatedPercent}%
-                </span>
-              )}
-              {goalPercent != null && (
-                <Button iconOnly className="dashboard-badge-button" onClick={() => scrollTo(3)} aria-label="Zu Zielen">
-                  <Badge count={`${goalPercent}%`} color="blue">
-                    <img className="dashboard-badge-icon" src={`${import.meta.env.BASE_URL}Goal.png`} alt="Ziel" />
-                  </Badge>
-                </Button>
-              )}
-              {streaks && streaks.dailyStreak > 0 && (
-                <Button iconOnly className="dashboard-badge-button" onClick={() => scrollTo(3)} aria-label="Zu Zielen">
-                  <Badge count={streaks.dailyStreak} color="red">
-                    <img className="dashboard-badge-icon" src={`${import.meta.env.BASE_URL}Flame.png`} alt="Streak" />
-                  </Badge>
-                </Button>
-              )}
-            </div>
-          </>
-        ) : (
-          <div className="dashboard-no-data">Keine Daten vorhanden</div>
-        )}
+          )}
+          {goalPercent != null && (
+            <Button iconOnly className="dashboard-badge-button" onClick={() => scrollTo(3)} aria-label="Zu Zielen">
+              <Badge count={`${goalPercent}%`} color="blue">
+                <img className="dashboard-badge-icon" src={`${import.meta.env.BASE_URL}Goal.png`} alt="Ziel" />
+              </Badge>
+            </Button>
+          )}
+          {streaks && streaks.dailyStreak > 0 && (
+            <Button iconOnly className="dashboard-badge-button" onClick={() => scrollTo(3)} aria-label="Zu Zielen">
+              <Badge count={streaks.dailyStreak} color="red">
+                <img className="dashboard-badge-icon" src={`${import.meta.env.BASE_URL}Flame.png`} alt="Streak" />
+              </Badge>
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Graph */}
