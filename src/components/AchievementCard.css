@@ -12,7 +12,7 @@
   cursor: pointer;
 }
 
-.achievement-card--disabled {
+.achievement-card.achievement-card--disabled {
   opacity: 0.5;
 }
 

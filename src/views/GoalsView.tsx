@@ -125,6 +125,35 @@ function GoalsView() {
     <div className="goals-view">
       <h1>Ziele</h1>
 
+      {/* Coaching summary — only with active goals */}
+      {activeGoals.length > 0 && hasDailyData && (() => {
+        const weightGoal = activeGoals.find(g => g.metricType === 'weight') || activeGoals[0]
+        const weightProj = projections.get(weightGoal.id) || null
+        return (
+          <CoachingSummary
+            currentWeight={currentWeight}
+            weeklyWeightChange={weeklyWeightChange}
+            activeGoal={weightGoal}
+            projection={weightProj}
+          />
+        )
+      })()}
+
+      {/* Streak card — always visible when streak > 0 */}
+      {streaks && streaks.dailyStreak > 0 && (
+        <div className="goals-view-streak-card core-card adaptive">
+          <img
+            className="goals-view-streak-img"
+            src={`${import.meta.env.BASE_URL}Flame.png`}
+            alt=""
+          />
+          <span className="goals-view-streak-text">
+            <strong>{streaks.dailyStreak}</strong> <span className="goals-view-streak-weak">{streaks.dailyStreak === 1 ? 'Tag' : 'Tage'} in Folge gewogen</span>
+          </span>
+        </div>
+      )}
+
+      {/* Goals section or empty state */}
       {hasGoals === false ? (
         <EmptyState
           message="Noch kein Ziel gesetzt"
@@ -133,32 +162,6 @@ function GoalsView() {
         />
       ) : activeGoals.length > 0 && (
         <>
-          {hasDailyData && (() => {
-            const weightGoal = activeGoals.find(g => g.metricType === 'weight') || activeGoals[0]
-            const weightProj = projections.get(weightGoal.id) || null
-            return (
-              <CoachingSummary
-                currentWeight={currentWeight}
-                weeklyWeightChange={weeklyWeightChange}
-                activeGoal={weightGoal}
-                projection={weightProj}
-              />
-            )
-          })()}
-
-          {streaks && streaks.dailyStreak > 0 && (
-            <div className="goals-view-streak-card core-card adaptive">
-              <img
-                className="goals-view-streak-img"
-                src={`${import.meta.env.BASE_URL}Flame.png`}
-                alt=""
-              />
-              <span className="goals-view-streak-text">
-                <strong>{streaks.dailyStreak}</strong> <span className="goals-view-streak-weak">{streaks.dailyStreak === 1 ? 'Tag' : 'Tage'} in Folge gewogen</span>
-              </span>
-            </div>
-          )}
-
           <Section title="Aktive Ziele">
             <motion.div className="goals-view-list" variants={staggerContainer} initial="initial" animate="animate">
               <AnimatePresence>
@@ -204,10 +207,11 @@ function GoalsView() {
             dailyMeasurements={dailyMeasurements}
             weeklyMeasurements={weeklyMeasurements}
           />
-
-          <AchievementSection achievements={achievements} />
         </>
       )}
+
+      {/* Achievements — always visible */}
+      <AchievementSection achievements={achievements} />
 
       <GoalCreateView
         open={showCreateGoal}
