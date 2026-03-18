@@ -31,9 +31,9 @@
 /* ── Eyes container ── */
 .mascot-eyes {
   position: absolute;
-  top: 30%;
-  left: 22%;
-  width: 42%;
+  top: 24%;
+  left: 24%;
+  width: 38%;
   display: flex;
   justify-content: space-between;
 }
