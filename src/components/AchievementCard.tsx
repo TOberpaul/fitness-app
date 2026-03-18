@@ -100,7 +100,12 @@ function AchievementCard({ achievement, icon, color, onClick }: AchievementCardP
       >
         {isNewAchievement(achievement) ? (
           isLocked ? (
-            <span className="achievement-card-status-icon" data-testid="achievement-icon-locked">🔒</span>
+            <img
+              className="achievement-card-icon-img"
+              src={`${import.meta.env.BASE_URL}Lock.png`}
+              alt=""
+              data-testid="achievement-icon-locked"
+            />
           ) : resolvedIcon && resolvedIcon.type === 'img' ? (
             <img
               className="achievement-card-icon-img"

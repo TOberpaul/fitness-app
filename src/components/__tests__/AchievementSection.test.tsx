@@ -85,7 +85,7 @@ describe('AchievementSection', () => {
     expect(cards[2].getAttribute('data-status')).toBe('locked')
   })
 
-  it('shows checkmark or image for earned and lock for locked (Req 4.4)', () => {
+  it('shows image icon for earned and lock image for locked (Req 4.4)', () => {
     const achievements: Achievement[] = [
       makeAchievement('weight-loss-5kg', '5 kg verloren', 'progress', 'earned', '2025-01-15'),
       makeAchievement('daily-streak-7', '7 Tage eingetragen', 'streak', 'locked'),
@@ -94,7 +94,7 @@ describe('AchievementSection', () => {
     const earnedIcon = container.querySelector('[data-testid="achievement-icon-earned"]')
     const lockedIcon = container.querySelector('[data-testid="achievement-icon-locked"]')
     expect(earnedIcon).not.toBeNull()
-    expect(lockedIcon?.textContent).toBe('🔒')
+    expect(lockedIcon).not.toBeNull()
   })
 
   it('renders compact cards without body text (Req 4.3)', () => {
@@ -180,7 +180,7 @@ describe('AchievementSection', () => {
           return result
         } else {
           const lockedIcon = container.querySelector('[data-testid="achievement-icon-locked"]')
-          const result = lockedIcon?.textContent === '🔒'
+          const result = lockedIcon !== null
           container.remove()
           return result
         }

@@ -23,6 +23,13 @@
   line-height: 1;
 }
 
+.achievement-streak-img {
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .achievement-streak-content {
   display: flex;
   flex-direction: column;
